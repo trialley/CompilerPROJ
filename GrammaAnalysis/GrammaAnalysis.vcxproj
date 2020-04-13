@@ -115,22 +115,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="codes.cpp" />
-    <ClCompile Include="execute.cpp" />
-    <ClCompile Include="gra.cpp" />
     <ClCompile Include="lex.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="symboltable.cpp" />
-    <ClCompile Include="tree.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="codes.h" />
-    <ClInclude Include="execute.h" />
-    <ClInclude Include="gra.h" />
-    <ClInclude Include="include.h" />
     <ClInclude Include="lex.h" />
-    <ClInclude Include="symboltable.h" />
-    <ClInclude Include="tree.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,9 +1,16 @@
-
 #pragma once
-#include"include.h"
 //SYM：存放每个单词的类别，为内部编码的表示形式。
 //ID：存放用户所定义的标识符的值，即标识符字符串的机内表示。
 //NUM：存放用户定义的数。
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <iostream>
+#include <vector> 
+#include <string> 
+#include <fstream>  
+#include <iomanip>
+using namespace std;
 
 #define NUMBER 29//数字的种类
 #define IDENT  30//标识符的种类
@@ -22,7 +29,8 @@ struct Lexword {
 
 class LexicalAnalysis {
 public:
-	LexicalAnalysis(string filename);
+	LexicalAnalysis();
+	void setFileName (string);
 	bool IsLetter(char letter);
 	bool IsDigit(char digit);
 	int Retract(char*te);

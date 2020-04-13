@@ -1,5 +1,5 @@
 #include "lex.h"
-
+#define dout cout
 /*暴露给外界的数据*/
 char symTB[29][15] = {
 "const","var","procedure","begin","end","odd","if","then","call","while","do","read","write",//0-12
@@ -12,10 +12,11 @@ int wordnum = 0;//标记文件中单词数量
 
 
 
-LexicalAnalysis::LexicalAnalysis (string filename) {
+LexicalAnalysis::LexicalAnalysis () {}
+
+void LexicalAnalysis::setFileName (string filename) {
 	this->filename = "../" + filename;
 }
-
 //******************************************
 //判断是否为字母
 bool LexicalAnalysis::IsLetter (char letter) {
@@ -100,63 +101,6 @@ char LexicalAnalysis::tran (char te) {
 	} else
 		return te;
 }
-//******************************************
-//过滤注释，并且统一将大写转换为小写
-//void LexicalAnalysis::deal()
-//{
-//	if (!sourfile.is_open() || !destfile.is_open()) {
-//		cout << "错误！源文件未打开成功\n";
-//		return;
-//	}
-//	char tempx;
-//
-//	do
-//	{
-//		tempx = sourfile.get();
-//		if (tempx == '/')
-//		{
-//			char tempy = sourfile.get();
-//			if (tempy == '/')
-//			{
-//				while (sourfile.get() != 10);
-//				tempx = sourfile.get();
-//			}
-//			else if (tempy == '*')
-//			{
-//				char tempz1 = sourfile.get();
-//				char tempz2 = sourfile.get();
-//
-//				while (!(tempz1 == '*'&&tempz2 == '/'))
-//				{
-//
-//					tempz1 = tempz2;
-//					tempz2 = sourfile.get();
-//					if (tempz1 == EOF || tempz2 == EOF)
-//					{
-//						tempx = EOF;
-//						break;
-//					}
-//
-//				}
-//
-//			}
-//			else
-//			{
-//
-//				destfile << tran(tempx) << tran(tempy);
-//
-//			}
-//		}
-//		else
-//		{
-//			//if (tempx != 10 && tempx != 13 && tempx != 9 && tempx != EOF )
-//			if (tempx != EOF)
-//				destfile << tran(tempx);
-//		}
-//	} while (tempx != EOF);
-//	return;
-//}
-//******************************************
 //根据文件，循环处理一个字符串，并输出到word以及文件以及终端
 int LexicalAnalysis::getsym () {
 
@@ -166,12 +110,12 @@ int LexicalAnalysis::getsym () {
 	}
 	int row = 1;
 	ch = ' ';
+	dout << left << setw (15) << "name" << left << setw (15) << "sym" << left << setw (15) << "value&addr" << left << setw (15) << "row" << "\n";
 	destfile << left << setw (15) << "name" << left << setw (15) << "sym" << left << setw (15) << "value&addr" << left << setw (15) << "row" << "\n";
 	while (ch != EOF) {
 		p = 0;
 		sourfile.get (ch);
-		while (ch == ' ' || ch == 10)//过滤空格与换行
-		{
+		while (ch == ' ' || ch == 10){//过滤空格与换行
 			if (ch == 10) {
 				row++;
 			}
@@ -182,13 +126,10 @@ int LexicalAnalysis::getsym () {
 			return 1;
 		}
 
-
-		if (IsLetter (ch))//读到的是字母，则要么是关键字，要么是标识符
-		{
+		if (IsLetter (ch)){//读到的是字母，则要么是关键字，要么是标识符
 			strToken[p++] = tran (ch);
 			sourfile.get (ch);
-			while (IsDigit (ch) || IsLetter (ch))//如果是数字或字母，则继续读取
-			{
+			while (IsDigit (ch) || IsLetter (ch)){//如果是数字或字母，则继续读取
 				strToken[p++] = tran (ch);
 				sourfile.get (ch);
 			}
@@ -200,14 +141,14 @@ int LexicalAnalysis::getsym () {
 				word[wordnum].sym = IDENT;
 				word[wordnum].row = row;
 				wordnum++;
-				//cout << left << setw(15) << idTB[value] << left << setw(15) << IDENT << left << setw(15) << value << "\n";
+				dout << left << setw(15) << idTB[value] << left << setw(15) << IDENT << left << setw(15) << value << "\n";
 				destfile << left << setw (15) << idTB[value] << left << setw (15) << IDENT << left << setw (15) << value << left << setw (15) << row << "\n";
 			} else {
 				word[wordnum].name = strToken;
 				word[wordnum].sym = code;
 				word[wordnum].row = row;
 				wordnum++;
-				//cout << left << setw(15) << symTB[code - 1] << left << setw(15) << code << left << setw(15) << other << "\n";
+				dout << left << setw(15) << symTB[code - 1] << left << setw(15) << code << left << setw(15) << other << "\n";
 				destfile << left << setw (15) << symTB[code - 1] << left << setw (15) << code << left << setw (15) << other << left << setw (15) << row << "\n";
 
 			}
@@ -229,7 +170,7 @@ int LexicalAnalysis::getsym () {
 			wordnum++;
 			string temp (strToken);
 			int num = atoi (temp.c_str ());
-			//cout << left << setw(15) << numTB[value] << left << setw(15) << NUMBER << left << setw(15) << value << "\n";
+			cout << left << setw(15) << numTB[value] << left << setw(15) << NUMBER << left << setw(15) << value << "\n";
 			destfile << left << setw (15) << numTB[value] << left << setw (15) << NUMBER << left << setw (15) << value << left << setw (15) << row << "\n";
 
 		} else if ((code = IsSoj (ch)) != -1) {
@@ -242,7 +183,7 @@ int LexicalAnalysis::getsym () {
 					word[wordnum].sym = code;
 					word[wordnum].row = row;
 					wordnum++;
-					//cout << left << setw(15) << strToken << left << setw(15) << code << left << setw(15) << other << "\n";
+					dout << left << setw(15) << strToken << left << setw(15) << code << left << setw(15) << other << "\n";
 					destfile << left << setw (15) << strToken << left << setw (15) << code << left << setw (15) << other << left << setw (15) << row << "\n";
 				} else {
 					sourfile.seekg (-1, ios::cur);//回退一格
@@ -259,7 +200,7 @@ int LexicalAnalysis::getsym () {
 					word[wordnum].sym = code;
 					word[wordnum].row = row;
 					wordnum++;
-					//cout << left << setw(15) << strToken << left << setw(15) << code << left << setw(15) << other << "\n";
+					dout << left << setw(15) << strToken << left << setw(15) << code << left << setw(15) << other << "\n";
 					destfile << left << setw (15) << strToken << left << setw (15) << code << left << setw (15) << other << left << setw (15) << row << "\n";
 				} else {
 					sourfile.seekg (-1, ios::cur);//回退一格
@@ -267,7 +208,7 @@ int LexicalAnalysis::getsym () {
 					word[wordnum].sym = code;
 					word[wordnum].row = row;
 					wordnum++;
-					//cout << left << setw(15) << strToken << left << setw(15) << code << left << setw(15) << other << "\n";
+					dout << left << setw(15) << strToken << left << setw(15) << code << left << setw(15) << other << "\n";
 					destfile << left << setw (15) << strToken << left << setw (15) << code << left << setw (15) << other << left << setw (15) << row << "\n";
 				}
 			} else {
@@ -275,7 +216,7 @@ int LexicalAnalysis::getsym () {
 				word[wordnum].sym = code;
 				word[wordnum].row = row;
 				wordnum++;
-				//cout << left << setw(15) << strToken << left << setw(15) << code << left << setw(15) << other << "\n";
+				dout << left << setw(15) << strToken << left << setw(15) << code << left << setw(15) << other << "\n";
 				destfile << left << setw (15) << strToken << left << setw (15) << code << left << setw (15) << other << left << setw (15) << row << "\n";
 			}
 
@@ -309,16 +250,4 @@ bool LexicalAnalysis::lexanalysis () {
 	if (flagint == 1)
 		flag = true;
 	return flag;
-	//printf("\n\n\n\n");
-	//printf("id table\n");
-	//for (int i = 0; i < id; i++)
-	//{
-	//	printf("%-15s%-15d\n", idTB[i], i);
-	//}
-	//printf("\n\n\n\n");
-	//printf("num table\n");
-	//for (int i = 0; i < num; i++)
-	//{
-	//	printf("%-15s%-15d\n", numTB[i], i);
-	//}
 }
