@@ -1,0 +1,125 @@
+·ûºÅ±í£º
+name      kind      value     level     addr      top       
+c1        const     2         --        --        0         
+v1        varible   --        0         3         0         
+v2        varible   --        0         4         0         
+v3        varible   --        0         5         0         
+v4        varible   --        0         6         0         
+p1        procedure --        0         2         1         
+v5        varible   --        1         3         1         
+p2        procedure --        0         51        2         
+c2        const     2         --        --        2         
+p3        procedure --        1         36        3         
+Ö¸Áî£º
+index  f     l     a     
+0     JMP   0     69    
+1     JMP   0     2     
+2     INT   0     4     
+3     LIT   0     2     
+4     STO   0     3     
+5     LOD   0     3     
+6     LIT   0     2     
+7     OPR   0     5     
+8     LIT   0     2     
+9     OPR   0     2     
+10    LIT   0     1     
+11    OPR   0     3     
+12    OPR   0     14    
+13    OPR   0     15    
+14    LOD   1     5     
+15    LIT   0     0     
+16    OPR   0     9     
+17    JPC   0     33    
+18    LOD   1     3     
+19    LOD   1     4     
+20    OPR   0     5     
+21    STO   1     6     
+22    LOD   1     3     
+23    LOD   1     6     
+24    LOD   1     4     
+25    OPR   0     4     
+26    OPR   0     3     
+27    STO   1     5     
+28    LOD   1     4     
+29    STO   1     3     
+30    LOD   1     5     
+31    STO   1     4     
+32    JMP   0     14    
+33    OPR   0     0     
+34    JMP   0     51    
+35    JMP   0     36    
+36    INT   0     3     
+37    LOD   2     3     
+38    LIT   0     1     
+39    OPR   0     9     
+40    JPC   0     50    
+41    LOD   2     3     
+42    LIT   0     1     
+43    OPR   0     3     
+44    STO   2     3     
+45    LOD   2     4     
+46    LOD   2     3     
+47    OPR   0     4     
+48    STO   2     4     
+49    CAL   1     36    
+50    OPR   0     0     
+51    INT   0     3     
+52    CAL   0     36    
+53    LIT   0     2     
+54    OPR   0     6     
+55    JPC   0     59    
+56    LIT   0     2     
+57    OPR   0     14    
+58    OPR   0     15    
+59    LIT   0     2     
+60    LIT   0     2     
+61    OPR   0     8     
+62    JPC   0     68    
+63    LIT   0     2     
+64    LIT   0     1     
+65    OPR   0     2     
+66    OPR   0     14    
+67    OPR   0     15    
+68    OPR   0     0     
+69    INT   0     7     
+70    OPR   0     16    
+71    STO   0     3     
+72    OPR   0     16    
+73    STO   0     4     
+74    LOD   0     3     
+75    LOD   0     4     
+76    OPR   0     10    
+77    JPC   0     84    
+78    LOD   0     3     
+79    STO   0     5     
+80    LOD   0     4     
+81    STO   0     3     
+82    LOD   0     5     
+83    STO   0     4     
+84    LIT   0     1     
+85    STO   0     5     
+86    CAL   0     2     
+87    LIT   0     2     
+88    OPR   0     14    
+89    OPR   0     15    
+90    LIT   0     2     
+91    LOD   0     3     
+92    OPR   0     4     
+93    OPR   0     14    
+94    OPR   0     15    
+95    LIT   0     2     
+96    LOD   0     3     
+97    OPR   0     4     
+98    LIT   0     2     
+99    OPR   0     5     
+100   OPR   0     14    
+101   OPR   0     15    
+102   OPR   0     16    
+103   STO   0     3     
+104   LOD   0     3     
+105   STO   0     4     
+106   CAL   0     51    
+107   LOD   0     4     
+108   OPR   0     14    
+109   OPR   0     15    
+110   OPR   0     0     
