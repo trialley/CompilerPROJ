@@ -1,0 +1,2 @@
+D:\Users\12037\Desktop\TACompiler\Debug\TACompiler.exe
+D:\Users\12037\Desktop\TACompiler\Debug\TACompiler.pdb
