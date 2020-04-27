@@ -1,47 +1,24 @@
-cmake_minimum_required(VERSION 3.8)
-project(PL0)
+cmake_minimum_required (VERSION 2.8.7)
+project (PL0)
 
-set(CMAKE_CXX_STANDARD 17)
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++17")
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++17")
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
-endif()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+set(SOURCES_DIRECTORY ${PROJECT_SOURCE_DIR}/src)
+set(INCLUDES_DIRECTORY ${PROJECT_SOURCE_DIR}/src)
 
-set(PARSING_SOURCE_FILES
-        src/parsing/lexer.cpp
-        src/parsing/lexer.h
-        src/parsing/parser.cpp
-        src/parsing/parser.h
-        src/parsing/scope.h
-        src/parsing/symbol.h
-        src/parsing/token.h)
+include_directories(${INCLUDES_DIRECTORY})
 
-set(AST_SOURCE_FILES
-        src/ast/ast.h
-        src/ast/ast.cpp
-        src/ast/pretty-printer.cpp
-        src/ast/pretty-printer.h
-        src/ast/dot-generator.cpp
-        src/ast/dot-generator.h)
+#set(PL0_DIRECTORY ${SOURCES_DIRECTORY}/)
+#foreach(dir ${PL0_DIRECTORY})
+# get directory sources and headers
+# set sources
+#endforeach()
 
-set(BYTECODE_SOURCE_FILES
-        src/bytecode/assembler.cpp
-        src/bytecode/assembler.h
-        src/bytecode/bytecode.h
-        src/bytecode/compiler.cpp
-        src/bytecode/compiler.h)
 
-set(SOURCE_FILES
-        ${PARSING_SOURCE_FILES}
-        ${AST_SOURCE_FILES}
-        ${BYTECODE_SOURCE_FILES}
-        src/main.cpp
-        src/util.h
-        src/vm.cpp
-        src/vm.h src/argparser.h)
+file(GLOB s_${SOURCES_DIRECTORY} "${SOURCES_DIRECTORY}/*.cpp")
+file(GLOB h_${SOURCES_DIRECTORY} "${SOURCES_DIRECTORY}/*.h")
+set(pl0_sources ${s_${SOURCES_DIRECTORY}} ${h_${SOURCES_DIRECTORY}})
 
-add_executable(PL0 ${SOURCE_FILES})
+# 测试部分
+add_executable(PL0 ${pl0_sources})

@@ -1,17 +1,17 @@
 #pragma once
 
-#include "targetver.h"
-
 #include <stdio.h>
 #include <tchar.h>
 
-#include "defines.h"
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <map>
+
+#include "defines.h"
+#include "targetver.h"
 
 using namespace std;
 
@@ -19,7 +19,7 @@ using namespace std;
 #define BUFFERLEN 1024
 
 /*关键字*/
-#define $BEGIN 1 
+#define $BEGIN 1
 #define $CALL 2
 #define $CONST 3
 #define $PROCEDURE 4
@@ -34,46 +34,44 @@ using namespace std;
 #define $VAR 13
 
 /*运算符*/
-#define $BIGGER 14 //>
-#define $BIGGER_EQ 15//<=
-#define $LOWER 16//<
-#define $LOWER_EQ 17 //>=
-#define $ASSIGN 18//:=
-#define $EQ 19//=
-#define $PLUS 20//+
-#define $POWER 21 //10//**
-#define $STAR 22//*
-#define $MINUS 29//-
-#define $DIV 30///
-#define $UEQ 31//#
+#define $BIGGER 14	   //>
+#define $BIGGER_EQ 15  //<=
+#define $LOWER 16	   //<
+#define $LOWER_EQ 17   //>=
+#define $ASSIGN 18	   //:=
+#define $EQ 19		   //=
+#define $PLUS 20	   //+
+#define $POWER 21	   //10//**
+#define $STAR 22	   //*
+#define $MINUS 29	   //-
+#define $DIV 30		   ///
+#define $UEQ 31		   //#
 
 /*分界符*/
-#define $SEMICOLON 23//;
-#define $LPAIR 24//(
-#define $RPAIR 25//)
-#define $LBRACE 26//{
-#define $RBRACE 27//}
-#define $COMMA 28//,
-
+#define $SEMICOLON 23  //;
+#define $LPAIR 24	   //(
+#define $RPAIR 25	   //)
+#define $LBRACE 26	   //{
+#define $RBRACE 27	   //}
+#define $COMMA 28	   //,
 
 /*标识符和数字*/
 #define $IDENT 32
-#define $NUMBER 33 
+#define $NUMBER 33
 
 #define INVALID -1
 
-
 #define RESERVE_LEN 13
 
-extern char* rsv_[];//关键字
+extern char* rsv_[];  //关键字
 
-enum SymbolKind{//符号类型
+enum SymbolKind {  //符号类型
 	CONST,
 	VAR,
 	PROD
 };
 
-enum FunctionCode{//目标指令
+enum FunctionCode {	 //目标指令
 	LIT,
 	LOD,
 	STO,
@@ -87,38 +85,34 @@ enum FunctionCode{//目标指令
 extern map<SymbolKind, const char*> symMap;
 extern map<FunctionCode, const char*> opMap;
 
-enum OPR{	//OPR指令中a域的取值
-	ADD=1,
-	SUB=2,
-	MUL=3,
-	DIV=4,
-	GT=5,
-	LT=6,
-	GE=7,
-	LE=8,
-	UE=9,
-	EQ=10,
-	WRITE=11,
-	READ=12,
-	MINUS=13,
-	ODD=14
+enum OPR {	//OPR指令中a域的取值
+	ADD = 1,
+	SUB = 2,
+	MUL = 3,
+	DIV = 4,
+	GT = 5,
+	LT = 6,
+	GE = 7,
+	LE = 8,
+	UE = 9,
+	EQ = 10,
+	WRITE = 11,
+	READ = 12,
+	MINUS = 13,
+	ODD = 14
 };
 
-
-typedef struct tuple3{//表示符号的三元组
-
-	int sym;			//词的词性
+struct tuple3 {				//表示符号的三元组
+	int sym;				//词的词性
 	char name[MAX_ID_LEN];	//名字
 	int row;				//所在行
 };
 
-typedef struct SYMBOL{
-
-	SYMBOL(){
-
+struct SYMBOL {
+	SYMBOL() {
 	}
 
-	SYMBOL(const char* name, SymbolKind kind, int val, int lev, int addr){
+	SYMBOL(const char* name, SymbolKind kind, int val, int lev, int addr) {
 		strcpy(this->name, name);
 		this->kind = kind;
 		this->val = val;
@@ -128,24 +122,21 @@ typedef struct SYMBOL{
 
 	char name[MAX_ID_LEN];	//名字
 	SymbolKind kind;		//类型
-	int val = -1;				//值
-	int lev;					//层次
-	int addr = -1;				//地址
+	int val = -1;			//值
+	int lev;				//层次
+	int addr = -1;			//地址
 };
 
-typedef struct CODE{
-
+struct CODE {
 	CODE(){};
-	CODE(FunctionCode fun, int lev, int offset){
-
+	CODE(FunctionCode fun, int lev, int offset) {
 		this->fun = fun;
 		this->lev = lev;
 		this->offset = offset;
 	}
-	FunctionCode fun;		//操作码
-	int lev;			//层次差
-	int offset;			//偏移量，也可做操作码
+	FunctionCode fun;  //操作码
+	int lev;		   //层次差
+	int offset;		   //偏移量，也可做操作码
 };
-
 
 // TODO:  在此处引用程序需要的其他头文件
