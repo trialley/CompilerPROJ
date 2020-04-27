@@ -4,7 +4,7 @@ parser::parser(const std::string& filename) {
 	wa = new lexer(filename);
 	wa->readLine();
 
-	t = wa->GETSYM();
+	t = wa->getSym();
 	if (t.sym == INVALID)
 		return;
 
@@ -34,7 +34,7 @@ void parser::BLOCK() {
 	dx = 3;
 
 	if (t.sym == $CONST) {	//是CONST声明
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
 
@@ -42,7 +42,7 @@ void parser::BLOCK() {
 
 		while (t.sym == $COMMA)	 //逗号
 		{
-			t = wa->GETSYM();
+			t = wa->getSym();
 			if (t.sym == INVALID)
 				return;
 
@@ -51,7 +51,7 @@ void parser::BLOCK() {
 
 		if (t.sym == $SEMICOLON) {	//遇到分号
 
-			t = wa->GETSYM();
+			t = wa->getSym();
 			if (t.sym == INVALID)
 				return;
 		} else {  //既不是逗号也不是分号
@@ -63,7 +63,7 @@ void parser::BLOCK() {
 	if (t.sym == $VAR) {  //是VAR声明
 
 		//cout << "变量说明部分！" << endl;
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
 
@@ -71,7 +71,7 @@ void parser::BLOCK() {
 
 		while (t.sym == $COMMA)	 //逗号
 		{
-			t = wa->GETSYM();
+			t = wa->getSym();
 			if (t.sym == INVALID)
 				return;
 
@@ -80,7 +80,7 @@ void parser::BLOCK() {
 
 		if (t.sym == $SEMICOLON) {	//遇到了分号
 
-			t = wa->GETSYM();
+			t = wa->getSym();
 			if (t.sym == INVALID)
 				return;
 		}
@@ -95,7 +95,7 @@ void parser::BLOCK() {
 
 		// cout << "过程说明部分！" << endl;
 
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
 
@@ -127,7 +127,7 @@ void parser::analyzeConst() {  //常量说明部分
 		char* id = new char[MAX_ID_LEN];
 		strcpy(id, t.name);
 
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
 
@@ -136,7 +136,7 @@ void parser::analyzeConst() {  //常量说明部分
 			// 如果不是等号，而是赋值符号:=，抛出1号错误
 			error(19, wa->row);
 		} else if (t.sym == $EQ) {
-			t = wa->GETSYM();
+			t = wa->getSym();
 			if (t.sym == INVALID)
 				return;
 
@@ -146,7 +146,7 @@ void parser::analyzeConst() {  //常量说明部分
 					error(109, wa->row);
 				/*重定义*/;	 //插入到符号表失败
 
-				t = wa->GETSYM();
+				t = wa->getSym();
 				if (t.sym == INVALID)
 					return;
 			}
@@ -181,7 +181,7 @@ void parser::analyzeVar() {	 //变量说明部分
 			error(109, wa->row);
 		/*重定义*/
 
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;	 //取下一个词
 	} else {
@@ -199,7 +199,7 @@ void parser::analyzePro() {	 //过程说明部分
 			error(109, wa->row);
 		/*重定义*/
 
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
 	} else {
@@ -208,7 +208,7 @@ void parser::analyzePro() {	 //过程说明部分
 	}
 
 	if (t.sym == $SEMICOLON) {
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
 	} else {  //过程名没有以分号结束
@@ -227,13 +227,13 @@ void parser::analyzePro() {	 //过程说明部分
 
 	if (t.sym == $SEMICOLON) {	//end;后的符号。这里有问题
 
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
 
 		while (t.sym == $PROCEDURE) {  //如果还有并列的过程说明
 
-			t = wa->GETSYM();
+			t = wa->getSym();
 			analyzePro();
 		}
 	} else {
@@ -261,13 +261,13 @@ void parser::analyzeSent() {
 			error(110, wa->row);
 		}
 
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
 
 		if (t.sym == $ASSIGN) {	 //是赋值号
 
-			t = wa->GETSYM();
+			t = wa->getSym();
 			if (t.sym == INVALID)
 				return;
 		} else {
@@ -285,7 +285,7 @@ void parser::analyzeSent() {
 	}
 
 	case $CALL: {
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
 
@@ -309,7 +309,7 @@ void parser::analyzeSent() {
 				error(34, wa->row);
 			}
 
-			t = wa->GETSYM();
+			t = wa->getSym();
 			if (t.sym == INVALID)
 				return;
 		}
@@ -318,7 +318,7 @@ void parser::analyzeSent() {
 	}
 
 	case $IF: {
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
 
@@ -327,7 +327,7 @@ void parser::analyzeSent() {
 		cx++;
 
 		if (t.sym == $THEN) {
-			t = wa->GETSYM();
+			t = wa->getSym();
 			if (t.sym == INVALID)
 				return;
 
@@ -347,7 +347,7 @@ void parser::analyzeSent() {
 	}
 
 	case $BEGIN: {
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
 
@@ -357,14 +357,14 @@ void parser::analyzeSent() {
 
 			if (t.sym == $SEMICOLON) {	//t为";",说明后面还有语句
 
-				t = wa->GETSYM();
+				t = wa->getSym();
 				if (t.sym == INVALID)
 					return;
 
 				analyzeSent();
 			} else if (t.sym == $END) {	 //t为end，表示复合语句结束
 
-				t = wa->GETSYM();
+				t = wa->getSym();
 				//if (t.sym == INVALID) return;
 				return;
 			}
@@ -384,7 +384,7 @@ void parser::analyzeSent() {
 	case $WHILE: {
 		cx1 = cx;  // 记录当前代码分配位置，这是while循环的开始位置，也就是无条件跳转到的地方
 
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
 
@@ -394,7 +394,7 @@ void parser::analyzeSent() {
 		cx++;	   //占一个Code位置
 
 		if (t.sym == $DO) {
-			t = wa->GETSYM();
+			t = wa->getSym();
 			if (t.sym == INVALID)
 				return;
 
@@ -411,12 +411,12 @@ void parser::analyzeSent() {
 	}
 
 	case $READ: {
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
 
 		if (t.sym == $LPAIR) {
-			t = wa->GETSYM();
+			t = wa->getSym();
 			if (t.sym == INVALID)
 				return;
 
@@ -435,13 +435,13 @@ void parser::analyzeSent() {
 				}
 			}
 
-			t = wa->GETSYM();
+			t = wa->getSym();
 			if (t.sym == INVALID)
 				return;
 
 			while (t.sym == $COMMA) {  //读多个键盘输入
 
-				t = wa->GETSYM();
+				t = wa->getSym();
 				if (t.sym == INVALID)
 					return;
 
@@ -458,7 +458,7 @@ void parser::analyzeSent() {
 					}
 				}
 
-				t = wa->GETSYM();
+				t = wa->getSym();
 				if (t.sym == INVALID)
 					return;
 			}
@@ -473,7 +473,7 @@ void parser::analyzeSent() {
 			error(29, wa->row);
 		}
 
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
 
@@ -481,17 +481,17 @@ void parser::analyzeSent() {
 	}
 
 	case $WRITE: {
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
 
 		if (t.sym == $LPAIR) {
-			t = wa->GETSYM();
+			t = wa->getSym();
 			analyzeExpr();
 			GEN(OPR, 0, OPR::WRITE);
 
 			while (t.sym == $COMMA) {
-				t = wa->GETSYM();
+				t = wa->getSym();
 				if (t.sym == INVALID)
 					return;
 
@@ -504,7 +504,7 @@ void parser::analyzeSent() {
 				/*左右括号不匹配*/
 				error(31, wa->row);
 			} else {
-				t = wa->GETSYM();
+				t = wa->getSym();
 				if (t.sym == INVALID)
 					return;
 			}
@@ -523,7 +523,7 @@ void parser::analyzeCond() {
 	int relop;
 	if (t.sym == $ODD) {  //一元运算符
 
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
 
@@ -538,7 +538,7 @@ void parser::analyzeCond() {
 		analyzeExpr();	//分析左边表达式
 		relop = t.sym;	//保存二元运算符
 
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
 
@@ -588,7 +588,7 @@ void parser::analyzeExpr() {
 
 		addop = t.sym;
 
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
 
@@ -605,7 +605,7 @@ void parser::analyzeExpr() {
 	while (t.sym == $PLUS || t.sym == $MINUS) {
 		addop = t.sym;	//算术运算符保存在addop中
 
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
 
@@ -630,7 +630,7 @@ void parser::analyzeTerm() {
 	while (t.sym == $STAR || t.sym == $DIV) {
 		mulop = t.sym;	/// 把运算符保存在mulop中(乘法或是除法)
 
-		t = wa->GETSYM();
+		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
 
@@ -662,7 +662,7 @@ void parser::analyzeElem() {
 				//codeTable.push_back(CODE(LIT, 0, symbolTable.at(i).val));
 				GEN(LIT, 0, symbolTable.at(i).val);
 
-				t = wa->GETSYM();
+				t = wa->getSym();
 				if (t.sym == INVALID)
 					return;
 			}
@@ -673,13 +673,13 @@ void parser::analyzeElem() {
 				GEN(LOD, lev - symbolTable.at(i).lev,
 					symbolTable.at(i).addr);
 
-				t = wa->GETSYM();
+				t = wa->getSym();
 				if (t.sym == INVALID)
 					return;
 			} else if (symbolTable.at(i).kind == SymbolKind::PROD) {
 				/*该标识符为过程名，出错*/
 				error(43, wa->row);
-				t = wa->GETSYM();
+				t = wa->getSym();
 				if (t.sym == INVALID)
 					return;
 			}
@@ -694,7 +694,7 @@ void parser::analyzeElem() {
 			//codeTable.push_back(CODE(LIT, 0, num));// 生成lit指令，把这个数值字面常量放到栈顶
 			GEN(LIT, 0, num);
 
-			t = wa->GETSYM();
+			t = wa->getSym();
 			if (t.sym == INVALID)
 				return;
 
@@ -702,14 +702,14 @@ void parser::analyzeElem() {
 		}
 
 		case $LPAIR: {
-			t = wa->GETSYM();
+			t = wa->getSym();
 			if (t.sym == INVALID)
 				return;
 
 			analyzeExpr();
 
 			if (t.sym == $RPAIR) {
-				t = wa->GETSYM();
+				t = wa->getSym();
 				if (t.sym == INVALID)
 					return;
 			} else {

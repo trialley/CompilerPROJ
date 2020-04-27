@@ -103,7 +103,7 @@ int lexer::Reserve(const char* strToken) {	//在关键字表中查询，返回保留字的编码
 	return 0;  //没找到保留字
 }
 
-tuple3 lexer::GETSYM() {
+tuple3 lexer::getSym() {
 	int code, value;
 	tuple3 t;
 	char strToken[MAX_ID_LEN];
@@ -145,31 +145,18 @@ tuple3 lexer::GETSYM() {
 		code = Reserve(strToken);  //返回关键字的编码
 
 		if (!code) {  //不在关键字表中，是标识符
-
 			t.sym = $IDENT;
 			strcpy(t.name, strToken);
-
-			cout << "标识符"
-				 << "\t";
-			cout << t.name << endl;
+			cout << "symbol:" << t.name << endl;
 			return t;
 
-		}
-
-		else  //是关键字
-		{
+		} else {
 			t.sym = code;
-
-			cout << "关键字"
-				 << "\t";
-			cout << rsv_[code - 1] << endl;
+			cout << "key word:" << rsv_[code - 1] << endl;
 			return t;
 		}
 
-	}
-
-	else if (IsDigit(ch)) {	 //start with digit,which means it is a constant
-
+	} else if (IsDigit(ch)) {
 		while (IsDigit(ch)) {
 			char s[2];
 			s[0] = ch, s[1] = '\0';
@@ -188,14 +175,13 @@ tuple3 lexer::GETSYM() {
 		t.sym = $NUMBER;
 		strcpy(t.name, strToken);
 
-		cout << "数字"
-			 << "\t";
-		cout << t.name << endl;
+		cout << "number:" << t.name << endl;
 		return t;
-
 	}
 
-	else if (ch == '>') {
+	cout << "opeartor:";
+	if (ch == '>') {
+		cout << "opeartor:";
 		try {
 			GetChar();
 		} catch (exception e) {
@@ -216,9 +202,8 @@ tuple3 lexer::GETSYM() {
 			return t;
 		}
 
-	}
-
-	else if (ch == '<') {
+	} else if (ch == '<') {
+		cout << "opeartor:";
 		try {
 			GetChar();
 		} catch (exception e) {
@@ -241,18 +226,17 @@ tuple3 lexer::GETSYM() {
 		}
 
 	} else if (ch == '=') {
+		cout << "opeartor:";
 		t.sym = $EQ;
 		cout << "=" << endl;
 		return t;
-	}
-
-	else if (ch == '#') {
+	} else if (ch == '#') {
+		cout << "opeartor:";
 		t.sym = $UEQ;
 		cout << "#" << endl;
 		return t;
-	}
-
-	else if (ch == ':') {
+	} else if (ch == ':') {
+		cout << "opeartor:";
 		try {
 			GetChar();
 		}
@@ -272,9 +256,7 @@ tuple3 lexer::GETSYM() {
 			Retract();
 			/*:后面不是=*/
 		}
-	}
-
-	else if (ch == '+') {
+	} else if (ch == '+') {
 		t.sym = $PLUS;
 
 		cout << "+" << endl;
@@ -304,15 +286,11 @@ tuple3 lexer::GETSYM() {
 			return t;
 		}
 
-	}
-
-	else if (ch == '/') {
+	} else if (ch == '/') {
 		t.sym = $DIV;
 		cout << "/" << endl;
 		return t;
-	}
-
-	else if (ch == ',') {
+	} else if (ch == ',') {
 		t.sym = $COMMA;
 
 		cout << "," << endl;
