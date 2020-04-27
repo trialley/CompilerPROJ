@@ -1,14 +1,14 @@
 /*语法分析程序*/
-#ifndef SYNTAXANAL_H
-#define SYNTAXANAL_H
+#ifndef parser_H
+#define parser_H
 
 #include <string>
 
 #include "defines.h"
 #include "lexer.h"
-class SyntaxAnal {
+class parser {
    public:
-	SyntaxAnal(const std::string&);
+	parser(const std::string&);
 
 	void BLOCK();		  //语法分析
 	void analyzeConst();  //常量说明部分

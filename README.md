@@ -3,8 +3,8 @@
 ## Files
 define.h		定义结构体、枚举类型和常量
 lexer.h		词法分析器，被语法分析器调用
-SyntaxAnal.h	语法分析及目标代码生成
-Iterpreter.h	解释和执行目标代码
+parser.h	语法分析及目标代码生成
+vm.h	解释和执行目标代码
 
 ## Features
 

@@ -1,6 +1,6 @@
-#include "SyntaxAnal.h"
+#include "parser.h"
 
-SyntaxAnal::SyntaxAnal(const std::string& filename) {
+parser::parser(const std::string& filename) {
 	wa = new lexer(filename);
 	wa->readLine();
 
@@ -30,7 +30,7 @@ SyntaxAnal::SyntaxAnal(const std::string& filename) {
 	}
 }
 
-void SyntaxAnal::BLOCK() {
+void parser::BLOCK() {
 	lev++;
 	dx = 3;
 
@@ -107,12 +107,12 @@ void SyntaxAnal::BLOCK() {
 	GEN(OPR, 0, 0);	 //退出这个过程
 }
 
-void SyntaxAnal::GEN(FunctionCode fun, int lev, int offset) {
+void parser::GEN(FunctionCode fun, int lev, int offset) {
 	codeTable.push_back(CODE(fun, lev, offset));
 	cx++;
 }
 
-void SyntaxAnal::analyzeConst() {  //常量说明部分
+void parser::analyzeConst() {  //常量说明部分
 
 	//cout << "常量说明部分！" << endl;
 
@@ -159,7 +159,7 @@ void SyntaxAnal::analyzeConst() {  //常量说明部分
 	}
 }
 
-void SyntaxAnal::analyzeVar() {	 //变量说明部分
+void parser::analyzeVar() {	 //变量说明部分
 
 	//cout << "变量说明部分！" << endl;
 
@@ -180,7 +180,7 @@ void SyntaxAnal::analyzeVar() {	 //变量说明部分
 	}
 }
 
-void SyntaxAnal::analyzePro() {	 //过程说明部分
+void parser::analyzePro() {	 //过程说明部分
 
 	if (t.sym == $IDENT) {
 		char* id = new char[MAX_ID_LEN];
@@ -229,7 +229,7 @@ void SyntaxAnal::analyzePro() {	 //过程说明部分
 	}
 }
 
-void SyntaxAnal::analyzeSent() {
+void parser::analyzeSent() {
 	int i;
 	int cx1;
 	int cx2;
@@ -487,7 +487,7 @@ void SyntaxAnal::analyzeSent() {
 	}
 }
 
-void SyntaxAnal::analyzeCond() {
+void parser::analyzeCond() {
 	int relop;
 	if (t.sym == $ODD) {  //一元运算符
 
@@ -548,7 +548,7 @@ void SyntaxAnal::analyzeCond() {
 	}
 }
 
-void SyntaxAnal::analyzeExpr() {
+void parser::analyzeExpr() {
 	int addop;
 	if (t.sym == $PLUS || t.sym == $MINUS) {  //表达式以正负开头
 
@@ -586,7 +586,7 @@ void SyntaxAnal::analyzeExpr() {
 	}
 }
 
-void SyntaxAnal::analyzeTerm() {
+void parser::analyzeTerm() {
 	int mulop;
 
 	analyzeElem();
@@ -609,7 +609,7 @@ void SyntaxAnal::analyzeTerm() {
 	}
 }
 
-void SyntaxAnal::analyzeElem() {
+void parser::analyzeElem() {
 	int i;
 	while (t.sym == $IDENT || t.sym == $NUMBER || t.sym == $LPAIR) {
 		switch (t.sym) {
@@ -680,7 +680,7 @@ void SyntaxAnal::analyzeElem() {
 	}
 }
 
-bool SyntaxAnal::insertSymbol(SymbolKind kind, const char* id) {
+bool parser::insertSymbol(SymbolKind kind, const char* id) {
 	if (searchSymbol(id) >= 0)	//已经找到符号的声明
 		return false;
 
@@ -707,7 +707,7 @@ bool SyntaxAnal::insertSymbol(SymbolKind kind, const char* id) {
 	return true;
 }
 
-int SyntaxAnal::searchSymbol(const char* id) {
+int parser::searchSymbol(const char* id) {
 	for (int i = 0; i < symbolTable.size(); i++) {
 		SYMBOL s = symbolTable.at(i);
 		if (!strcmp(id, s.name) && lev >= s.lev)  //s在当前层及以上且名字相同
@@ -717,7 +717,7 @@ int SyntaxAnal::searchSymbol(const char* id) {
 	return -1;
 }
 
-int SyntaxAnal::error(int e, int eline) {
+int parser::error(int e, int eline) {
 	ostringstream oss;
 
 	switch (e) {
@@ -1026,7 +1026,7 @@ int SyntaxAnal::error(int e, int eline) {
 	return e;
 }
 
-void SyntaxAnal::printTable() {
+void parser::printTable() {
 	for (int i = 0; i < symbolTable.size(); i++) {
 		SYMBOL symbol = symbolTable.at(i);
 
@@ -1045,7 +1045,7 @@ void SyntaxAnal::printTable() {
 	}
 }
 
-void SyntaxAnal::printCode() {
+void parser::printCode() {
 	for (int i = 0; i < codeTable.size(); i++) {
 		CODE inst = codeTable.at(i);
 
@@ -1056,7 +1056,7 @@ void SyntaxAnal::printCode() {
 	}
 }
 
-void SyntaxAnal::generateFile(const char* filename) {
+void parser::generateFile(const char* filename) {
 	char _Drive[9];	 //文件后缀
 	char _Dir[99];
 	char _Filename[99];

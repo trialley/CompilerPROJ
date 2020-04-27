@@ -1,13 +1,13 @@
 #include <iostream>
 
-#include "Iterpreter.h"
+#include "vm.h"
 
 // string source;
 // // ;
 // cout << "请输入你想要编译的源文件路径:" << endl;
 // cin >> source;
 
-// SyntaxAnal a(source);
+// parser a(source);
 
 // cout << endl;
 // cout << "符号表中内容如下:" << endl;
@@ -24,12 +24,12 @@
 // cout << "请输入你想要执行的目标代码文件路径：" << endl;
 // cin >> target;
 
-// Iterpreter t(target);
+// vm t(target);
 
 void tests() {
 	std::vector<std::string> inFilePaths;
 	for (auto path : inFilePaths) {
-		SyntaxAnal a(source);
+		parser a(source);
 	}
 }
 void run(int argc, const char* argv[]) {
