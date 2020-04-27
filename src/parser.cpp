@@ -1,5 +1,6 @@
 #include "parser.h"
 
+#include <iomanip>
 parser::parser(const std::string& filename) {
 	wa = new lexer(filename);
 	wa->readLine();
@@ -1070,21 +1071,30 @@ int parser::error(int e, int eline) {
 }
 
 void parser::printTable() {
+	cout << setiosflags(ios::left) << setw(12) << "name"
+		 << setiosflags(ios::left) << setw(12) << "sym"
+		 << setiosflags(ios::left) << setw(12) << "value"
+		 << setiosflags(ios::left) << setw(12) << "level"
+		 << setiosflags(ios::left) << setw(12) << "address" << endl;
+
 	for (int i = 0; i < symbolTable.size(); i++) {
 		SYMBOL symbol = symbolTable.at(i);
 
-		cout << "name:" << symbol.name << "\t";
+		cout << setiosflags(ios::left) << setw(12) << symbol.name;
 
 		if (symMap.find(symbol.kind) != symMap.end())
-			cout << "sym:" << symMap[symbol.kind] << "\t";
-		else
-			cout << "sym:"
-				 << "ц╩сп"
-				 << "\t";
-
-		cout << "val:" << symbol.val << "\t";
-		cout << "lev:" << symbol.lev << "\t";
-		cout << "addr:" << symbol.addr << endl;
+			cout << setiosflags(ios::left) << setw(12) << symMap[symbol.kind];
+		/*
+		name
+sym
+ "val:" 
+ "lev:" 
+ "addr:"
+*/
+		cout << setiosflags(ios::left) << setw(12) << symbol.val
+			 << setiosflags(ios::left) << setw(12) << symbol.lev
+			 << setiosflags(ios::left) << setw(12) << symbol.addr
+			 << endl;
 	}
 }
 

@@ -17,7 +17,7 @@ void tests() {
 		try {
 			parser a(path);
 			std::cout << endl;
-			std::cout << "file" << path << "table:" << endl;
+			std::cout << "file " << path << " symbol table:" << endl;
 			a.printTable();
 		} catch (std::exception& ex) {
 			std::cout << "file: " << path << "has some problems." << std::endl;

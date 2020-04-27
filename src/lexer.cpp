@@ -11,9 +11,9 @@ lexer::lexer(const std::string& filename) {
 }
 
 void lexer::initMap() {
-	symMap[CONST] = "CONST";
-	symMap[VAR] = "VAR ";
-	symMap[PROD] = "PROD";
+	symMap[CONST] = "CONSTANT";
+	symMap[VAR] = "VARIABLE";
+	symMap[PROD] = "PROCEDURE";
 
 	opMap[LIT] = "LIT";
 	opMap[LOD] = "LOD";
