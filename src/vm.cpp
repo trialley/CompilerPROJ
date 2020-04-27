@@ -48,156 +48,156 @@ void vm::runInst() {
 	int temp;
 
 	switch (inst.fun) {
-		case LIT:  //常量放栈顶
-			stack[++sp] = inst.offset;
-			break;
+	case LIT:  //常量放栈顶
+		stack[++sp] = inst.offset;
+		break;
 
-		case LOD:  //变量放栈顶
-		{
-			int tempBp = stack[bp + 2];
-			int levOffset = inst.lev;
+	case LOD:  //变量放栈顶
+	{
+		int tempBp = stack[bp + 2];
+		int levOffset = inst.lev;
 
-			while (levOffset-- != 0) {	//沿着静态链往外层找
-				tempBp = stack[tempBp + 2];
-			}
-
-			temp = stack[tempBp + inst.offset];
-			stack[++sp] = temp;
-			break;
+		while (levOffset-- != 0) {	//沿着静态链往外层找
+			tempBp = stack[tempBp + 2];
 		}
 
-		case STO:  //栈顶内容存到变量中
-		{
-			int tempBp = stack[bp + 2];
-			int levOffset = inst.lev;
+		temp = stack[tempBp + inst.offset];
+		stack[++sp] = temp;
+		break;
+	}
 
-			while (levOffset-- != 0) {	//沿着静态链往外层找
-				tempBp = stack[tempBp + 2];
-			}
+	case STO:  //栈顶内容存到变量中
+	{
+		int tempBp = stack[bp + 2];
+		int levOffset = inst.lev;
 
-			temp = stack[sp];
-			stack[tempBp + inst.offset] = temp;
-
-			break;
+		while (levOffset-- != 0) {	//沿着静态链往外层找
+			tempBp = stack[tempBp + 2];
 		}
 
-		case CAL:
-			stack[sp + 1] = bp;					 //push bp.老bp，即动态链
-			stack[sp + 2] = ip;					 //返回地址
-			stack[sp + 3] = SL[lev - inst.lev];	 //静态链
+		temp = stack[sp];
+		stack[tempBp + inst.offset] = temp;
 
-			lev = lev - inst.lev;
+		break;
+	}
 
-			SL.push_back(bp);  //保存当前运行的bp.每call一次保存一次
-			bp = sp + 1;	   //记录被调用过程的基地址
-			ip = inst.offset;
+	case CAL:
+		stack[sp + 1] = bp;					 //push bp.老bp，即动态链
+		stack[sp + 2] = ip;					 //返回地址
+		stack[sp + 3] = SL[lev - inst.lev];	 //静态链
+
+		lev = lev - inst.lev;
+
+		SL.push_back(bp);  //保存当前运行的bp.每call一次保存一次
+		bp = sp + 1;	   //记录被调用过程的基地址
+		ip = inst.offset;
+		break;
+
+	case INT:
+		sp += inst.offset;	//栈顶加a
+		break;
+
+	case JMP:
+		ip = inst.offset;  //ip转到a
+		break;
+
+	case JPC:
+
+		if (!stack[sp])		   //栈顶布尔值为非真
+			ip = inst.offset;  //转到a的地址
+		break;
+
+	case OPR:  //关系和算术运算
+	{
+		switch (inst.offset) {
+		case OPR::ADD:
+			temp = stack[sp - 1] + stack[sp];
+			stack[--sp] = temp;
 			break;
 
-		case INT:
-			sp += inst.offset;	//栈顶加a
+		case OPR::SUB:
+			temp = stack[sp - 1] - stack[sp];
+			stack[--sp] = temp;
 			break;
 
-		case JMP:
-			ip = inst.offset;  //ip转到a
+		case OPR::DIV:
+			temp = stack[sp - 1] / stack[sp];
+			stack[--sp] = temp;
 			break;
 
-		case JPC:
-
-			if (!stack[sp])		   //栈顶布尔值为非真
-				ip = inst.offset;  //转到a的地址
+		case OPR::MINUS:
+			stack[sp] = -stack[sp];
 			break;
 
-		case OPR:  //关系和算术运算
-		{
-			switch (inst.offset) {
-				case OPR::ADD:
-					temp = stack[sp - 1] + stack[sp];
-					stack[--sp] = temp;
-					break;
-
-				case OPR::SUB:
-					temp = stack[sp - 1] - stack[sp];
-					stack[--sp] = temp;
-					break;
-
-				case OPR::DIV:
-					temp = stack[sp - 1] / stack[sp];
-					stack[--sp] = temp;
-					break;
-
-				case OPR::MINUS:
-					stack[sp] = -stack[sp];
-					break;
-
-				case OPR::MUL:
-					temp = stack[sp - 1] * stack[sp];
-					stack[--sp] = temp;
-					break;
-
-				case OPR::EQ:
-					temp = (stack[sp - 1] - stack[sp] == 0);
-					stack[--sp] = temp;
-					break;
-
-				case OPR::UE:
-					temp = (stack[sp - 1] - stack[sp] != 0);
-					stack[--sp] = temp;
-					break;
-
-				case OPR::GE:
-					temp = (stack[sp - 1] - stack[sp] >= 0);
-					stack[--sp] = temp;
-					break;
-
-				case OPR::GT:
-					temp = (stack[sp - 1] - stack[sp] > 0);
-					stack[--sp] = temp;
-					break;
-
-				case OPR::LE:
-					temp = (stack[sp - 1] - stack[sp] <= 0);
-					stack[--sp] = temp;
-					break;
-
-				case OPR::LT:
-					temp = (stack[sp - 1] - stack[sp] < 0);
-					stack[--sp] = temp;
-					break;
-
-				case OPR::ODD:	//判断栈顶操作数是否为奇数
-					stack[sp] = (stack[sp] % 2 == 1);
-					break;
-
-				case OPR::WRITE:
-					writeMem(sp--);	 //输出栈顶的运算结果,并将栈顶-1
-					break;
-
-				case OPR::READ:
-					readMem();
-					break;
-
-				case 0:	 //退出数据区，退出子程序
-					sp = bp - 1;
-					ip = stack[bp + 1];	 //返回地址
-					bp = stack[bp];		 //动态链的地址
-
-					SL.pop_back();	//去掉
-
-					if (sp == -1) {
-						printStack();
-						exit(0);
-					}  //主程序结束
-					break;
-
-				default:
-					break;
-			}
+		case OPR::MUL:
+			temp = stack[sp - 1] * stack[sp];
+			stack[--sp] = temp;
 			break;
-		}
+
+		case OPR::EQ:
+			temp = (stack[sp - 1] - stack[sp] == 0);
+			stack[--sp] = temp;
+			break;
+
+		case OPR::UE:
+			temp = (stack[sp - 1] - stack[sp] != 0);
+			stack[--sp] = temp;
+			break;
+
+		case OPR::GE:
+			temp = (stack[sp - 1] - stack[sp] >= 0);
+			stack[--sp] = temp;
+			break;
+
+		case OPR::GT:
+			temp = (stack[sp - 1] - stack[sp] > 0);
+			stack[--sp] = temp;
+			break;
+
+		case OPR::LE:
+			temp = (stack[sp - 1] - stack[sp] <= 0);
+			stack[--sp] = temp;
+			break;
+
+		case OPR::LT:
+			temp = (stack[sp - 1] - stack[sp] < 0);
+			stack[--sp] = temp;
+			break;
+
+		case OPR::ODD:	//判断栈顶操作数是否为奇数
+			stack[sp] = (stack[sp] % 2 == 1);
+			break;
+
+		case OPR::WRITE:
+			writeMem(sp--);	 //输出栈顶的运算结果,并将栈顶-1
+			break;
+
+		case OPR::READ:
+			readMem();
+			break;
+
+		case 0:	 //退出数据区，退出子程序
+			sp = bp - 1;
+			ip = stack[bp + 1];	 //返回地址
+			bp = stack[bp];		 //动态链的地址
+
+			SL.pop_back();	//去掉
+
+			if (sp == -1) {
+				printStack();
+				exit(0);
+			}  //主程序结束
+			break;
 
 		default:
-			/*操作码错误*/
 			break;
+		}
+		break;
+	}
+
+	default:
+		/*操作码错误*/
+		break;
 	}
 
 	printStack();

@@ -5,7 +5,7 @@
 #include "defines.h"
 
 class lexer {
-   public:
+public:
 	lexer(const std::string&);
 
 	void initMap();
@@ -26,7 +26,7 @@ class lexer {
 
 	int row = 0;  //在文件的第几行
 
-   private:
+private:
 	FILE* fp;  //源文件的指针
 
 	char buffer[BUFFERLEN];	 //读入缓冲区

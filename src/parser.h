@@ -1,13 +1,12 @@
-/*语法分析程序*/
-#ifndef parser_H
-#define parser_H
+#pragma once
 
 #include <string>
 
 #include "defines.h"
 #include "lexer.h"
+
 class parser {
-   public:
+public:
 	parser(const std::string&);
 
 	void BLOCK();		  //语法分析
@@ -30,13 +29,13 @@ class parser {
 	void printTable();
 	void printCode();
 
-	void generateFile(const char* filename);  //生成目标文件
+	void generateFile(const std::string&);	//生成目标文件
 
 	int error(int e, int eline);  //错误处理
 
 	vector<CODE> codeTable;	 //代码表
 
-   private:
+private:
 	lexer* wa;	//词法分析器
 	tuple3 t;	//词法分析器取到的单词符号
 
@@ -54,5 +53,3 @@ class parser {
 	string errors[100];	 //存储的错误信息
 	int etop = 0;		 //错误信息栈顶
 };
-
-#endif

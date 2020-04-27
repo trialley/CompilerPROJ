@@ -1,6 +1,4 @@
-/*解释器程序*/
-#ifndef ITERPRETR_H
-#define ITERPRETR_H
+#pragma once
 
 #include <iostream>
 
@@ -9,7 +7,7 @@
 using namespace std;
 
 class vm {
-   public:
+public:
 	vm(const char* filename);
 	void run();		 //循环执行目标文件中指令
 	void runInst();	 //执行一条指令
@@ -21,7 +19,7 @@ class vm {
 
 	void readPl0(const char* filename);	 //读取目标文件
 
-   private:
+private:
 	CODE inst;	//指令寄存器
 	int ip;		//程序计数器
 	int sp;		//栈顶寄存器
@@ -33,5 +31,3 @@ class vm {
 	int lev;		 //保存当前活动记录的静态层数
 	vector<int> SL;	 //静态链
 };
-
-#endif

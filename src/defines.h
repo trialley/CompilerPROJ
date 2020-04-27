@@ -1,8 +1,7 @@
 #pragma once
 
-#include <stdio.h>
-#include <tchar.h>
-
+#include <cstdio>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -11,7 +10,6 @@
 #include <vector>
 
 #include "defines.h"
-#include "targetver.h"
 
 using namespace std;
 

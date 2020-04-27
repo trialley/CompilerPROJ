@@ -1,34 +1,31 @@
-#include <filesystem>
+// #include <filesystem>
+#include <stdio.h>
+#include <unistd.h>
+
 #include <iostream>
 #include <string>
 #include <vector>
 
-#include "vm.h"
-// string source;
-// // ;
-// cout << "请输入你想要编译的源文件路径:" << endl;
-// cin >> source;
-
-// parser a(source);
-
-// cout << endl;
-// cout << "符号表中内容如下:" << endl;
-// a.printTable();
-
-// cout << endl;
-// cout << "代码表中内容如下:" << endl;
-
-// a.printCode();
-
-// cout << "符号表(.sym)和目标代码(.pl0)都已输出在文件中." << endl;
-
-// char target[99];
-// cout << "请输入你想要执行的目标代码文件路径：" << endl;
-// cin >> target;
-
+#include "parser.h"
 // vm t(target);
+void currentdir() {
+	char szBuf[128];
+	char szPath[128];
 
+	memset(szBuf, 0x00, sizeof(szBuf));
+	memset(szPath, 0x00, sizeof(szPath));
+
+	getcwd(szBuf, sizeof(szBuf) - 1);
+	printf("buf:%s\n", szBuf);
+
+	int ret = readlink("/proc/self/exe", szPath, sizeof(szPath) - 1);
+	printf("ret:%d\n", ret);
+	printf("path:%s\n", szPath);
+	int* lost = new int;
+	return;
+}
 void tests() {
+	currentdir();
 	/*
 	std::filesystem::path str("../TestCodeV2");
 	if (!std::filesystem::exists(str)) {
@@ -43,18 +40,19 @@ void tests() {
 	}
 	cout << it.path().filename() << endl;  //通过文件入口（it）获取path对象，再得到path对象的文件名，将之输出
 	*/
-	std::vector<std::string> inFilePaths{
-		"../TestCodeV2/PL0_code.in",
-		"../TestCodeV2/PL0_code0.in",
-		"../TestCodeV2/PL0_code1.in",
-		"../TestCodeV2/PL0_code2.in",
-		"../TestCodeV2/PL0_code3.in",
-	};
+	std::vector<std::string>
+		inFilePaths{
+			"./TestCodeV2/PL0_code.in",
+			"./TestCodeV2/PL0_code0.in",
+			"./TestCodeV2/PL0_code1.in",
+			"./TestCodeV2/PL0_code2.in",
+			"./TestCodeV2/PL0_code3.in",
+		};
 	for (auto path : inFilePaths) {
 		try {
 			parser a(path);
 			std::cout << endl;
-			std::cout << "文件" << path << "的符号表:" << endl;
+			std::cout << "file" << path << "table:" << endl;
 			a.printTable();
 		} catch (std::exception& ex) {
 			std::cout << "file: " << path << "has some problems." << std::endl;
@@ -66,7 +64,7 @@ void run(int argc, const char* argv[]) {
 	//TODO
 }
 int main(int argc, const char* argv[]) {
-	if (argc >= 0) {
+	if (argc > 1) {
 		std::cout << "Your request will be processed:" << endl;
 		run(argc, argv);
 	} else {

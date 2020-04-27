@@ -1,7 +1,7 @@
+#include "lexer.h"
+
 #include <exception>
 #include <stdexcept>
-
-#include "lexer.h"
 
 lexer::lexer(const std::string& filename) {
 	initMap();
@@ -71,7 +71,8 @@ void lexer::GetBC() {
 }
 
 void lexer::Retract() {
-	if (index_pointer > 0) index_pointer--;
+	if (index_pointer > 0)
+		index_pointer--;
 	ch = ' ';
 }
 
