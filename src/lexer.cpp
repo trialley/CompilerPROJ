@@ -1,16 +1,16 @@
-#include "WordAnal.h"
-
 #include <exception>
 #include <stdexcept>
 
-WordAnal::WordAnal(const char* filename) {
+#include "lexer.h"
+
+lexer::lexer(const std::string& filename) {
 	initMap();
 
 	index_pointer = 0;
 	openSrc(filename);
 }
 
-void WordAnal::initMap() {
+void lexer::initMap() {
 	symMap[CONST] = "CONST";
 	symMap[VAR] = "VAR ";
 	symMap[PROD] = "PROD";
@@ -25,8 +25,8 @@ void WordAnal::initMap() {
 	opMap[OPR] = "OPR";
 }
 
-void WordAnal::openSrc(const char* src) {
-	fp = fopen(src, "rb");
+void lexer::openSrc(const std::string& src) {
+	fp = fopen(src.c_str(), "rb");
 	if (fp == NULL) {
 		cout << "open file error!" << endl;
 		return;
@@ -34,7 +34,7 @@ void WordAnal::openSrc(const char* src) {
 	row = 1;
 }
 
-bool WordAnal::readLine() {
+bool lexer::readLine() {
 	if ((fgets(buffer, BUFFERLEN, fp)) != NULL)
 		return 1;
 
@@ -42,7 +42,7 @@ bool WordAnal::readLine() {
 		return 0;
 }
 
-void WordAnal::GetChar() {
+void lexer::GetChar() {
 	ch = buffer[index_pointer++];
 
 	if (ch == '\n') {  //»»ÐÐ
@@ -58,7 +58,7 @@ void WordAnal::GetChar() {
 	}
 }
 
-void WordAnal::GetBC() {
+void lexer::GetBC() {
 	while ((ch == ' ') || (ch == '\t') || (ch == '\r')) {
 		try {
 			GetChar();
@@ -70,12 +70,12 @@ void WordAnal::GetBC() {
 	}
 }
 
-void WordAnal::Retract() {
+void lexer::Retract() {
 	if (index_pointer > 0) index_pointer--;
 	ch = ' ';
 }
 
-bool WordAnal::IsLetter(const char c) {
+bool lexer::IsLetter(const char c) {
 	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
 		return true;
 
@@ -83,7 +83,7 @@ bool WordAnal::IsLetter(const char c) {
 		return false;
 }
 
-bool WordAnal::IsDigit(const char c) {
+bool lexer::IsDigit(const char c) {
 	if (c >= '0' && c <= '9')
 		return true;
 
@@ -91,7 +91,7 @@ bool WordAnal::IsDigit(const char c) {
 		return false;
 }
 
-int WordAnal::Reserve(const char* strToken) {  //ÔÚ¹Ø¼ü×Ö±íÖÐ²éÑ¯£¬·µ»Ø±£Áô×ÖµÄ±àÂë
+int lexer::Reserve(const char* strToken) {	//ÔÚ¹Ø¼ü×Ö±íÖÐ²éÑ¯£¬·µ»Ø±£Áô×ÖµÄ±àÂë
 
 	for (int i = 0; i < RESERVE_LEN; i++) {
 		if (!strcmp(rsv_[i], strToken)) {
@@ -102,7 +102,7 @@ int WordAnal::Reserve(const char* strToken) {  //ÔÚ¹Ø¼ü×Ö±íÖÐ²éÑ¯£¬·µ»Ø±£Áô×ÖµÄ±
 	return 0;  //Ã»ÕÒµ½±£Áô×Ö
 }
 
-tuple3 WordAnal::GETSYM() {
+tuple3 lexer::GETSYM() {
 	int code, value;
 	tuple3 t;
 	char strToken[MAX_ID_LEN];
