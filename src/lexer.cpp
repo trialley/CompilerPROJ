@@ -147,12 +147,12 @@ tuple3 lexer::getSym() {
 		if (!code) {  //不在关键字表中，是标识符
 			t.sym = $IDENT;
 			strcpy(t.name, strToken);
-			cout << "symbol:" << t.name << endl;
+			LOG << "symbol:" << t.name << endl;
 			return t;
 
 		} else {
 			t.sym = code;
-			cout << "key word:" << rsv_[code - 1] << endl;
+			LOG << "key word:" << rsv_[code - 1] << endl;
 			return t;
 		}
 
@@ -175,11 +175,11 @@ tuple3 lexer::getSym() {
 		t.sym = $NUMBER;
 		strcpy(t.name, strToken);
 
-		cout << "number:" << t.name << endl;
+		LOG << "number:" << t.name << endl;
 		return t;
 	}
 
-	cout << "opeartor:";
+	LOG << "opeartor:";
 	if (ch == '>') {
 		cout << "opeartor:";
 		try {
