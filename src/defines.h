@@ -141,6 +141,8 @@ struct CODE {
 #define filenamecut(x) (strrchr(x, '\\') ? strrchr(x, '\\') + 1 : x)
 #elif __linux
 #define filenamecut(x) (strrchr(x, '/') ? strrchr(x, '/') + 1 : x)
+#else
+#error "No suitable filename cutter for your opearting system.\n"
 #endif
 #define LOG \
-	std::cout << filenamecut(__FILE__) << " " << __func__ << "() " << __LINE__ << " "
+	std::cout << __FILE__ << ":" << __LINE__ << ":1 " << __func__ << "() "
