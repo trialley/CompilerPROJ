@@ -2,8 +2,8 @@
 
 #define STACK_SIZE 100
 
-vm::vm(const char* filename) {
-	readPl0(filename);	//读取pl0文件
+vm::vm(const std::string& filename) {
+	readPl0(filename.c_str());	//读取pl0文件
 
 	ip = 0;
 	sp = -1;
@@ -204,14 +204,14 @@ void vm::runInst() {
 }
 
 void vm::readMem() {
-	std::cout << "请输入read函数的参数:" << std::endl;
+	std::cout << "read:" << std::endl;
 	int a;	//从键盘读取一个数字
 	std::cin >> a;
 	stack[++sp] = a;  //放到运行栈的栈顶
 }
 
 void vm::writeMem(int addr) {
-	std::cout << "输出写语句写的内容是:" << stack[addr];
+	std::cout << "write:" << stack[addr];
 	std::cout << std::endl;
 }
 

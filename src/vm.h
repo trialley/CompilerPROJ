@@ -6,7 +6,7 @@
 
 class vm {
    public:
-	vm(const char* filename);
+	vm(const std::string&);
 	void run();		 //循环执行目标文件中指令
 	void runInst();	 //执行一条指令
 

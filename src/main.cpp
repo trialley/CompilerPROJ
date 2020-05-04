@@ -47,7 +47,8 @@ void tests() {
 	}
 }
 void run(int argc, const char* argv[]) {
-	parser a("./TestCodeV2/PL0_code2.in");
+	std::string path = "./TestCodeV2/PL0_code1.in";
+	parser a(path);
 
 	std::cout << std::endl;
 	std::cout << "符号表中内容如下:" << std::endl;
@@ -60,7 +61,7 @@ void run(int argc, const char* argv[]) {
 
 	std::cout << "符号表(.sym)和目标代码(.pl0)都已输出在文件中." << std::endl;
 
-	vm t("./TestCodeV2/PL0_code2.in.pl0cache");
+	vm t(path + ".pl0cache");
 }
 int main(int argc, const char* argv[]) {
 	if (argc > 0) {
