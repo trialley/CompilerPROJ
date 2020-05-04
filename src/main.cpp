@@ -31,14 +31,14 @@ void tests() {
 	if (!std::filesystem::exists(str)) {
 		throw std::exception("TestCodeV2 does not exist.");
 	}
-	std::filesystem::directory_entry entry(str);						 //ÎÄ¼şÈë¿Ú
-	if (entry.status().type() == std::filesystem::file_type::directory)	 //ÕâÀïÓÃÁËC++11µÄÇ¿Ã¶¾ÙÀàĞÍ
-		cout << "¸ÃÂ·¾¶ÊÇÒ»¸öÄ¿Â¼" << endl;
+	std::filesystem::directory_entry entry(str);						 //æ–‡ä»¶å…¥å£
+	if (entry.status().type() == std::filesystem::file_type::directory)	 //è¿™é‡Œç”¨äº†C++11çš„å¼ºæšä¸¾ç±»å‹
+		cout << "è¯¥è·¯å¾„æ˜¯ä¸€ä¸ªç›®å½•" << endl;
 
-	std::filesystem::directory_iterator list(str);	//ÎÄ¼şÈë¿ÚÈİÆ÷
-	for (auto& it : list) {							//¶ÔÓÚÎÄ¼ş¼ĞÖĞÃ¿Ò»¸ö³ÉÔ±
+	std::filesystem::directory_iterator list(str);	//æ–‡ä»¶å…¥å£å®¹å™¨
+	for (auto& it : list) {							//å¯¹äºæ–‡ä»¶å¤¹ä¸­æ¯ä¸€ä¸ªæˆå‘˜
 	}
-	cout << it.path().filename() << endl;  //Í¨¹ıÎÄ¼şÈë¿Ú£¨it£©»ñÈ¡path¶ÔÏó£¬ÔÙµÃµ½path¶ÔÏóµÄÎÄ¼şÃû£¬½«Ö®Êä³ö
+	cout << it.path().filename() << endl;  //é€šè¿‡æ–‡ä»¶å…¥å£ï¼ˆitï¼‰è·å–pathå¯¹è±¡ï¼Œå†å¾—åˆ°pathå¯¹è±¡çš„æ–‡ä»¶åï¼Œå°†ä¹‹è¾“å‡º
 	*/
 	std::vector<std::string>
 		inFilePaths{

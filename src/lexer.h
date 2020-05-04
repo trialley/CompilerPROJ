@@ -5,7 +5,7 @@
 #include "defines.h"
 
 class lexer {
-public:
+   public:
 	lexer(const std::string&);
 
 	void initMap();
@@ -22,11 +22,11 @@ public:
 
 	int Reserve(const char* strToken);
 
-	tuple3 GETSYM();  //读取源文件并返回单词符号
+	tuple3 getSym();  //读取源文件并返回单词符号
 
 	int row = 0;  //在文件的第几行
 
-private:
+   private:
 	FILE* fp;  //源文件的指针
 
 	char buffer[BUFFERLEN];	 //读入缓冲区
