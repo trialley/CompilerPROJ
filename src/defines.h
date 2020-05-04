@@ -61,7 +61,7 @@ using namespace std;
 
 #define RESERVE_LEN 13
 
-extern char* rsv_[];  //关键字
+extern std::vector<std::string> rsv_;  //关键字
 
 enum SymbolKind {  //符号类型
 	CONST,
@@ -138,3 +138,12 @@ struct CODE {
 };
 
 // TODO:  在此处引用程序需要的其他头文件
+#ifdef _WIN32
+#define filenamecut(x) (strrchr(x, '\\') ? strrchr(x, '\\') + 1 : x)
+#elif __linux
+#define filenamecut(x) (strrchr(x, '/') ? strrchr(x, '/') + 1 : x)
+#else
+#error "No suitable filename cutter for your opearting system.\n"
+#endif
+#define LOG \
+	std::cout << __FILE__ << ":" << __LINE__ << ":1 " << __func__ << "() "

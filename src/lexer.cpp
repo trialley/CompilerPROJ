@@ -95,7 +95,7 @@ bool lexer::IsDigit(const char c) {
 int lexer::Reserve(const char* strToken) {	//在关键字表中查询，返回保留字的编码
 
 	for (int i = 0; i < RESERVE_LEN; i++) {
-		if (!strcmp(rsv_[i], strToken)) {
+		if (rsv_[i] == std::string(strToken)) {
 			return i + 1;
 		}
 	}
