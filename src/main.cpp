@@ -33,12 +33,12 @@ void tests() {
 	}
 	std::filesystem::directory_entry entry(str);						 //文件入口
 	if (entry.status().type() == std::filesystem::file_type::directory)	 //这里用了C++11的强枚举类型
-		cout << "该路径是一个目录" << endl;
+		std::cout << "该路径是一个目录" << std::endl;
 
 	std::filesystem::directory_iterator list(str);	//文件入口容器
 	for (auto& it : list) {							//对于文件夹中每一个成员
 	}
-	cout << it.path().filename() << endl;  //通过文件入口（it）获取path对象，再得到path对象的文件名，将之输出
+	std::cout << it.path().filename() << std::endl;  //通过文件入口（it）获取path对象，再得到path对象的文件名，将之输出
 	*/
 	std::vector<std::string>
 		inFilePaths{
@@ -51,8 +51,8 @@ void tests() {
 	for (auto path : inFilePaths) {
 		try {
 			parser a(path);
-			std::cout << endl;
-			std::cout << "file" << path << "table:" << endl;
+			std::cout << std::endl;
+			std::cout << "file" << path << "table:" << std::endl;
 			a.printTable();
 		} catch (std::exception& ex) {
 			std::cout << "file: " << path << "has some problems." << std::endl;
@@ -64,11 +64,11 @@ void run(int argc, const char* argv[]) {
 	//TODO
 }
 int main(int argc, const char* argv[]) {
-	if (argc > 1) {
-		std::cout << "Your request will be processed:" << endl;
+	if (argc > 0) {
+		std::cout << "Your request will be processed:" << std::endl;
 		run(argc, argv);
 	} else {
-		std::cout << "No arguments input, runn default tests:" << endl;
+		std::cout << "No arguments input, runn default tests:" << std::endl;
 		tests();
 	}
 

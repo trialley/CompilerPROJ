@@ -11,8 +11,6 @@
 
 #include "defines.h"
 
-using namespace std;
-
 #define MAX_ID_LEN 10
 #define BUFFERLEN 1024
 
@@ -80,8 +78,8 @@ enum FunctionCode {	 //目标指令
 	OPR
 };
 
-extern map<SymbolKind, const char*> symMap;
-extern map<FunctionCode, const char*> opMap;
+extern std::map<SymbolKind, const char*> symMap;
+extern std::map<FunctionCode, const char*> opMap;
 
 enum OPR {	//OPR指令中a域的取值
 	ADD = 1,

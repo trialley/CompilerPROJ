@@ -28,7 +28,7 @@ void lexer::initMap() {
 void lexer::openSrc(const std::string& src) {
 	fp = fopen(src.c_str(), "rb");
 	if (fp == NULL) {
-		cout << "open file error!" << endl;
+		std::cout << "open file error!" << std::endl;
 		return;
 	}
 	row = 1;
@@ -64,7 +64,7 @@ void lexer::GetBC() {
 			GetChar();
 		}
 
-		catch (exception e) {
+		catch (std::exception e) {
 			throw e;
 		}
 	}
@@ -111,7 +111,7 @@ tuple3 lexer::getSym() {
 
 	try {
 		GetChar();
-	} catch (exception e) {
+	} catch (std::exception e) {
 		t.sym = INVALID;
 		return t;
 	}
@@ -120,7 +120,7 @@ tuple3 lexer::getSym() {
 		GetBC();
 	}
 
-	catch (exception e) {
+	catch (std::exception e) {
 		t.sym = INVALID;
 		return t;
 	}
@@ -134,7 +134,7 @@ tuple3 lexer::getSym() {
 
 			try {
 				GetChar();
-			} catch (exception e) {
+			} catch (std::exception e) {
 				t.sym = INVALID;
 				return t;
 			}
@@ -147,12 +147,12 @@ tuple3 lexer::getSym() {
 		if (!code) {  //不在关键字表中，是标识符
 			t.sym = $IDENT;
 			strcpy(t.name, strToken);
-			LOG << "symbol:" << t.name << endl;
+			LOG << "symbol:" << t.name << std::endl;
 			return t;
 
 		} else {
 			t.sym = code;
-			LOG << "key word:" << rsv_[code - 1] << endl;
+			LOG << "key word:" << rsv_[code - 1] << std::endl;
 			return t;
 		}
 
@@ -164,7 +164,7 @@ tuple3 lexer::getSym() {
 
 			try {
 				GetChar();
-			} catch (exception e) {
+			} catch (std::exception e) {
 				t.sym = INVALID;
 				return t;
 			}
@@ -175,38 +175,38 @@ tuple3 lexer::getSym() {
 		t.sym = $NUMBER;
 		strcpy(t.name, strToken);
 
-		LOG << "number:" << t.name << endl;
+		LOG << "number:" << t.name << std::endl;
 		return t;
 	}
 
 	LOG << "opeartor:";
 	if (ch == '>') {
-		cout << "opeartor:";
+		std::cout << "opeartor:";
 		try {
 			GetChar();
-		} catch (exception e) {
+		} catch (std::exception e) {
 			t.sym = INVALID;
 			return t;
 		}
 		if (ch == '=') {
 			t.sym = $BIGGER_EQ;
 
-			cout << ">=" << endl;
+			std::cout << ">=" << std::endl;
 			return t;
 
 		} else {
 			Retract();
 			t.sym = $BIGGER;
 
-			cout << ">" << endl;
+			std::cout << ">" << std::endl;
 			return t;
 		}
 
 	} else if (ch == '<') {
-		cout << "opeartor:";
+		std::cout << "opeartor:";
 		try {
 			GetChar();
-		} catch (exception e) {
+		} catch (std::exception e) {
 			t.sym = INVALID;
 			return t;
 		}
@@ -214,41 +214,41 @@ tuple3 lexer::getSym() {
 		if (ch == '=') {
 			t.sym = $LOWER_EQ;
 
-			cout << "<=" << endl;
+			std::cout << "<=" << std::endl;
 			return t;
 
 		} else {
 			Retract();
 			t.sym = $LOWER;
 
-			cout << "<" << endl;
+			std::cout << "<" << std::endl;
 			return t;
 		}
 
 	} else if (ch == '=') {
-		cout << "opeartor:";
+		std::cout << "opeartor:";
 		t.sym = $EQ;
-		cout << "=" << endl;
+		std::cout << "=" << std::endl;
 		return t;
 	} else if (ch == '#') {
-		cout << "opeartor:";
+		std::cout << "opeartor:";
 		t.sym = $UEQ;
-		cout << "#" << endl;
+		std::cout << "#" << std::endl;
 		return t;
 	} else if (ch == ':') {
-		cout << "opeartor:";
+		std::cout << "opeartor:";
 		try {
 			GetChar();
 		}
 
-		catch (exception e) {
+		catch (std::exception e) {
 			t.sym = INVALID;
 			return t;
 		}
 
 		if (ch == '=') {
 			t.sym = $ASSIGN;
-			cout << ":=" << endl;
+			std::cout << ":=" << std::endl;
 			return t;
 		}
 
@@ -259,16 +259,16 @@ tuple3 lexer::getSym() {
 	} else if (ch == '+') {
 		t.sym = $PLUS;
 
-		cout << "+" << endl;
+		std::cout << "+" << std::endl;
 		return t;
 	} else if (ch == '-') {
 		t.sym = $MINUS;
-		cout << "-" << endl;
+		std::cout << "-" << std::endl;
 		return t;
 	} else if (ch == '*') {
 		try {
 			GetChar();
-		} catch (exception e) {
+		} catch (std::exception e) {
 			t.sym = INVALID;
 			return t;
 		}
@@ -276,49 +276,49 @@ tuple3 lexer::getSym() {
 		if (ch == '*') {
 			t.sym = $POWER;
 
-			cout << "**" << endl;
+			std::cout << "**" << std::endl;
 			return t;
 		} else {
 			Retract();
 			t.sym = $STAR;
 
-			cout << "*" << endl;
+			std::cout << "*" << std::endl;
 			return t;
 		}
 
 	} else if (ch == '/') {
 		t.sym = $DIV;
-		cout << "/" << endl;
+		std::cout << "/" << std::endl;
 		return t;
 	} else if (ch == ',') {
 		t.sym = $COMMA;
 
-		cout << "," << endl;
+		std::cout << "," << std::endl;
 		return t;
 	} else if (ch == ';') {
 		t.sym = $SEMICOLON;
 
-		cout << ";" << endl;
+		std::cout << ";" << std::endl;
 		return t;
 	} else if (ch == '(') {
 		t.sym = $LPAIR;
 
-		cout << "(" << endl;
+		std::cout << "(" << std::endl;
 		return t;
 	} else if (ch == ')') {
 		t.sym = $RPAIR;
 
-		cout << ")" << endl;
+		std::cout << ")" << std::endl;
 		return t;
 	} else if (ch == '{') {
 		t.sym = $LBRACE;
 
-		cout << "{" << endl;
+		std::cout << "{" << std::endl;
 		return t;
 	} else if (ch == '}') {
 		t.sym = $RBRACE;
 
-		cout << "}" << endl;
+		std::cout << "}" << std::endl;
 		return t;
 	} else {
 		printf("Illegal input!\n");

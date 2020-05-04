@@ -11,21 +11,21 @@ parser::parser(const std::string& filename) {
 
 	BLOCK();  //语法分析程序
 
-	vector<CODE>::iterator iter = codeTable.begin();
+	std::vector<CODE>::iterator iter = codeTable.begin();
 	codeTable.insert(iter, CODE(JMP, 0, mainEntry));  //在中间代码表首加入
 
 	generateFile(filename);
 
 	if (!etop) {  //没有错误
-		cout << endl;
-		cout << "compile success" << endl;
+		std::cout << std::endl;
+		std::cout << "compile success" << std::endl;
 	} else {  //输出编译错误
 
-		cout << endl;
+		std::cout << std::endl;
 		for (int i = 0; i < etop; i++) {
-			cout << errors[i] << endl;
+			std::cout << errors[i] << std::endl;
 		}
-		cout << "compile failed" << endl;
+		std::cout << "compile failed" << std::endl;
 		exit(-1);
 	}
 }
@@ -63,7 +63,7 @@ void parser::BLOCK() {
 
 	if (t.sym == $VAR) {  //是VAR声明
 
-		//cout << "变量说明部分！" << endl;
+		//cout << "变量说明部分！" << std::endl;
 		t = wa->getSym();
 		if (t.sym == INVALID)
 			return;
@@ -94,7 +94,7 @@ void parser::BLOCK() {
 
 	if (t.sym == $PROCEDURE) {	//是过程说明
 
-		// cout << "过程说明部分！" << endl;
+		// cout << "过程说明部分！" << std::endl;
 
 		t = wa->getSym();
 		if (t.sym == INVALID)
@@ -121,7 +121,7 @@ void parser::GEN(FunctionCode fun, int lev, int offset) {
 
 void parser::analyzeConst() {  //常量说明部分
 
-	//cout << "常量说明部分！" << endl;
+	//cout << "常量说明部分！" << std::endl;
 
 	if (t.sym == $IDENT) {	//获取标识符
 
@@ -171,7 +171,7 @@ void parser::analyzeConst() {  //常量说明部分
 
 void parser::analyzeVar() {	 //变量说明部分
 
-	//cout << "变量说明部分！" << endl;
+	//cout << "变量说明部分！" << std::endl;
 
 	if (t.sym == $IDENT) {
 		char* id = new char[MAX_ID_LEN];
@@ -762,7 +762,7 @@ int parser::searchSymbol(const char* id) {
 }
 
 int parser::error(int e, int eline) {
-	ostringstream oss;
+	std::ostringstream oss;
 
 	switch (e) {
 		case 0: {
@@ -1071,19 +1071,19 @@ int parser::error(int e, int eline) {
 }
 
 void parser::printTable() {
-	cout << setiosflags(ios::left) << setw(12) << "name"
-		 << setiosflags(ios::left) << setw(12) << "sym"
-		 << setiosflags(ios::left) << setw(12) << "value"
-		 << setiosflags(ios::left) << setw(12) << "level"
-		 << setiosflags(ios::left) << setw(12) << "address" << endl;
+	std::cout << std::setiosflags(std::ios::left) << std::setw(12) << "name"
+			  << std::setiosflags(std::ios::left) << std::setw(12) << "sym"
+			  << std::setiosflags(std::ios::left) << std::setw(12) << "value"
+			  << std::setiosflags(std::ios::left) << std::setw(12) << "level"
+			  << std::setiosflags(std::ios::left) << std::setw(12) << "address" << std::endl;
 
 	for (int i = 0; i < symbolTable.size(); i++) {
 		SYMBOL symbol = symbolTable.at(i);
 
-		cout << setiosflags(ios::left) << setw(12) << symbol.name;
+		std::cout << std::setiosflags(std::ios::left) << std::setw(12) << symbol.name;
 
 		if (symMap.find(symbol.kind) != symMap.end())
-			cout << setiosflags(ios::left) << setw(12) << symMap[symbol.kind];
+			std::cout << std::setiosflags(std::ios::left) << std::setw(12) << symMap[symbol.kind];
 		/*
 		name
 sym
@@ -1091,10 +1091,10 @@ sym
  "lev:" 
  "addr:"
 */
-		cout << setiosflags(ios::left) << setw(12) << symbol.val
-			 << setiosflags(ios::left) << setw(12) << symbol.lev
-			 << setiosflags(ios::left) << setw(12) << symbol.addr
-			 << endl;
+		std::cout << std::setiosflags(std::ios::left) << std::setw(12) << symbol.val
+				  << std::setiosflags(std::ios::left) << std::setw(12) << symbol.lev
+				  << std::setiosflags(std::ios::left) << std::setw(12) << symbol.addr
+				  << std::endl;
 	}
 }
 
@@ -1102,10 +1102,10 @@ void parser::printCode() {
 	for (int i = 0; i < codeTable.size(); i++) {
 		CODE inst = codeTable.at(i);
 
-		cout << "No:" << i << "\t";
-		cout << "op:" << opMap[inst.fun] << "\t";
-		cout << "lev:" << inst.lev << "\t";
-		cout << "addr:" << inst.offset << endl;
+		std::cout << "No:" << i << "\t";
+		std::cout << "op:" << opMap[inst.fun] << "\t";
+		std::cout << "lev:" << inst.lev << "\t";
+		std::cout << "addr:" << inst.offset << std::endl;
 	}
 }
 
@@ -1124,7 +1124,7 @@ void parser::generateFile(const std::string& filename) {
 
 	FILE *fp1, *fp2;
 	if ((fp1 = fopen((filename + ".sym").c_str(), "wb")) == NULL) {
-		cout << "创建.sym文件失败!" << endl;
+		std::cout << "创建.sym文件失败!" << std::endl;
 		exit(-1);
 	}
 	for (int i = 0; i < symbolTable.size(); i++) {
@@ -1132,7 +1132,7 @@ void parser::generateFile(const std::string& filename) {
 	}
 
 	if ((fp2 = fopen((filename + ".pl0cache").c_str(), "wb")) == NULL) {
-		cout << "创建.pl0文件失败!" << endl;
+		std::cout << "创建.pl0文件失败!" << std::endl;
 		exit(-1);
 	}
 	for (int i = 0; i < codeTable.size(); i++) {

@@ -6,40 +6,40 @@
 #include "lexer.h"
 
 class parser {
-public:
+   public:
 	parser(const std::string&);
 
-	void BLOCK();		  //语法分析
-	void analyzeConst();  //常量说明部分
-	void analyzeVar();	  //变量说明部分
-	void analyzePro();	  //过程说明部分
-	void analyzeSent();	  //语句
+	void BLOCK();		  //??????
+	void analyzeConst();  //???????????
+	void analyzeVar();	  //???????????
+	void analyzePro();	  //???????????
+	void analyzeSent();	  //???
 
-	void analyzeCond();	 //处理条件语句
-	void analyzeExpr();	 //处理表达式
+	void analyzeCond();	 //???????????
+	void analyzeExpr();	 //?????????
 
-	void analyzeTerm();	 //处理项
-	void analyzeElem();	 //分析因子
+	void analyzeTerm();	 //??????
+	void analyzeElem();	 //????????
 
-	bool insertSymbol(SymbolKind kind, const char* id);	 //向符号表插入符号
-	int searchSymbol(const char* id);					 //在符号表中查找符号，没找到返回-1
+	bool insertSymbol(SymbolKind kind, const char* id);	 //?????????????
+	int searchSymbol(const char* id);					 //???????в???????????????-1
 
-	void GEN(FunctionCode fun, int lev, int offset);  //产生中间代码
+	void GEN(FunctionCode fun, int lev, int offset);  //?????м????
 
 	void printTable();
 	void printCode();
 
-	void generateFile(const std::string&);	//生成目标文件
+	void generateFile(const std::string&);	//??????????
 
-	int error(int e, int eline);  //错误处理
+	int error(int e, int eline);  //??????
 
-	vector<CODE> codeTable;	 //代码表
+	std::vector<CODE> codeTable;  //?????
 
-private:
-	lexer* wa;	//词法分析器
-	tuple3 t;	//词法分析器取到的单词符号
+   private:
+	lexer* wa;	//?????????
+	tuple3 t;	//????????????????????
 
-	vector<SYMBOL> symbolTable;	 //符号表
+	std::vector<SYMBOL> symbolTable;  //?????
 
 	int lev = -1;  //层次
 	int dx;		   //每层局部量的相对地址，每说明完一个变量后dx+1
@@ -50,6 +50,6 @@ private:
 	int mainEntry;	 //记录主程序入口
 	int offset = 1;	 // 记录一开始空出的前两条指令的偏移
 
-	string errors[100];	 //存储的错误信息
-	int etop = 0;		 //错误信息栈顶
+	std::string errors[100];  //存储的错误信息
+	int etop = 0;			  //错误信息栈顶
 };
