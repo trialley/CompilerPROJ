@@ -13,4 +13,4 @@ begin
       write(squ);
       x := x + 1
    end
-end.
+end
