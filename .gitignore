@@ -2,3 +2,4 @@ bin
 build
 *.pl0cache
 *.sym
+.vscode/settings.json
