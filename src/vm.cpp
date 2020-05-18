@@ -65,13 +65,12 @@ void vm::runInst() {
 			stack[++sp] = temp;
 			break;
 		}
-
-		case STO:  //栈顶内容存到变量中
-		{
+			//栈顶内容存到变量中
+		case STO: {
 			int tempBp = stack[bp + 2];
 			int levOffset = inst.lev;
 
-			while (levOffset-- != 0) {	//沿着静态链往外层找
+			while (levOffset-- != 0) {
 				tempBp = stack[tempBp + 2];
 			}
 
@@ -79,7 +78,7 @@ void vm::runInst() {
 			stack[tempBp + inst.offset] = temp;
 
 			break;
-		}
+		}  //沿着静态链往外层找
 
 		case CAL:
 			stack[sp + 1] = bp;					 //push bp.老bp，即动态链
