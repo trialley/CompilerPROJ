@@ -225,7 +225,7 @@ void vm::printStack() {
 	// std::cout << "BP:" << bp << "\t";
 	// std::cout << "IP:" << ip << std::endl;
 
-	// std::cout << "IR:" << opMap[inst.fun] << "\t";
+	// std::cout << "IR:" << TisToString[inst.fun] << "\t";
 	// std::cout << inst.lev << "\t";
 	// std::cout << inst.offset << std::endl;
 

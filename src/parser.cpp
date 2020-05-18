@@ -118,7 +118,7 @@ void parser::BLOCK() {
 	GEN(OPR, 0, 0);	 //退出这个过程
 }
 
-void parser::GEN(FunctionCode fun, int lev, int offset) {
+void parser::GEN(InsType fun, int lev, int offset) {
 	codeTable.push_back(CODE(fun, lev, offset));
 	cx++;
 }
@@ -144,7 +144,7 @@ void parser::analyzeConst() {  //常量说明部分
 
 			if (_tempSymEntry.sym == _NUMBER) {	 //是数字
 
-				if (!insertSymbol(SymbolKind::CONST, id))
+				if (!insertSymbol(SymbolType::CONST, id))
 					error(109, wa->row);
 				/*重定义*/;	 //插入到符号表失败
 
@@ -177,7 +177,7 @@ void parser::analyzeVar() {	 //变量说明部分
 		// std::string id;
 		// strcpy(id, _tempSymEntry.name);
 
-		if (!insertSymbol(SymbolKind::VAR, _tempSymEntry.name)) {
+		if (!insertSymbol(SymbolType::VAR, _tempSymEntry.name)) {
 			LOG << "重定义" << std::endl;
 			error(109, wa->row);
 		}
@@ -194,7 +194,7 @@ void parser::analyzeVar() {	 //变量说明部分
 void parser::analyzePro() {	 //过程说明部分
 
 	if (_tempSymEntry.sym == _IDENT) {
-		if (!insertSymbol(SymbolKind::PROD, _tempSymEntry.name))
+		if (!insertSymbol(SymbolType::PROD, _tempSymEntry.name))
 			error(109, wa->row);
 		/*重定义*/
 
@@ -254,7 +254,7 @@ void parser::analyzeSent() {
 			error(108, wa->row);
 		}
 
-		else if (symbolTable.at(i).kind != SymbolKind::VAR) {
+		else if (symbolTable.at(i).kind != SymbolType::VAR) {
 			// 如果在符号表中找到了，但是该标识符不是变量名，
 			/*不可修改的左值*/
 			error(110, wa->row);
@@ -297,7 +297,7 @@ void parser::analyzeSent() {
 				error(108, wa->row);
 			}
 
-			else if (symbolTable.at(i).kind == SymbolKind::PROD) {	//类型检查
+			else if (symbolTable.at(i).kind == SymbolType::PROD) {	//类型检查
 
 				GEN(CAL, lev - symbolTable.at(i).lev, symbolTable.at(i).addr);
 			}
@@ -656,7 +656,7 @@ void parser::analyzeElem() {
 				error(108, wa->row);
 			}
 
-			else if (symbolTable.at(i).kind == SymbolKind::CONST) {
+			else if (symbolTable.at(i).kind == SymbolType::CONST) {
 				// 如果该标识符为常量,则生成lit指令,把val放到栈顶
 				//codeTable.push_back(CODE(LIT, 0, symbolTable.at(i).val));
 				GEN(LIT, 0, symbolTable.at(i).val);
@@ -666,7 +666,7 @@ void parser::analyzeElem() {
 					return;
 			}
 
-			else if (symbolTable.at(i).kind == SymbolKind::VAR) {
+			else if (symbolTable.at(i).kind == SymbolType::VAR) {
 				//codeTable.push_back(CODE(LOD, lev - symbolTable.at(i).lev,
 				//symbolTable.at(i).addr));
 				GEN(LOD, lev - symbolTable.at(i).lev,
@@ -675,7 +675,7 @@ void parser::analyzeElem() {
 				_tempSymEntry = wa->getSym();
 				if (_tempSymEntry.sym == INVALID)
 					return;
-			} else if (symbolTable.at(i).kind == SymbolKind::PROD) {
+			} else if (symbolTable.at(i).kind == SymbolType::PROD) {
 				/*该标识符为过程名，出错*/
 				error(43, wa->row);
 				_tempSymEntry = wa->getSym();
@@ -722,23 +722,23 @@ void parser::analyzeElem() {
 	}
 }
 
-bool parser::insertSymbol(SymbolKind kind, const std::string& id) {
+bool parser::insertSymbol(SymbolType kind, const std::string& id) {
 	if (searchSymbol(id) >= 0)	//已经找到符号的声明
 		return false;
 
 	switch (kind) {
-	case SymbolKind::CONST: {
+	case SymbolType::CONST: {
 		int num = atoi(_tempSymEntry.name.c_str());	 //越界检查
 		symbolTable.push_back(SYMBOL(id, kind, num, 0, 0));
 		break;
 	}
 
-	case SymbolKind::VAR: {
+	case SymbolType::VAR: {
 		symbolTable.push_back(SYMBOL(id, kind, 0xFFFFFFFF, lev, dx++));	 //变量默认值是-1
 		break;
 	}
 
-	case SymbolKind::PROD: {
+	case SymbolType::PROD: {
 		symbolTable.push_back(SYMBOL(id, kind, 0, lev, cx + offset));
 		break;
 	}
@@ -1080,8 +1080,8 @@ void parser::printTable() {
 
 		std::cout << std::setiosflags(std::ios::left) << std::setw(12) << symbol.name;
 
-		if (symMap.find(symbol.kind) != symMap.end())
-			std::cout << std::setiosflags(std::ios::left) << std::setw(12) << symMap[symbol.kind];
+		if (SymToString.find(symbol.kind) != SymToString.end())
+			std::cout << std::setiosflags(std::ios::left) << std::setw(12) << SymToString[symbol.kind];
 		/*
 		name
 sym
@@ -1101,7 +1101,7 @@ void parser::printCode() {
 		CODE inst = codeTable.at(i);
 
 		std::cout << "No:" << i << "\t";
-		std::cout << "op:" << opMap[inst.fun] << "\t";
+		std::cout << "op:" << TisToString[inst.fun] << "\t";
 		std::cout << "lev:" << inst.lev << "\t";
 		std::cout << "addr:" << inst.offset << std::endl;
 	}

@@ -59,15 +59,15 @@
 
 #define RESERVE_LEN 13
 
-extern std::vector<std::string> rsv_;  //关键字
+extern std::vector<std::string> KeyWords;  //关键字
 
-enum SymbolKind {  //符号类型
+enum SymbolType {  //符号类型
 	CONST,
 	VAR,
 	PROD  //function
 };
 
-enum FunctionCode {	 //目标指令
+enum InsType {	 //目标指令
 	LIT,			 //
 	LOD,
 	STO,
@@ -78,8 +78,8 @@ enum FunctionCode {	 //目标指令
 	OPR
 };
 
-extern std::map<SymbolKind, std::string> symMap;
-extern std::map<FunctionCode, std::string> opMap;
+extern std::map<SymbolType, std::string> SymToString;
+extern std::map<InsType, std::string> TisToString;
 
 enum OPR {	//OPR指令中a域的取值
 	ADD = 1,
@@ -108,7 +108,7 @@ struct SYMBOL {
 	SYMBOL() {
 	}
 
-	SYMBOL(const std::string& name, SymbolKind kind, int val, int lev, int addr) {
+	SYMBOL(const std::string& name, SymbolType kind, int val, int lev, int addr) {
 		this->name = name;
 		this->kind = kind;
 		this->val = val;
@@ -117,7 +117,7 @@ struct SYMBOL {
 	}
 
 	std::string name;  //名字
-	SymbolKind kind;   //类型
+	SymbolType kind;   //类型
 	int val = -1;	   //值
 	int lev;		   //层次
 	int addr = -1;	   //地址
@@ -125,12 +125,12 @@ struct SYMBOL {
 
 struct CODE {
 	CODE(){};
-	CODE(FunctionCode fun, int lev, int offset) {
+	CODE(InsType fun, int lev, int offset) {
 		this->fun = fun;
 		this->lev = lev;
 		this->offset = offset;
 	}
-	FunctionCode fun;  //操作码
+	InsType fun;  //操作码
 	int lev;		   //层次差
 	int offset;		   //偏移量，也可做操作码
 };

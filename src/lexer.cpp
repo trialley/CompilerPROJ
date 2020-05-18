@@ -11,18 +11,18 @@ lexer::lexer(const std::string& filename) {
 }
 
 void lexer::initMap() {	 //
-	symMap[CONST] = "CONSTANT";
-	symMap[VAR] = "VARIABLE";
-	symMap[PROD] = "PROCEDURE";
+	SymToString[CONST] = "CONSTANT";
+	SymToString[VAR] = "VARIABLE";
+	SymToString[PROD] = "PROCEDURE";
 
-	opMap[LIT] = std::string("LIT");
-	opMap[LOD] = std::string("LOD");
-	opMap[STO] = std::string("STO");
-	opMap[CAL] = std::string("CAL");
-	opMap[INT] = std::string("INT");
-	opMap[JMP] = std::string("JMP");
-	opMap[JPC] = std::string("JPC");
-	opMap[OPR] = std::string("OPR");
+	TisToString[LIT] = std::string("LIT");
+	TisToString[LOD] = std::string("LOD");
+	TisToString[STO] = std::string("STO");
+	TisToString[CAL] = std::string("CAL");
+	TisToString[INT] = std::string("INT");
+	TisToString[JMP] = std::string("JMP");
+	TisToString[JPC] = std::string("JPC");
+	TisToString[OPR] = std::string("OPR");
 }
 
 void lexer::openSrc(const std::string& src) {
@@ -95,7 +95,7 @@ bool lexer::IsDigit(const char c) {
 int lexer::Reserve(const std::string& strToken) {  //在关键字表中查询，返回保留字的编码
 
 	for (int i = 0; i < RESERVE_LEN; i++) {
-		if (rsv_[i] == strToken) {
+		if (KeyWords[i] == strToken) {
 			return i + 1;
 		}
 	}
@@ -152,7 +152,7 @@ symEntry lexer::getSym() {
 
 		} else {
 			_tempSymEntry.sym = code;
-			LOG << "key word:" << rsv_[code - 1] << std::endl;
+			LOG << "key word:" << KeyWords[code - 1] << std::endl;
 			return _tempSymEntry;
 		}
 

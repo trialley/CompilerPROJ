@@ -21,10 +21,10 @@ public:
 	void analyzeTerm();
 	void analyzeElem();
 
-	bool insertSymbol(SymbolKind kind, const std::string& id);
-	int searchSymbol(const std::string&  id);
+	bool insertSymbol(SymbolType kind, const std::string& id);
+	int searchSymbol(const std::string& id);
 
-	void GEN(FunctionCode fun, int lev, int offset);
+	void GEN(InsType fun, int lev, int offset);
 
 	void printTable();
 	void printCode();
@@ -36,8 +36,8 @@ public:
 	std::vector<CODE> codeTable;
 
 private:
-	lexer* wa;				
-	symEntry _tempSymEntry;	
+	lexer* wa;
+	symEntry _tempSymEntry;
 
 	std::vector<SYMBOL> symbolTable;
 
