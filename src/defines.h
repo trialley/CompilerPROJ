@@ -14,7 +14,7 @@
 #define MAX_ID_LEN 10
 #define BUFFERLEN 1024
 
-/*¹Ø¼ü×Ö*/
+/*å…³é”®å­—*/
 #define _BEGIN 1
 #define _CALL 2
 #define _CONST 3
@@ -29,7 +29,7 @@
 #define _WRITE 12
 #define _VAR 13
 
-/*ÔËËã·û*/
+/*è¿ç®—ç¬¦*/
 #define _BIGGER 14	   //>
 #define _BIGGER_EQ 15  //<=
 #define _LOWER 16	   //<
@@ -43,7 +43,7 @@
 #define _DIV 30		   ///
 #define _UEQ 31		   //#
 
-/*·Ö½ç·û*/
+/*åˆ†ç•Œç¬¦*/
 #define _SEMICOLON 23  //;
 #define _LPAIR 24	   //(
 #define _RPAIR 25	   //)
@@ -51,7 +51,7 @@
 #define _RBRACE 27	   //}
 #define _COMMA 28	   //,
 
-/*±êÊ¶·ûºÍÊı×Ö*/
+/*æ ‡è¯†ç¬¦å’Œæ•°å­—*/
 #define _IDENT 32
 #define _NUMBER 33
 
@@ -59,15 +59,15 @@
 
 #define RESERVE_LEN 13
 
-extern std::vector<std::string> rsv_;  //¹Ø¼ü×Ö
+extern std::vector<std::string> rsv_;  //å…³é”®å­—
 
-enum SymbolKind {  //·ûºÅÀàĞÍ
+enum SymbolKind {  //ç¬¦å·ç±»å‹
 	CONST,
 	VAR,
 	PROD  //function
 };
 
-enum FunctionCode {	 //Ä¿±êÖ¸Áî
+enum FunctionCode {	 //ç›®æ ‡æŒ‡ä»¤
 	LIT,			 //
 	LOD,
 	STO,
@@ -78,10 +78,10 @@ enum FunctionCode {	 //Ä¿±êÖ¸Áî
 	OPR
 };
 
-extern std::map<SymbolKind, const char*> symMap;
-extern std::map<FunctionCode, const char*> opMap;
+extern std::map<SymbolKind, std::string> symMap;
+extern std::map<FunctionCode, std::string> opMap;
 
-enum OPR {	//OPRÖ¸ÁîÖĞaÓòµÄÈ¡Öµ
+enum OPR {	//OPRæŒ‡ä»¤ä¸­aåŸŸçš„å–å€¼
 	ADD = 1,
 	SUB = 2,
 	MUL = 3,
@@ -98,29 +98,29 @@ enum OPR {	//OPRÖ¸ÁîÖĞaÓòµÄÈ¡Öµ
 	ODD = 14
 };
 
-struct symEntry {			//±íÊ¾·ûºÅµÄÈıÔª×é
-	int sym;				//´ÊµÄ´ÊĞÔ
-	char name[MAX_ID_LEN];	//Ãû×Ö
-	int row;				//ËùÔÚĞĞ
+struct symEntry {	   //è¡¨ç¤ºç¬¦å·çš„ä¸‰å…ƒç»„
+	int sym;		   //è¯çš„è¯æ€§
+	std::string name;  //åå­—
+	int row;		   //æ‰€åœ¨è¡Œ
 };
 
 struct SYMBOL {
 	SYMBOL() {
 	}
 
-	SYMBOL(const char* name, SymbolKind kind, int val, int lev, int addr) {
-		strcpy(this->name, name);
+	SYMBOL(const std::string& name, SymbolKind kind, int val, int lev, int addr) {
+		this->name = name;
 		this->kind = kind;
 		this->val = val;
 		this->lev = lev;
 		this->addr = addr;
 	}
 
-	char name[MAX_ID_LEN];	//Ãû×Ö
-	SymbolKind kind;		//ÀàĞÍ
-	int val = -1;			//Öµ
-	int lev;				//²ã´Î
-	int addr = -1;			//µØÖ·
+	std::string name;  //åå­—
+	SymbolKind kind;   //ç±»å‹
+	int val = -1;	   //å€¼
+	int lev;		   //å±‚æ¬¡
+	int addr = -1;	   //åœ°å€
 };
 
 struct CODE {
@@ -130,12 +130,12 @@ struct CODE {
 		this->lev = lev;
 		this->offset = offset;
 	}
-	FunctionCode fun;  //²Ù×÷Âë
-	int lev;		   //²ã´Î²î
-	int offset;		   //Æ«ÒÆÁ¿£¬Ò²¿É×ö²Ù×÷Âë
+	FunctionCode fun;  //æ“ä½œç 
+	int lev;		   //å±‚æ¬¡å·®
+	int offset;		   //åç§»é‡ï¼Œä¹Ÿå¯åšæ“ä½œç 
 };
 
-// TODO:  ÔÚ´Ë´¦ÒıÓÃ³ÌĞòĞèÒªµÄÆäËûÍ·ÎÄ¼ş
+// TODO:  åœ¨æ­¤å¤„å¼•ç”¨ç¨‹åºéœ€è¦çš„å…¶ä»–å¤´æ–‡ä»¶
 #ifdef _WIN32
 #define filenamecut(x) (strrchr(x, '\\') ? strrchr(x, '\\') + 1 : x)
 #elif __linux

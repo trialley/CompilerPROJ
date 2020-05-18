@@ -15,14 +15,14 @@ void lexer::initMap() {	 //
 	symMap[VAR] = "VARIABLE";
 	symMap[PROD] = "PROCEDURE";
 
-	opMap[LIT] = "LIT";
-	opMap[LOD] = "LOD";
-	opMap[STO] = "STO";
-	opMap[CAL] = "CAL";
-	opMap[INT] = "INT";
-	opMap[JMP] = "JMP";
-	opMap[JPC] = "JPC";
-	opMap[OPR] = "OPR";
+	opMap[LIT] = std::string("LIT");
+	opMap[LOD] = std::string("LOD");
+	opMap[STO] = std::string("STO");
+	opMap[CAL] = std::string("CAL");
+	opMap[INT] = std::string("INT");
+	opMap[JMP] = std::string("JMP");
+	opMap[JPC] = std::string("JPC");
+	opMap[OPR] = std::string("OPR");
 }
 
 void lexer::openSrc(const std::string& src) {
@@ -45,20 +45,20 @@ bool lexer::readLine() {
 void lexer::GetChar() {
 	ch = buffer[index_pointer++];
 
-	if (ch == '\n') {  //»»ĞĞ
+	if (ch == '\n') {  //æ¢è¡Œ
 
 		row++;
 
 		if (readLine()) {
 			index_pointer = 0;
-			ch = buffer[index_pointer++];  //È¡ĞÂĞĞµÄµÚÒ»¸ö×Ö·û
+			ch = buffer[index_pointer++];  //å–æ–°è¡Œçš„ç¬¬ä¸€ä¸ªå­—ç¬¦
 		} else {
-			throw std::exception(std::logic_error("ÎÄ¼ş¶Áµ½½áÎ²£¡"));
+			throw std::exception(std::logic_error("æ–‡ä»¶è¯»åˆ°ç»“å°¾ï¼"));
 		}
 	}
 }
 
-void lexer::GetBC() {  //Ìø¹ı¿Õ¸ñ
+void lexer::GetBC() {  //è·³è¿‡ç©ºæ ¼
 	while ((ch == ' ') || (ch == '\t') || (ch == '\r')) {
 		try {
 			GetChar();
@@ -92,15 +92,15 @@ bool lexer::IsDigit(const char c) {
 		return false;
 }
 
-int lexer::Reserve(const char* strToken) {	//ÔÚ¹Ø¼ü×Ö±íÖĞ²éÑ¯£¬·µ»Ø±£Áô×ÖµÄ±àÂë
+int lexer::Reserve(const std::string& strToken) {  //åœ¨å…³é”®å­—è¡¨ä¸­æŸ¥è¯¢ï¼Œè¿”å›ä¿ç•™å­—çš„ç¼–ç 
 
 	for (int i = 0; i < RESERVE_LEN; i++) {
-		if (rsv_[i] == std::string(strToken)) {
+		if (rsv_[i] == strToken) {
 			return i + 1;
 		}
 	}
 
-	return 0;  //Ã»ÕÒµ½±£Áô×Ö
+	return 0;  //æ²¡æ‰¾åˆ°ä¿ç•™å­—
 }
 
 symEntry lexer::getSym() {
@@ -130,7 +130,7 @@ symEntry lexer::getSym() {
 		while ((IsLetter(ch) || IsDigit(ch))) {
 			char s[2];
 			s[0] = ch, s[1] = '\0';
-			strcat(strToken, s);  //ĞŞ¸ÄÁËstrToken
+			strcat(strToken, s);  //ä¿®æ”¹äº†strToken
 
 			try {
 				GetChar();
@@ -142,11 +142,11 @@ symEntry lexer::getSym() {
 
 		Retract();
 
-		code = Reserve(strToken);  //·µ»Ø¹Ø¼ü×ÖµÄ±àÂë
+		code = Reserve(strToken);  //è¿”å›å…³é”®å­—çš„ç¼–ç 
 
-		if (!code) {  //²»ÔÚ¹Ø¼ü×Ö±íÖĞ£¬ÊÇ±êÊ¶·û
+		if (!code) {  //ä¸åœ¨å…³é”®å­—è¡¨ä¸­ï¼Œæ˜¯æ ‡è¯†ç¬¦
 			_tempSymEntry.sym = _IDENT;
-			strcpy(_tempSymEntry.name, strToken);
+			_tempSymEntry.name = strToken;
 			LOG << "symbol:" << _tempSymEntry.name << std::endl;
 			return _tempSymEntry;
 
@@ -173,7 +173,7 @@ symEntry lexer::getSym() {
 		Retract();
 
 		_tempSymEntry.sym = _NUMBER;
-		strcpy(_tempSymEntry.name, strToken);
+		_tempSymEntry.name = strToken;
 
 		LOG << "number:" << _tempSymEntry.name << std::endl;
 		return _tempSymEntry;
@@ -254,7 +254,7 @@ symEntry lexer::getSym() {
 
 		else {
 			Retract();
-			/*:ºóÃæ²»ÊÇ=*/
+			/*:åé¢ä¸æ˜¯=*/
 		}
 	} else if (ch == '+') {
 		_tempSymEntry.sym = _PLUS;

@@ -1,4 +1,4 @@
-/*´Ê·¨·ÖÎöÆ÷³ÌĞò*/
+/*è¯æ³•åˆ†æå™¨ç¨‹åº*/
 
 #pragma once
 
@@ -8,28 +8,28 @@ class lexer {
 public:
 	lexer(const std::string&);
 
-	void initMap();	 //³õÊ¼»¯Ã¿¸ö·ûºÅ¶ÔÓ¦µÄ×Ö·û´®Ãû³Æ£¬±ãÓÚ´òÓ¡µ÷ÊÔ
+	void initMap();	 //åˆå§‹åŒ–æ¯ä¸ªç¬¦å·å¯¹åº”çš„å­—ç¬¦ä¸²åç§°ï¼Œä¾¿äºæ‰“å°è°ƒè¯•
 
-	void openSrc(const std::string&);  //´ò¿ªÔ´ÎÄ¼ş
-	bool readLine();				   //¶ÁÈ¡Ò»ĞĞ
+	void openSrc(const std::string&);  //æ‰“å¼€æºæ–‡ä»¶
+	bool readLine();				   //è¯»å–ä¸€è¡Œ
 
-	void GetChar();	 //»ñµÃÒ»¸ö·ûºÅ
-	void GetBC();	 //Ìø¹ı¿Õ¸ñ
+	void GetChar();	 //è·å¾—ä¸€ä¸ªç¬¦å·
+	void GetBC();	 //è·³è¿‡ç©ºæ ¼
 	void Retract();
 
 	bool IsLetter(const char c);
 	bool IsDigit(const char c);
 
-	int Reserve(const char* strToken);
+	int Reserve(const std::string&);
 
-	symEntry getSym();	//¶ÁÈ¡Ô´ÎÄ¼ş²¢·µ»Øµ¥´Ê·ûºÅ
+	symEntry getSym();	//è¯»å–æºæ–‡ä»¶å¹¶è¿”å›å•è¯ç¬¦å·
 
-	int row = 0;  //ÔÚÎÄ¼şµÄµÚ¼¸ĞĞ
+	int row = 0;  //åœ¨æ–‡ä»¶çš„ç¬¬å‡ è¡Œ
 
 private:
-	FILE* fp;  //Ô´ÎÄ¼şµÄÖ¸Õë
+	FILE* fp;  //æºæ–‡ä»¶çš„æŒ‡é’ˆ
 
-	char buffer[BUFFERLEN];	 //¶ÁÈë»º³åÇø
-	int index_pointer;		 //ËÑË÷Ö¸Ê¾Æ÷
-	char ch;				 //¶ÁÈë×Ö·û
+	char buffer[BUFFERLEN];	 //è¯»å…¥ç¼“å†²åŒº
+	int index_pointer;		 //æœç´¢æŒ‡ç¤ºå™¨
+	char ch;				 //è¯»å…¥å­—ç¬¦
 };

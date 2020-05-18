@@ -4,28 +4,28 @@
 #include <iomanip>
 #include <iostream>
 parser::parser(const std::string& filename) {
-	wa = new lexer(filename);  //´´½¨ĞÂµÄ´Ê·¨·ÖÎöÆ÷
-	wa->readLine();			   //¶ÁÈ¡Ò»ĞĞ
+	wa = new lexer(filename);  //åˆ›å»ºæ–°çš„è¯æ³•åˆ†æå™¨
+	wa->readLine();			   //è¯»å–ä¸€è¡Œ
 
-	_tempSymEntry = wa->getSym();  //»ñµÃÒ»¸ö·ûºÅµ½temp
+	_tempSymEntry = wa->getSym();  //è·å¾—ä¸€ä¸ªç¬¦å·åˆ°temp
 	if (_tempSymEntry.sym == INVALID) {
-		LOG << "·Ç·¨±êÊ¶·û";
-		throw std::exception(std::logic_error("·Ç·¨±êÊ¶·û"));
+		LOG << "éæ³•æ ‡è¯†ç¬¦";
+		throw std::exception(std::logic_error("éæ³•æ ‡è¯†ç¬¦"));
 		return;
 	}
 
-	BLOCK(); /*Óï·¨·ÖÎö³ÌĞò*/
+	BLOCK(); /*è¯­æ³•åˆ†æç¨‹åº*/
 
 	std::vector<CODE>::iterator iter = codeTable.begin();
 
-	codeTable.insert(iter, CODE(JMP, 0, mainEntry));  //ÔÚÖĞ¼ä´úÂë±íÊ×¼ÓÈë
+	codeTable.insert(iter, CODE(JMP, 0, mainEntry));  //åœ¨ä¸­é—´ä»£ç è¡¨é¦–åŠ å…¥
 
-	generateFile(filename);	 //Éú³É¶ş½øÖÆÎÄ¼ş
+	generateFile(filename);	 //ç”ŸæˆäºŒè¿›åˆ¶æ–‡ä»¶
 
-	if (!etop) {  //Ã»ÓĞ´íÎó
+	if (!etop) {  //æ²¡æœ‰é”™è¯¯
 		std::cout << std::endl;
 		std::cout << "compile success" << std::endl;
-	} else {  //Êä³ö±àÒë´íÎó
+	} else {  //è¾“å‡ºç¼–è¯‘é”™è¯¯
 
 		std::cout << std::endl;
 		for (int i = 0; i < etop; i++) {
@@ -37,17 +37,17 @@ parser::parser(const std::string& filename) {
 }
 
 void parser::BLOCK() {
-	lev++;	//²ã´Î£¬´úÂëµ÷ÓÃ
+	lev++;	//å±‚æ¬¡ï¼Œä»£ç è°ƒç”¨
 	dx = 3;
 
-	if (_tempSymEntry.sym == _CONST) {	//ÊÇCONSTÉùÃ÷
-		_tempSymEntry = wa->getSym();	//ÔÙ»ñÈ¡Ò»¸ö·ûºÅ
+	if (_tempSymEntry.sym == _CONST) {	//æ˜¯CONSTå£°æ˜
+		_tempSymEntry = wa->getSym();	//å†è·å–ä¸€ä¸ªç¬¦å·
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
-		analyzeConst();	 //·ÖÎöÒ»¸öconstÀàĞÍµÄ±äÁ¿·ûºÅ
+		analyzeConst();	 //åˆ†æä¸€ä¸ªconstç±»å‹çš„å˜é‡ç¬¦å·
 
-		while (_tempSymEntry.sym == _COMMA)	 //¶ººÅ£¬¶à¸öÉùÃ÷¡£
+		while (_tempSymEntry.sym == _COMMA)	 //é€—å·ï¼Œå¤šä¸ªå£°æ˜ã€‚
 		{
 			_tempSymEntry = wa->getSym();
 			if (_tempSymEntry.sym == INVALID)
@@ -56,17 +56,17 @@ void parser::BLOCK() {
 			analyzeConst();
 		}
 
-		if (_tempSymEntry.sym == _SEMICOLON) {	//Óöµ½·ÖºÅ
+		if (_tempSymEntry.sym == _SEMICOLON) {	//é‡åˆ°åˆ†å·
 			_tempSymEntry = wa->getSym();
 			if (_tempSymEntry.sym == INVALID)
 				return;
 		} else {
-			/*¼È²»ÊÇ¶ººÅÒ²²»ÊÇ·ÖºÅ£¬ÉùÃ÷Óï¾äÃ»ÓĞÒÔ;½áÊø*/
+			/*æ—¢ä¸æ˜¯é€—å·ä¹Ÿä¸æ˜¯åˆ†å·ï¼Œå£°æ˜è¯­å¥æ²¡æœ‰ä»¥;ç»“æŸ*/
 			error(10, wa->row);
 		}
 	}
 
-	if (_tempSymEntry.sym == _VAR) {  //ÊÇVARÉùÃ÷
+	if (_tempSymEntry.sym == _VAR) {  //æ˜¯VARå£°æ˜
 
 		_tempSymEntry = wa->getSym();
 		if (_tempSymEntry.sym == INVALID)
@@ -74,7 +74,7 @@ void parser::BLOCK() {
 
 		analyzeVar();
 
-		while (_tempSymEntry.sym == _COMMA)	 //¶ººÅ
+		while (_tempSymEntry.sym == _COMMA)	 //é€—å·
 		{
 			_tempSymEntry = wa->getSym();
 			if (_tempSymEntry.sym == INVALID)
@@ -83,7 +83,7 @@ void parser::BLOCK() {
 			analyzeVar();
 		}
 
-		if (_tempSymEntry.sym == _SEMICOLON) {	//Óöµ½ÁË·ÖºÅ
+		if (_tempSymEntry.sym == _SEMICOLON) {	//é‡åˆ°äº†åˆ†å·
 
 			_tempSymEntry = wa->getSym();
 			if (_tempSymEntry.sym == INVALID)
@@ -91,14 +91,14 @@ void parser::BLOCK() {
 		}
 
 		else {
-			/*ÉùÃ÷Óï¾äÃ»ÓĞÒÔ;½áÊø*/
+			/*å£°æ˜è¯­å¥æ²¡æœ‰ä»¥;ç»“æŸ*/
 			error(13, wa->row);
 		}
 	}
 
-	if (_tempSymEntry.sym == _PROCEDURE) {	//ÊÇ¹ı³ÌËµÃ÷
+	if (_tempSymEntry.sym == _PROCEDURE) {	//æ˜¯è¿‡ç¨‹è¯´æ˜
 
-		// cout << "¹ı³ÌËµÃ÷²¿·Ö£¡" << std::endl;
+		// cout << "è¿‡ç¨‹è¯´æ˜éƒ¨åˆ†ï¼" << std::endl;
 
 		_tempSymEntry = wa->getSym();
 		if (_tempSymEntry.sym == INVALID)
@@ -107,15 +107,15 @@ void parser::BLOCK() {
 		analyzePro();
 	}
 	//}
-	/*ËµÃ÷²¿·Ö½áÊø*/
-	if (lev == 0)  //Ö÷³ÌĞò²ã.ppp
+	/*è¯´æ˜éƒ¨åˆ†ç»“æŸ*/
+	if (lev == 0)  //ä¸»ç¨‹åºå±‚.ppp
 		mainEntry = cx + offset;
 
-	GEN(INT, 0, dx);  // Éú³É¿Õ¼ä·ÖÅäÖ¸Áî£¬·ÖÅädx¸ö¿Õ¼ä£¨3¸ö¿Õ¼ä+±äÁ¿µÄÊıÄ¿£©
+	GEN(INT, 0, dx);  // ç”Ÿæˆç©ºé—´åˆ†é…æŒ‡ä»¤ï¼Œåˆ†é…dxä¸ªç©ºé—´ï¼ˆ3ä¸ªç©ºé—´+å˜é‡çš„æ•°ç›®ï¼‰
 
-	analyzeSent();	//´¦ÀíÓöµ½µÄÓï¾ä
+	analyzeSent();	//å¤„ç†é‡åˆ°çš„è¯­å¥
 
-	GEN(OPR, 0, 0);	 //ÍË³öÕâ¸ö¹ı³Ì
+	GEN(OPR, 0, 0);	 //é€€å‡ºè¿™ä¸ªè¿‡ç¨‹
 }
 
 void parser::GEN(FunctionCode fun, int lev, int offset) {
@@ -123,89 +123,86 @@ void parser::GEN(FunctionCode fun, int lev, int offset) {
 	cx++;
 }
 
-void parser::analyzeConst() {  //³£Á¿ËµÃ÷²¿·Ö
-	LOG << "½øÈëconst·ÖÎö²¿·Ö\n";
-	if (_tempSymEntry.sym == _IDENT) {	//»ñÈ¡±êÊ¶·û
+void parser::analyzeConst() {  //å¸¸é‡è¯´æ˜éƒ¨åˆ†
+	LOG << "è¿›å…¥conståˆ†æéƒ¨åˆ†\n";
+	if (_tempSymEntry.sym == _IDENT) {	//è·å–æ ‡è¯†ç¬¦
 
-		char* id = new char[MAX_ID_LEN];
-		strcpy(id, _tempSymEntry.name);
+		std::string id = _tempSymEntry.name;
 
 		_tempSymEntry = wa->getSym();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
-		if (_tempSymEntry.sym == _ASSIGN)  //ÊÇ¸³ÖµºÅ
+		if (_tempSymEntry.sym == _ASSIGN)  //æ˜¯èµ‹å€¼å·
 		{
-			// Èç¹û²»ÊÇµÈºÅ£¬¶øÊÇ¸³Öµ·ûºÅ:=£¬Å×³ö1ºÅ´íÎó
+			// å¦‚æœä¸æ˜¯ç­‰å·ï¼Œè€Œæ˜¯èµ‹å€¼ç¬¦å·:=ï¼ŒæŠ›å‡º1å·é”™è¯¯
 			error(19, wa->row);
 		} else if (_tempSymEntry.sym == _EQ) {
 			_tempSymEntry = wa->getSym();
 			if (_tempSymEntry.sym == INVALID)
 				return;
 
-			if (_tempSymEntry.sym == _NUMBER) {	 //ÊÇÊı×Ö
+			if (_tempSymEntry.sym == _NUMBER) {	 //æ˜¯æ•°å­—
 
 				if (!insertSymbol(SymbolKind::CONST, id))
 					error(109, wa->row);
-				/*ÖØ¶¨Òå*/;	 //²åÈëµ½·ûºÅ±íÊ§°Ü
+				/*é‡å®šä¹‰*/;	 //æ’å…¥åˆ°ç¬¦å·è¡¨å¤±è´¥
 
 				_tempSymEntry = wa->getSym();
 				if (_tempSymEntry.sym == INVALID)
 					return;
 			}
 
-			else {	//¸³ÖµºÅºó²»ÊÇÊı×Ö
+			else {	//èµ‹å€¼å·åä¸æ˜¯æ•°å­—
 
 				error(18, wa->row);
 			}
 		}
 
-		else {	//±êÊ¶·ûºó²»ÊÇµÈºÅ
+		else {	//æ ‡è¯†ç¬¦åä¸æ˜¯ç­‰å·
 
 			error(19, wa->row);
 		}
-	} else {  //const ºóÃ»ÓĞ¼Ó±êÊ¶·û
+	} else {  //const åæ²¡æœ‰åŠ æ ‡è¯†ç¬¦
 
 		error(11, wa->row);
 	}
 }
 
-void parser::analyzeVar() {	 //±äÁ¿ËµÃ÷²¿·Ö
+void parser::analyzeVar() {	 //å˜é‡è¯´æ˜éƒ¨åˆ†
 
-	//cout << "±äÁ¿ËµÃ÷²¿·Ö£¡" << std::endl;
+	LOG << "åˆ†æå˜é‡å£°æ˜éƒ¨åˆ†" << std::endl;
 
 	if (_tempSymEntry.sym == _IDENT) {
-		char* id = new char[MAX_ID_LEN];
-		strcpy(id, _tempSymEntry.name);
-		//char* id = t.name;
+		// std::string id;
+		// strcpy(id, _tempSymEntry.name);
 
-		if (!insertSymbol(SymbolKind::VAR, id))
+		if (!insertSymbol(SymbolKind::VAR, _tempSymEntry.name)) {
+			LOG << "é‡å®šä¹‰" << std::endl;
 			error(109, wa->row);
-		/*ÖØ¶¨Òå*/
+		}
 
 		_tempSymEntry = wa->getSym();
 		if (_tempSymEntry.sym == INVALID)
-			return;	 //È¡ÏÂÒ»¸ö´Ê
+			return;	 //å–ä¸‹ä¸€ä¸ªè¯
 	} else {
-		// Èç¹û±äÁ¿ÉùÃ÷¹ı³ÌÖĞÓöµ½µÄµÚÒ»¸ö×Ö·û²»ÊÇ±êÊ¶·û
+		// å¦‚æœå˜é‡å£°æ˜è¿‡ç¨‹ä¸­é‡åˆ°çš„ç¬¬ä¸€ä¸ªå­—ç¬¦ä¸æ˜¯æ ‡è¯†ç¬¦
 		error(12, wa->row);
 	}
 }
 
-void parser::analyzePro() {	 //¹ı³ÌËµÃ÷²¿·Ö
+void parser::analyzePro() {	 //è¿‡ç¨‹è¯´æ˜éƒ¨åˆ†
 
 	if (_tempSymEntry.sym == _IDENT) {
-		char* id = new char[MAX_ID_LEN];
-		strcpy(id, _tempSymEntry.name);
-		if (!insertSymbol(SymbolKind::PROD, id))
+		if (!insertSymbol(SymbolKind::PROD, _tempSymEntry.name))
 			error(109, wa->row);
-		/*ÖØ¶¨Òå*/
+		/*é‡å®šä¹‰*/
 
 		_tempSymEntry = wa->getSym();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 	} else {
-		/*¹ı³ÌÊ×²¿Ã»ÓĞ±êÊ¶·û*/
+		/*è¿‡ç¨‹é¦–éƒ¨æ²¡æœ‰æ ‡è¯†ç¬¦*/
 		error(20, wa->row);
 	}
 
@@ -213,33 +210,33 @@ void parser::analyzePro() {	 //¹ı³ÌËµÃ÷²¿·Ö
 		_tempSymEntry = wa->getSym();
 		if (_tempSymEntry.sym == INVALID)
 			return;
-	} else {  //¹ı³ÌÃûÃ»ÓĞÒÔ·ÖºÅ½áÊø
+	} else {  //è¿‡ç¨‹åæ²¡æœ‰ä»¥åˆ†å·ç»“æŸ
 		error(17, wa->row);
 	}
 
-	//±£´æµ±Ç°dxºÍlev
+	//ä¿å­˜å½“å‰dxå’Œlev
 	int tempdx = dx;
 	int templev = lev;
 
-	BLOCK();  //·Ö³ÌĞò£¬ÄÚ²¿¹ı³ÌËµÃ÷±íµÄ¹¹Ôì
+	BLOCK();  //åˆ†ç¨‹åºï¼Œå†…éƒ¨è¿‡ç¨‹è¯´æ˜è¡¨çš„æ„é€ 
 
-	//»Ö¸´
+	//æ¢å¤
 	dx = tempdx;
 	lev = templev;
 
-	if (_tempSymEntry.sym == _SEMICOLON) {	//end;ºóµÄ·ûºÅ¡£ÕâÀïÓĞÎÊÌâ
+	if (_tempSymEntry.sym == _SEMICOLON) {	//end;åçš„ç¬¦å·ã€‚è¿™é‡Œæœ‰é—®é¢˜
 
 		_tempSymEntry = wa->getSym();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
-		while (_tempSymEntry.sym == _PROCEDURE) {  //Èç¹û»¹ÓĞ²¢ÁĞµÄ¹ı³ÌËµÃ÷
+		while (_tempSymEntry.sym == _PROCEDURE) {  //å¦‚æœè¿˜æœ‰å¹¶åˆ—çš„è¿‡ç¨‹è¯´æ˜
 
 			_tempSymEntry = wa->getSym();
 			analyzePro();
 		}
 	} else {
-		/*¹ı³ÌËµÃ÷endºóÃ»ÓĞ¼Ó·ÖºÅ*/
+		/*è¿‡ç¨‹è¯´æ˜endåæ²¡æœ‰åŠ åˆ†å·*/
 		error(22, wa->row);
 	}
 }
@@ -250,16 +247,16 @@ void parser::analyzeSent() {
 	int cx2;
 
 	switch (_tempSymEntry.sym) {
-	case _IDENT: { /*¸³ÖµÓï¾ä*/
+	case _IDENT: { /*èµ‹å€¼è¯­å¥*/
 
 		i = searchSymbol(_tempSymEntry.name);
-		if (i < 0) { /*Ã»ÓĞÕÒµ½·ûºÅµÄÉùÃ÷*/
+		if (i < 0) { /*æ²¡æœ‰æ‰¾åˆ°ç¬¦å·çš„å£°æ˜*/
 			error(108, wa->row);
 		}
 
 		else if (symbolTable.at(i).kind != SymbolKind::VAR) {
-			// Èç¹ûÔÚ·ûºÅ±íÖĞÕÒµ½ÁË£¬µ«ÊÇ¸Ã±êÊ¶·û²»ÊÇ±äÁ¿Ãû£¬
-			/*²»¿ÉĞŞ¸ÄµÄ×óÖµ*/
+			// å¦‚æœåœ¨ç¬¦å·è¡¨ä¸­æ‰¾åˆ°äº†ï¼Œä½†æ˜¯è¯¥æ ‡è¯†ç¬¦ä¸æ˜¯å˜é‡åï¼Œ
+			/*ä¸å¯ä¿®æ”¹çš„å·¦å€¼*/
 			error(110, wa->row);
 		}
 
@@ -267,17 +264,17 @@ void parser::analyzeSent() {
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
-		if (_tempSymEntry.sym == _ASSIGN) {	 //ÊÇ¸³ÖµºÅ
+		if (_tempSymEntry.sym == _ASSIGN) {	 //æ˜¯èµ‹å€¼å·
 
 			_tempSymEntry = wa->getSym();
 			if (_tempSymEntry.sym == INVALID)
 				return;
 		} else {
-			/*±äÁ¿ÃûºóÃ»ÓĞ¼Ó¸³ÖµºÅ*/
+			/*å˜é‡ååæ²¡æœ‰åŠ èµ‹å€¼å·*/
 			error(14, wa->row);
 		}
 
-		analyzeExpr();	//´¦Àí¸³ÖµºÅÓÒ²¿µÄ±í´ïÊ½
+		analyzeExpr();	//å¤„ç†èµ‹å€¼å·å³éƒ¨çš„è¡¨è¾¾å¼
 
 		if (i >= 0) {
 			GEN(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr);
@@ -291,23 +288,23 @@ void parser::analyzeSent() {
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
-		if (_tempSymEntry.sym != _IDENT) {	//call ºóÃæ²»ÊÇ±êÊ¶·û
+		if (_tempSymEntry.sym != _IDENT) {	//call åé¢ä¸æ˜¯æ ‡è¯†ç¬¦
 			error(34, wa->row);
 		} else {
-			i = searchSymbol(_tempSymEntry.name);  //²éÕÒ±êÊ¶·û¶ÔÓ¦µÄ·ûºÅ±í
+			i = searchSymbol(_tempSymEntry.name);  //æŸ¥æ‰¾æ ‡è¯†ç¬¦å¯¹åº”çš„ç¬¦å·è¡¨
 
 			if (i < 0) {
 				error(108, wa->row);
 			}
 
-			else if (symbolTable.at(i).kind == SymbolKind::PROD) {	//ÀàĞÍ¼ì²é
+			else if (symbolTable.at(i).kind == SymbolKind::PROD) {	//ç±»å‹æ£€æŸ¥
 
 				GEN(CAL, lev - symbolTable.at(i).lev, symbolTable.at(i).addr);
 			}
 
-			else {	//call ºó¼ÓµÄ²»ÊÇproc
+			else {	//call ååŠ çš„ä¸æ˜¯proc
 
-				/*µ÷ÓÃµÄ±êÊ¾·û²»ÊÇ¹ı³ÌÃû*/
+				/*è°ƒç”¨çš„æ ‡ç¤ºç¬¦ä¸æ˜¯è¿‡ç¨‹å*/
 				error(34, wa->row);
 			}
 
@@ -324,8 +321,8 @@ void parser::analyzeSent() {
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
-		analyzeCond();	//´¦ÀíifºóÃæµÄÌõ¼ş
-		cx1 = cx;		//jpcÓï¾äÕ¼ÓÃµÄÎ»ÖÃ
+		analyzeCond();	//å¤„ç†ifåé¢çš„æ¡ä»¶
+		cx1 = cx;		//jpcè¯­å¥å ç”¨çš„ä½ç½®
 		cx++;
 
 		if (_tempSymEntry.sym == _THEN) {
@@ -333,11 +330,11 @@ void parser::analyzeSent() {
 			if (_tempSymEntry.sym == INVALID)
 				return;
 
-			analyzeSent();														   //thenºóµÄÓï¾ä
-			codeTable.insert(codeTable.begin() + cx1, CODE(JPC, 0, cx + offset));  //»ØÌîthenÓï¾äÖ®ºóµÄ´úÂëµØÖ·
+			analyzeSent();														   //thenåçš„è¯­å¥
+			codeTable.insert(codeTable.begin() + cx1, CODE(JPC, 0, cx + offset));  //å›å¡«thenè¯­å¥ä¹‹åçš„ä»£ç åœ°å€
 
 		} else {
-			/*Ìõ¼şÓï¾äÈ±ÉÙthen*/
+			/*æ¡ä»¶è¯­å¥ç¼ºå°‘then*/
 			error(36, wa->row);
 		}
 
@@ -355,16 +352,16 @@ void parser::analyzeSent() {
 
 		analyzeSent();
 
-		while (_tempSymEntry.sym != INVALID) {	//ÕâÀïĞ´µÄÓĞµãÂÒ
+		while (_tempSymEntry.sym != INVALID) {	//è¿™é‡Œå†™çš„æœ‰ç‚¹ä¹±
 
-			if (_tempSymEntry.sym == _SEMICOLON) {	//tÎª";",ËµÃ÷ºóÃæ»¹ÓĞÓï¾ä
+			if (_tempSymEntry.sym == _SEMICOLON) {	//tä¸º";",è¯´æ˜åé¢è¿˜æœ‰è¯­å¥
 
 				_tempSymEntry = wa->getSym();
 				if (_tempSymEntry.sym == INVALID)
 					return;
 
 				analyzeSent();
-			} else if (_tempSymEntry.sym == _END) {	 //tÎªend£¬±íÊ¾¸´ºÏÓï¾ä½áÊø
+			} else if (_tempSymEntry.sym == _END) {	 //tä¸ºendï¼Œè¡¨ç¤ºå¤åˆè¯­å¥ç»“æŸ
 
 				_tempSymEntry = wa->getSym();
 				//if (t.sym == INVALID) return;
@@ -372,28 +369,28 @@ void parser::analyzeSent() {
 			}
 
 			else {
-				//³öÏÖÆäËû×Ö·û£¬ÔòËµÃ÷¸´ºÏÓï¾ä´íÎó
+				//å‡ºç°å…¶ä»–å­—ç¬¦ï¼Œåˆ™è¯´æ˜å¤åˆè¯­å¥é”™è¯¯
 				error(23, wa->row);
 				return;
 			}
 			//analyzeSent();
 		}
 
-		/*¸´ºÏÓï¾ä³ö´í*/
+		/*å¤åˆè¯­å¥å‡ºé”™*/
 		break;
 	}
 
 	case _WHILE: {
-		cx1 = cx;  // ¼ÇÂ¼µ±Ç°´úÂë·ÖÅäÎ»ÖÃ£¬ÕâÊÇwhileÑ­»·µÄ¿ªÊ¼Î»ÖÃ£¬Ò²¾ÍÊÇÎŞÌõ¼şÌø×ªµ½µÄµØ·½
+		cx1 = cx;  // è®°å½•å½“å‰ä»£ç åˆ†é…ä½ç½®ï¼Œè¿™æ˜¯whileå¾ªç¯çš„å¼€å§‹ä½ç½®ï¼Œä¹Ÿå°±æ˜¯æ— æ¡ä»¶è·³è½¬åˆ°çš„åœ°æ–¹
 
 		_tempSymEntry = wa->getSym();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
-		analyzeCond();	//ÅĞ¶ÏwhileºóÃæµÄÌõ¼şÓï¾ä
+		analyzeCond();	//åˆ¤æ–­whileåé¢çš„æ¡ä»¶è¯­å¥
 
-		cx2 = cx;  //jpcÓï¾ä²åÈëµÄµØ·½
-		cx++;	   //Õ¼Ò»¸öCodeÎ»ÖÃ
+		cx2 = cx;  //jpcè¯­å¥æ’å…¥çš„åœ°æ–¹
+		cx++;	   //å ä¸€ä¸ªCodeä½ç½®
 
 		if (_tempSymEntry.sym == _DO) {
 			_tempSymEntry = wa->getSym();
@@ -402,10 +399,10 @@ void parser::analyzeSent() {
 
 			analyzeSent();
 
-			GEN(JMP, 0, cx1 + offset);	//Ìø×ªµ½cx1´¦£¬¼´ÔÙ´Î½øĞĞÅĞ¶ÏÊÇ·ñ½øĞĞÑ­»·
+			GEN(JMP, 0, cx1 + offset);	//è·³è½¬åˆ°cx1å¤„ï¼Œå³å†æ¬¡è¿›è¡Œåˆ¤æ–­æ˜¯å¦è¿›è¡Œå¾ªç¯
 			codeTable.insert(codeTable.begin() + cx2, CODE(JPC, 0, cx + offset));
 		} else {
-			/*whileºóÃæÃ»ÓĞ½Ódo*/
+			/*whileåé¢æ²¡æœ‰æ¥do*/
 			error(39, wa->row);
 		}
 
@@ -425,13 +422,13 @@ void parser::analyzeSent() {
 			if (_tempSymEntry.sym == _IDENT) {
 				i = searchSymbol(_tempSymEntry.name);
 				if (i < 0) {
-					/*Î´ËµÃ÷µÄ±êÊ¶·û*/
+					/*æœªè¯´æ˜çš„æ ‡è¯†ç¬¦*/
 					error(108, wa->row);
 				}
 
 				else {
-					//codeTable.push_back(CODE(OPR, 0, OPR::READ));// Éú³É16ºÅ¶ÁÖ¸Áî£¬´Ó¼üÅÌ¶ÁÈ¡Êı×Ö
-					//codeTable.push_back(CODE(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr));// Éú³ÉstoÖ¸Áî£¬´æÈëÖ¸¶¨±äÁ¿
+					//codeTable.push_back(CODE(OPR, 0, OPR::READ));// ç”Ÿæˆ16å·è¯»æŒ‡ä»¤ï¼Œä»é”®ç›˜è¯»å–æ•°å­—
+					//codeTable.push_back(CODE(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr));// ç”ŸæˆstoæŒ‡ä»¤ï¼Œå­˜å…¥æŒ‡å®šå˜é‡
 					GEN(OPR, 0, OPR::READ);
 					GEN(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr);
 				}
@@ -441,7 +438,7 @@ void parser::analyzeSent() {
 			if (_tempSymEntry.sym == INVALID)
 				return;
 
-			while (_tempSymEntry.sym == _COMMA) {  //¶Á¶à¸ö¼üÅÌÊäÈë
+			while (_tempSymEntry.sym == _COMMA) {  //è¯»å¤šä¸ªé”®ç›˜è¾“å…¥
 
 				_tempSymEntry = wa->getSym();
 				if (_tempSymEntry.sym == INVALID)
@@ -450,10 +447,10 @@ void parser::analyzeSent() {
 				if (_tempSymEntry.sym == _IDENT) {
 					i = searchSymbol(_tempSymEntry.name);
 					if (i < 0) {
-						/*Ã»ÕÒµ½±êÊ¶·û*/
+						/*æ²¡æ‰¾åˆ°æ ‡è¯†ç¬¦*/
 						error(108, wa->row);
 					} else {
-						//	codeTable.push_back(CODE(OPR, 0, OPR::READ));//¶Á¼üÅÌ
+						//	codeTable.push_back(CODE(OPR, 0, OPR::READ));//è¯»é”®ç›˜
 						//codeTable.push_back(CODE(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr));
 						GEN(OPR, 0, OPR::READ);
 						GEN(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr);
@@ -466,12 +463,12 @@ void parser::analyzeSent() {
 			}
 
 			if (_tempSymEntry.sym != _RPAIR) {
-				/*×óÓÒÀ¨ºÅ²»Æ¥Åä*/
+				/*å·¦å³æ‹¬å·ä¸åŒ¹é…*/
 				error(27, wa->row);
 			}
 
 		} else {
-			/*²»ÊÇ×óÀ¨ºÅ*/
+			/*ä¸æ˜¯å·¦æ‹¬å·*/
 			error(29, wa->row);
 		}
 
@@ -503,7 +500,7 @@ void parser::analyzeSent() {
 			}
 
 			if (_tempSymEntry.sym != _RPAIR) {
-				/*×óÓÒÀ¨ºÅ²»Æ¥Åä*/
+				/*å·¦å³æ‹¬å·ä¸åŒ¹é…*/
 				error(31, wa->row);
 			} else {
 				_tempSymEntry = wa->getSym();
@@ -515,7 +512,7 @@ void parser::analyzeSent() {
 		break;
 	}
 
-	default:  //²»ÊÇbegin¿ªÍ·
+	default:  //ä¸æ˜¯beginå¼€å¤´
 		//error(8, wa->row);
 		break;
 	}
@@ -523,28 +520,28 @@ void parser::analyzeSent() {
 
 void parser::analyzeCond() {
 	int relop;
-	if (_tempSymEntry.sym == _ODD) {  //Ò»ÔªÔËËã·û
+	if (_tempSymEntry.sym == _ODD) {  //ä¸€å…ƒè¿ç®—ç¬¦
 
 		_tempSymEntry = wa->getSym();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
-		analyzeExpr();	//·ÖÎö±í´ïÊ½
+		analyzeExpr();	//åˆ†æè¡¨è¾¾å¼
 
-		//codeTable.push_back(CODE(OPR, 0, OPR::ODD));//Éú³ÉÆæÅ¼ÅĞ¶ÏÖ¸Áî
+		//codeTable.push_back(CODE(OPR, 0, OPR::ODD));//ç”Ÿæˆå¥‡å¶åˆ¤æ–­æŒ‡ä»¤
 		GEN(OPR, 0, OPR::ODD);
 	}
 
-	else {	//¶şÔªÔËËã·û
+	else {	//äºŒå…ƒè¿ç®—ç¬¦
 
-		analyzeExpr();				//·ÖÎö×ó±ß±í´ïÊ½
-		relop = _tempSymEntry.sym;	//±£´æ¶şÔªÔËËã·û
+		analyzeExpr();				//åˆ†æå·¦è¾¹è¡¨è¾¾å¼
+		relop = _tempSymEntry.sym;	//ä¿å­˜äºŒå…ƒè¿ç®—ç¬¦
 
 		_tempSymEntry = wa->getSym();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
-		analyzeExpr();	//·ÖÎöÓÒ±ß±í´ïÊ½
+		analyzeExpr();	//åˆ†æå³è¾¹è¡¨è¾¾å¼
 
 		switch (relop) {
 		case _EQ:
@@ -578,7 +575,7 @@ void parser::analyzeCond() {
 			break;
 
 		default:
-			/*±£´æµÄ²»ÊÇÂß¼­ÔËËã·û*/
+			/*ä¿å­˜çš„ä¸æ˜¯é€»è¾‘è¿ç®—ç¬¦*/
 			break;
 		}
 	}
@@ -586,7 +583,7 @@ void parser::analyzeCond() {
 
 void parser::analyzeExpr() {
 	int addop;
-	if (_tempSymEntry.sym == _PLUS || _tempSymEntry.sym == _MINUS) {  //±í´ïÊ½ÒÔÕı¸º¿ªÍ·
+	if (_tempSymEntry.sym == _PLUS || _tempSymEntry.sym == _MINUS) {  //è¡¨è¾¾å¼ä»¥æ­£è´Ÿå¼€å¤´
 
 		addop = _tempSymEntry.sym;
 
@@ -594,18 +591,18 @@ void parser::analyzeExpr() {
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
-		analyzeTerm();	//½øĞĞÏîµÄ´¦Àí
+		analyzeTerm();	//è¿›è¡Œé¡¹çš„å¤„ç†
 
 		if (addop == _MINUS) {
-			//codeTable.push_back(CODE(OPR, 0, OPR::MINUS));//È¡·´ÔËËã
+			//codeTable.push_back(CODE(OPR, 0, OPR::MINUS));//å–åè¿ç®—
 			GEN(OPR, 0, OPR::MINUS);
 		}
 	} else {
-		analyzeTerm();	//±í´ïÊ½ÏîµÄ¿ªÍ·£¬Ö±½ÓÏîµÄ·ÖÎö
+		analyzeTerm();	//è¡¨è¾¾å¼é¡¹çš„å¼€å¤´ï¼Œç›´æ¥é¡¹çš„åˆ†æ
 	}
 
 	while (_tempSymEntry.sym == _PLUS || _tempSymEntry.sym == _MINUS) {
-		addop = _tempSymEntry.sym;	//ËãÊõÔËËã·û±£´æÔÚaddopÖĞ
+		addop = _tempSymEntry.sym;	//ç®—æœ¯è¿ç®—ç¬¦ä¿å­˜åœ¨addopä¸­
 
 		_tempSymEntry = wa->getSym();
 		if (_tempSymEntry.sym == INVALID)
@@ -613,12 +610,12 @@ void parser::analyzeExpr() {
 
 		analyzeTerm();
 
-		if (addop == _PLUS) {  // Ïî·ÖÎöÍê±Ïºó£¬Èç¹û¸Õ²Å±£´æµÄÊÇ¼ÓºÅ£¬ÔòÉú³É¼Ó·¨Ö¸Áî
+		if (addop == _PLUS) {  // é¡¹åˆ†æå®Œæ¯•åï¼Œå¦‚æœåˆšæ‰ä¿å­˜çš„æ˜¯åŠ å·ï¼Œåˆ™ç”ŸæˆåŠ æ³•æŒ‡ä»¤
 
 			//codeTable.push_back(CODE(OPR, 0, OPR::ADD));
-			GEN(OPR, 0, OPR::ADD);	//¼Ó·¨Ö¸Áî
+			GEN(OPR, 0, OPR::ADD);	//åŠ æ³•æŒ‡ä»¤
 		} else {
-			//codeTable.push_back(CODE(OPR, 0, OPR::SUB));//¼õ·¨Ö¸Áî
+			//codeTable.push_back(CODE(OPR, 0, OPR::SUB));//å‡æ³•æŒ‡ä»¤
 			GEN(OPR, 0, OPR::SUB);
 		}
 	}
@@ -630,19 +627,19 @@ void parser::analyzeTerm() {
 	analyzeElem();
 
 	while (_tempSymEntry.sym == _STAR || _tempSymEntry.sym == _DIV) {
-		mulop = _tempSymEntry.sym;	/// °ÑÔËËã·û±£´æÔÚmulopÖĞ(³Ë·¨»òÊÇ³ı·¨)
+		mulop = _tempSymEntry.sym;	/// æŠŠè¿ç®—ç¬¦ä¿å­˜åœ¨mulopä¸­(ä¹˜æ³•æˆ–æ˜¯é™¤æ³•)
 
 		_tempSymEntry = wa->getSym();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
-		analyzeElem();	// ÔËËã·ûºóÓ¦¸ÃÊÇÒ»¸öÒò×Ó£¬½øĞĞÒò×Ó·ÖÎö
+		analyzeElem();	// è¿ç®—ç¬¦ååº”è¯¥æ˜¯ä¸€ä¸ªå› å­ï¼Œè¿›è¡Œå› å­åˆ†æ
 
 		if (mulop == _STAR) {
-			//codeTable.push_back(CODE(OPR, 0, OPR::MUL));//4ºÅ³Ë·¨Ö¸Áî
+			//codeTable.push_back(CODE(OPR, 0, OPR::MUL));//4å·ä¹˜æ³•æŒ‡ä»¤
 			GEN(OPR, 0, OPR::MUL);
 		} else {
-			//codeTable.push_back(CODE(OPR, 0, OPR::DIV));//³ı·¨Ö¸Áî
+			//codeTable.push_back(CODE(OPR, 0, OPR::DIV));//é™¤æ³•æŒ‡ä»¤
 			GEN(OPR, 0, OPR::DIV);
 		}
 	}
@@ -655,12 +652,12 @@ void parser::analyzeElem() {
 		case _IDENT: {
 			i = searchSymbol(_tempSymEntry.name);
 			if (i < 0) {
-				/*Ã»ÓĞÕÒµ½·ûºÅ*/
+				/*æ²¡æœ‰æ‰¾åˆ°ç¬¦å·*/
 				error(108, wa->row);
 			}
 
 			else if (symbolTable.at(i).kind == SymbolKind::CONST) {
-				// Èç¹û¸Ã±êÊ¶·ûÎª³£Á¿,ÔòÉú³ÉlitÖ¸Áî,°Ñval·Åµ½Õ»¶¥
+				// å¦‚æœè¯¥æ ‡è¯†ç¬¦ä¸ºå¸¸é‡,åˆ™ç”ŸæˆlitæŒ‡ä»¤,æŠŠvalæ”¾åˆ°æ ˆé¡¶
 				//codeTable.push_back(CODE(LIT, 0, symbolTable.at(i).val));
 				GEN(LIT, 0, symbolTable.at(i).val);
 
@@ -679,7 +676,7 @@ void parser::analyzeElem() {
 				if (_tempSymEntry.sym == INVALID)
 					return;
 			} else if (symbolTable.at(i).kind == SymbolKind::PROD) {
-				/*¸Ã±êÊ¶·ûÎª¹ı³ÌÃû£¬³ö´í*/
+				/*è¯¥æ ‡è¯†ç¬¦ä¸ºè¿‡ç¨‹åï¼Œå‡ºé”™*/
 				error(43, wa->row);
 				_tempSymEntry = wa->getSym();
 				if (_tempSymEntry.sym == INVALID)
@@ -689,11 +686,11 @@ void parser::analyzeElem() {
 			break;
 		}
 
-		case _NUMBER:  //Òò×Ó·ÖÎöÓöµ½Êı×Ö
+		case _NUMBER:  //å› å­åˆ†æé‡åˆ°æ•°å­—
 		{
-			int num = atoi(_tempSymEntry.name); /*ÒªÅĞ¶Ï·¶Î§*/
+			int num = atoi(_tempSymEntry.name.c_str()); /*è¦åˆ¤æ–­èŒƒå›´*/
 
-			//codeTable.push_back(CODE(LIT, 0, num));// Éú³ÉlitÖ¸Áî£¬°ÑÕâ¸öÊıÖµ×ÖÃæ³£Á¿·Åµ½Õ»¶¥
+			//codeTable.push_back(CODE(LIT, 0, num));// ç”ŸæˆlitæŒ‡ä»¤ï¼ŒæŠŠè¿™ä¸ªæ•°å€¼å­—é¢å¸¸é‡æ”¾åˆ°æ ˆé¡¶
 			GEN(LIT, 0, num);
 
 			_tempSymEntry = wa->getSym();
@@ -715,7 +712,7 @@ void parser::analyzeElem() {
 				if (_tempSymEntry.sym == INVALID)
 					return;
 			} else {
-				/*×óÓÒÀ¨ºÅ²»Æ¥Åä*/
+				/*å·¦å³æ‹¬å·ä¸åŒ¹é…*/
 				error(41, wa->row);
 			}
 
@@ -725,19 +722,19 @@ void parser::analyzeElem() {
 	}
 }
 
-bool parser::insertSymbol(SymbolKind kind, const char* id) {
-	if (searchSymbol(id) >= 0)	//ÒÑ¾­ÕÒµ½·ûºÅµÄÉùÃ÷
+bool parser::insertSymbol(SymbolKind kind, const std::string& id) {
+	if (searchSymbol(id) >= 0)	//å·²ç»æ‰¾åˆ°ç¬¦å·çš„å£°æ˜
 		return false;
 
 	switch (kind) {
 	case SymbolKind::CONST: {
-		int num = atoi(_tempSymEntry.name);	 //Ô½½ç¼ì²é
+		int num = atoi(_tempSymEntry.name.c_str());	 //è¶Šç•Œæ£€æŸ¥
 		symbolTable.push_back(SYMBOL(id, kind, num, 0, 0));
 		break;
 	}
 
 	case SymbolKind::VAR: {
-		symbolTable.push_back(SYMBOL(id, kind, 0xFFFFFFFF, lev, dx++));	 //±äÁ¿Ä¬ÈÏÖµÊÇ-1
+		symbolTable.push_back(SYMBOL(id, kind, 0xFFFFFFFF, lev, dx++));	 //å˜é‡é»˜è®¤å€¼æ˜¯-1
 		break;
 	}
 
@@ -752,10 +749,10 @@ bool parser::insertSymbol(SymbolKind kind, const char* id) {
 	return true;
 }
 
-int parser::searchSymbol(const char* id) {
+int parser::searchSymbol(const std::string& id) {
 	for (int i = 0; i < symbolTable.size(); i++) {
 		SYMBOL s = symbolTable.at(i);
-		if (!strcmp(id, s.name) && lev >= s.lev)  //sÔÚµ±Ç°²ã¼°ÒÔÉÏÇÒÃû×ÖÏàÍ¬
+		if ((id == s.name) && lev >= s.lev)	 //såœ¨å½“å‰å±‚åŠä»¥ä¸Šä¸”åå­—ç›¸åŒ
 			return i;
 	}
 
@@ -767,303 +764,303 @@ int parser::error(int e, int eline) {
 
 	switch (e) {
 	case 0: {
-		oss << e << ": " << eline << "ĞĞÓĞ·Ç·¨×Ö·û";
+		oss << e << ": " << eline << "è¡Œæœ‰éæ³•å­—ç¬¦";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 1: {
-		//errors[etop++] = itos(e) + ": " + itos(eline) + "ĞĞÓĞ³¬¹ı14¸ö×ÖÄ¸µÄµ¥´Ê";
-		oss << e << ": " << eline << "ĞĞÓĞ³¬¹ı10¸ö×ÖÄ¸µÄµ¥´Ê";
+		//errors[etop++] = itos(e) + ": " + itos(eline) + "è¡Œæœ‰è¶…è¿‡14ä¸ªå­—æ¯çš„å•è¯";
+		oss << e << ": " << eline << "è¡Œæœ‰è¶…è¿‡10ä¸ªå­—æ¯çš„å•è¯";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 2: {
-		//errors[etop++] = itos(e) + ": " + itos(eline) + "ĞĞÓĞÊı×Ö¿ªÍ·µÄ±êÊ¶·û";
-		oss << e << ": " << eline << "ĞĞÓĞÊı×Ö¿ªÍ·µÄ±êÊ¶·û";
+		//errors[etop++] = itos(e) + ": " + itos(eline) + "è¡Œæœ‰æ•°å­—å¼€å¤´çš„æ ‡è¯†ç¬¦";
+		oss << e << ": " << eline << "è¡Œæœ‰æ•°å­—å¼€å¤´çš„æ ‡è¯†ç¬¦";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 3: {
-		//errors[etop++] = itos(e) + ": " + itos(eline) + "ĞĞÓĞ³¬¹ı10¸ö×ÖÄ¸µÄ±êÊ¶·û";
-		oss << e << ": " << eline << "ĞĞÓĞ³¬¹ı10¸ö×ÖÄ¸µÄ±êÊ¶·û";
+		//errors[etop++] = itos(e) + ": " + itos(eline) + "è¡Œæœ‰è¶…è¿‡10ä¸ªå­—æ¯çš„æ ‡è¯†ç¬¦";
+		oss << e << ": " << eline << "è¡Œæœ‰è¶…è¿‡10ä¸ªå­—æ¯çš„æ ‡è¯†ç¬¦";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 4: {
-		//errors[etop++] = itos(e) + ": " + itos(eline) + "ĞĞ³ÌĞò½áÎ²Ã»ÓĞ.";
-		oss << e << ": " << eline << "ĞĞ³ÌĞò½áÎ²Ã»ÓĞ.";
+		//errors[etop++] = itos(e) + ": " + itos(eline) + "è¡Œç¨‹åºç»“å°¾æ²¡æœ‰.";
+		oss << e << ": " << eline << "è¡Œç¨‹åºç»“å°¾æ²¡æœ‰.";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 5: {
-		//errors[etop++] = itos(e) + ": " + itos(eline) + "ĞĞ³ÌĞòÊ×²¿±êÊ¶·ûºóÃæÃ»ÓĞ;";
-		oss << e << ": " << eline << "ĞĞ³ÌĞòÊ×²¿±êÊ¶·ûºóÃæÃ»ÓĞ;";
+		//errors[etop++] = itos(e) + ": " + itos(eline) + "è¡Œç¨‹åºé¦–éƒ¨æ ‡è¯†ç¬¦åé¢æ²¡æœ‰;";
+		oss << e << ": " << eline << "è¡Œç¨‹åºé¦–éƒ¨æ ‡è¯†ç¬¦åé¢æ²¡æœ‰;";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 6: {  //
-		//errors[etop++] = itos(e) + ": " + itos(eline) + "ĞĞ³ÌĞòÊ×²¿PRAGRAMºóÃæÃ»ÓĞ±êÊ¶·û";
-		oss << e << ": " << eline << "ĞĞ³ÌĞòÊ×²¿PROCEDUREºóÃæÃ»ÓĞ±êÊ¶·û";
+		//errors[etop++] = itos(e) + ": " + itos(eline) + "è¡Œç¨‹åºé¦–éƒ¨PRAGRAMåé¢æ²¡æœ‰æ ‡è¯†ç¬¦";
+		oss << e << ": " << eline << "è¡Œç¨‹åºé¦–éƒ¨PROCEDUREåé¢æ²¡æœ‰æ ‡è¯†ç¬¦";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 7: {
-		//errors[etop++] = itos(e) + ": " + itos(eline) + "ĞĞÃ»ÓĞ³ÌĞòÊ×²¿";
-		oss << e << ": " << eline << "ĞĞÃ»ÓĞ³ÌĞòÊ×²¿";
+		//errors[etop++] = itos(e) + ": " + itos(eline) + "è¡Œæ²¡æœ‰ç¨‹åºé¦–éƒ¨";
+		oss << e << ": " << eline << "è¡Œæ²¡æœ‰ç¨‹åºé¦–éƒ¨";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 8: {
-		oss << e << ": " << eline << "ĞĞ·Ö³ÌĞòºóÈ±ÉÙÓï¾ä²¿·Ö";
+		oss << e << ": " << eline << "è¡Œåˆ†ç¨‹åºåç¼ºå°‘è¯­å¥éƒ¨åˆ†";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 9: {
-		oss << e << ": " << eline << "ĞĞ³£Á¿ËµÃ÷µÄ,×Ö·ûºóÃæÓĞ´íÎó";
+		oss << e << ": " << eline << "è¡Œå¸¸é‡è¯´æ˜çš„,å­—ç¬¦åé¢æœ‰é”™è¯¯";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 10: {
-		oss << e << ": " << eline << "ĞĞ³£Á¿ËµÃ÷ºóÃæÃ»ÓĞ;½áÎ²";
+		oss << e << ": " << eline << "è¡Œå¸¸é‡è¯´æ˜åé¢æ²¡æœ‰;ç»“å°¾";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 11: {
-		oss << e << ": " << eline << "ĞĞ³£Á¿¶¨ÒåÓĞ´íÎó";
+		oss << e << ": " << eline << "è¡Œå¸¸é‡å®šä¹‰æœ‰é”™è¯¯";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 12: {
-		oss << e << ": " << eline << "ĞĞ±äÁ¿ËµÃ÷,ºóÃæÈ±ÉÙ±êÊ¶·û";
+		oss << e << ": " << eline << "è¡Œå˜é‡è¯´æ˜,åé¢ç¼ºå°‘æ ‡è¯†ç¬¦";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 13: {
-		oss << e << ": " << eline << "ĞĞ±äÁ¿ËµÃ÷Ã»ÓĞ;½áÎ²";
+		oss << e << ": " << eline << "è¡Œå˜é‡è¯´æ˜æ²¡æœ‰;ç»“å°¾";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 14: {
-		oss << e << ": " << eline << "ĞĞVARºóÃæÃ»ÓĞ¶¨ÒåµÄ±êÊ¶·û";
+		oss << e << ": " << eline << "è¡ŒVARåé¢æ²¡æœ‰å®šä¹‰çš„æ ‡è¯†ç¬¦";
 		errors[etop++] = oss.str();
 		break;
 	}
 
 	case 15: {
-		oss << e << ": " << eline << "ĞĞ·Ö³ÌĞòºóÃæÃ»ÓĞ;½áÎ²";
+		oss << e << ": " << eline << "è¡Œåˆ†ç¨‹åºåé¢æ²¡æœ‰;ç»“å°¾";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 16: {
-		oss << e << ": " << eline << "ĞĞ¹ı³ÌËµÃ÷ºóÃæÃ»ÓĞ·Ö³ÌĞò";
+		oss << e << ": " << eline << "è¡Œè¿‡ç¨‹è¯´æ˜åé¢æ²¡æœ‰åˆ†ç¨‹åº";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 17: {
-		oss << e << ": " << eline << "ĞĞ¹ı³ÌÊ×²¿ºóÃæÃ»ÓĞ;½áÎ²";
+		oss << e << ": " << eline << "è¡Œè¿‡ç¨‹é¦–éƒ¨åé¢æ²¡æœ‰;ç»“å°¾";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 18: {
-		oss << e << ": " << eline << "ĞĞ³£Á¿¶¨ÒåÃ»ÓĞÖ¸¶¨Êı×Ö";
+		oss << e << ": " << eline << "è¡Œå¸¸é‡å®šä¹‰æ²¡æœ‰æŒ‡å®šæ•°å­—";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 19: {
-		oss << e << ": " << eline << "ĞĞ³£Á¿¶¨ÒåÃ»ÓĞ=×Ö·û";
+		oss << e << ": " << eline << "è¡Œå¸¸é‡å®šä¹‰æ²¡æœ‰=å­—ç¬¦";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 20: {
-		oss << e << ": " << eline << "ĞĞ¹ı³ÌÊ×²¿PROCEDUREºóÃæ²¢Ã»ÓĞ±êÊ¶·û";
+		oss << e << ": " << eline << "è¡Œè¿‡ç¨‹é¦–éƒ¨PROCEDUREåé¢å¹¶æ²¡æœ‰æ ‡è¯†ç¬¦";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 21: {
-		oss << e << ": " << eline << "ĞĞÓï¾äºóÃæÃ»ÓĞ;½áÎ²";
+		oss << e << ": " << eline << "è¡Œè¯­å¥åé¢æ²¡æœ‰;ç»“å°¾";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 22: {
-		oss << e << ": " << eline << "ĞĞÃ»ÓĞEND½áÎ²£¬»òÕß´ËĞĞÓï¾äÈ±ÉÙ;½áÎ²";
+		oss << e << ": " << eline << "è¡Œæ²¡æœ‰ENDç»“å°¾ï¼Œæˆ–è€…æ­¤è¡Œè¯­å¥ç¼ºå°‘;ç»“å°¾";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 23: {
-		oss << e << ": " << eline << "ĞĞ¸´ºÏÓï¾äµÄBEGINºóÃæ²»ÊÇÓï¾ä";
+		oss << e << ": " << eline << "è¡Œå¤åˆè¯­å¥çš„BEGINåé¢ä¸æ˜¯è¯­å¥";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 24: {
-		oss << e << ": " << eline << "ĞĞ¸³ÖµÓï¾äºóÃæ²»ÊÇ±í´ïÊ½";
+		oss << e << ": " << eline << "è¡Œèµ‹å€¼è¯­å¥åé¢ä¸æ˜¯è¡¨è¾¾å¼";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 25: {
-		oss << e << ": " << eline << "ĞĞ¸³ÖµÓï¾äÃ»ÓĞ:=¸³ÖµºÅ";
+		oss << e << ": " << eline << "è¡Œèµ‹å€¼è¯­å¥æ²¡æœ‰:=èµ‹å€¼å·";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 26: {
-		oss << e << ": " << eline << "ĞĞREADÓï¾ä²ÎÊıÖĞÓĞ·Ç·¨,×Ö·û";
+		oss << e << ": " << eline << "è¡ŒREADè¯­å¥å‚æ•°ä¸­æœ‰éæ³•,å­—ç¬¦";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 27: {
-		oss << e << ": " << eline << "ĞĞREADÓï¾äÈ±ÉÙ)×Ö·û";
+		oss << e << ": " << eline << "è¡ŒREADè¯­å¥ç¼ºå°‘)å­—ç¬¦";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 28: {
-		oss << e << ": " << eline << "ĞĞREADÓï¾äÈ±ÉÙ±êÊ¶·û";
+		oss << e << ": " << eline << "è¡ŒREADè¯­å¥ç¼ºå°‘æ ‡è¯†ç¬¦";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 29: {
-		oss << e << ": " << eline << "ĞĞREADÓï¾äÈ±ÉÙ(×Ö·û";
+		oss << e << ": " << eline << "è¡ŒREADè¯­å¥ç¼ºå°‘(å­—ç¬¦";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 30: {
-		oss << e << ": " << eline << "ĞĞWRITEÓï¾ä²ÎÊıÖĞÓĞ·Ç·¨,×Ö·û";
+		oss << e << ": " << eline << "è¡ŒWRITEè¯­å¥å‚æ•°ä¸­æœ‰éæ³•,å­—ç¬¦";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 31: {
-		oss << e << ": " << eline << "ĞĞWRITEÓï¾äÈ±ÉÙ)×Ö·û";
+		oss << e << ": " << eline << "è¡ŒWRITEè¯­å¥ç¼ºå°‘)å­—ç¬¦";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 32: {
-		oss << e << ": " << eline << "ĞĞWRITEÓï¾äÈ±ÉÙ±êÊ¶·û";
+		oss << e << ": " << eline << "è¡ŒWRITEè¯­å¥ç¼ºå°‘æ ‡è¯†ç¬¦";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 33: {
-		oss << e << ": " << eline << "ĞĞWRITEÓï¾äÈ±ÉÙ(×Ö·û";
+		oss << e << ": " << eline << "è¡ŒWRITEè¯­å¥ç¼ºå°‘(å­—ç¬¦";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 34: {
-		oss << e << ": " << eline << "ĞĞCALLÓï¾äÃ»ÓĞ¹ı³ÌÃû×Ö";
+		oss << e << ": " << eline << "è¡ŒCALLè¯­å¥æ²¡æœ‰è¿‡ç¨‹åå­—";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 35: {
-		oss << e << ": " << eline << "ĞĞIFÓï¾äµÄTHENºóÃæ²»ÊÇºÏ·¨Óï¾ä";
+		oss << e << ": " << eline << "è¡ŒIFè¯­å¥çš„THENåé¢ä¸æ˜¯åˆæ³•è¯­å¥";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 36: {
-		oss << e << ": " << eline << "ĞĞIFÓï¾äµÄÌõ¼şºóÃæÃ»ÓĞTHEN";
+		oss << e << ": " << eline << "è¡ŒIFè¯­å¥çš„æ¡ä»¶åé¢æ²¡æœ‰THEN";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 37: {
-		oss << e << ": " << eline << "ĞĞIFÓï¾äºóÃæ²»ÊÇºÏ·¨Ìõ¼ş";
+		oss << e << ": " << eline << "è¡ŒIFè¯­å¥åé¢ä¸æ˜¯åˆæ³•æ¡ä»¶";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 38: {
-		oss << e << ": " << eline << "ĞĞWHILEÓï¾äµÄDOºóÃæ²»ÊÇºÏ·¨Óï¾ä";
+		oss << e << ": " << eline << "è¡ŒWHILEè¯­å¥çš„DOåé¢ä¸æ˜¯åˆæ³•è¯­å¥";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 39: {
-		oss << e << ": " << eline << "ĞĞWHILEÓï¾äÃ»ÓĞDO";
+		oss << e << ": " << eline << "è¡ŒWHILEè¯­å¥æ²¡æœ‰DO";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 40: {
-		oss << e << ": " << eline << "ĞĞWHILEÓï¾äºóÃæ²»ÊÇºÏ·¨µÄÌõ¼ş";
+		oss << e << ": " << eline << "è¡ŒWHILEè¯­å¥åé¢ä¸æ˜¯åˆæ³•çš„æ¡ä»¶";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 41: {
-		oss << e << ": " << eline << "ĞĞ±í´ïÊ½µÄÓÒ±ßÈ±ÉÙ)×Ö·û";
+		oss << e << ": " << eline << "è¡Œè¡¨è¾¾å¼çš„å³è¾¹ç¼ºå°‘)å­—ç¬¦";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 42: {
-		oss << e << ": " << eline << "ĞĞÓĞ·Ç·¨±í´ïÊ½";
+		oss << e << ": " << eline << "è¡Œæœ‰éæ³•è¡¨è¾¾å¼";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 43: {
-		oss << e << ": " << eline << "ĞĞÓĞ·Ç·¨Òò×Ó";
+		oss << e << ": " << eline << "è¡Œæœ‰éæ³•å› å­";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 44: {
-		oss << e << ": " << eline << "ĞĞÓĞ·Ç·¨Ïî";
+		oss << e << ": " << eline << "è¡Œæœ‰éæ³•é¡¹";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 45: {
-		oss << e << ": " << eline << "ĞĞÓĞ·Ç·¨Ïî";
+		oss << e << ": " << eline << "è¡Œæœ‰éæ³•é¡¹";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 46: {
-		oss << e << ": " << eline << "ĞĞÓĞ·Ç·¨Ïî";
+		oss << e << ": " << eline << "è¡Œæœ‰éæ³•é¡¹";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 47: {
-		oss << e << ": " << eline << "ĞĞÓĞ·Ç·¨Ïî";
+		oss << e << ": " << eline << "è¡Œæœ‰éæ³•é¡¹";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 48: {
-		oss << e << ": " << eline << "ĞĞ¹ØÏµÔËËã·ûÓĞ·Ç·¨±í´ïÊ½";
+		oss << e << ": " << eline << "è¡Œå…³ç³»è¿ç®—ç¬¦æœ‰éæ³•è¡¨è¾¾å¼";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 49: {
-		oss << e << ": " << eline << "ĞĞODDÓĞ·Ç·¨±í´ïÊ½";
+		oss << e << ": " << eline << "è¡ŒODDæœ‰éæ³•è¡¨è¾¾å¼";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 101: {
-		oss << e << ": " << eline << "ĞĞ¸ø·Ç±äÁ¿¸³Öµ»ò±äÁ¿Ã»ÓĞ¶¨Òå";
+		oss << e << ": " << eline << "è¡Œç»™éå˜é‡èµ‹å€¼æˆ–å˜é‡æ²¡æœ‰å®šä¹‰";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 102: {
-		oss << e << ": " << eline << "ĞĞreadÓï¾ä¶ÁÈë·Ç±äÁ¿»ò±äÁ¿Ã»ÓĞ¶¨Òå";
+		oss << e << ": " << eline << "è¡Œreadè¯­å¥è¯»å…¥éå˜é‡æˆ–å˜é‡æ²¡æœ‰å®šä¹‰";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 103: {
-		oss << e << ": " << eline << "ĞĞreadÓï¾ä¶ÁÈë·Ç±äÁ¿»ò±äÁ¿Ã»ÓĞ¶¨Òå";
+		oss << e << ": " << eline << "è¡Œreadè¯­å¥è¯»å…¥éå˜é‡æˆ–å˜é‡æ²¡æœ‰å®šä¹‰";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 106: {
-		oss << e << ": " << eline << "ĞĞcallÓï¾äºóÃæ²»ÊÇ¹ı³ÌÃû³Æ»ò¹ı³ÌÃ»ÓĞ¶¨Òå";
+		oss << e << ": " << eline << "è¡Œcallè¯­å¥åé¢ä¸æ˜¯è¿‡ç¨‹åç§°æˆ–è¿‡ç¨‹æ²¡æœ‰å®šä¹‰";
 		errors[etop++] = oss.str();
 		break;
 	}
 	case 107: {
-		oss << e << ": " << eline << "ĞĞÒò×Ó³ö´í";
+		oss << e << ": " << eline << "è¡Œå› å­å‡ºé”™";
 		errors[etop++] = oss.str();
 		break;
 	}
 
 	case 108: {
-		oss << e << ": " << eline << "ĞĞ¸Ã²ãÖĞÎ´ÉùÃ÷µÄ±êÊ¶·û";
+		oss << e << ": " << eline << "è¡Œè¯¥å±‚ä¸­æœªå£°æ˜çš„æ ‡è¯†ç¬¦";
 		errors[etop++] = oss.str();
 		break;
 	}
 
 	case 109: {
-		oss << e << ": " << eline << "ĞĞ±êÊ¶·ûÖØ¸´¶¨Òå";
+		oss << e << ": " << eline << "è¡Œæ ‡è¯†ç¬¦é‡å¤å®šä¹‰";
 		errors[etop++] = oss.str();
 		break;
 	}
 
 	case 110: {
-		oss << e << ": " << eline << "ĞĞ²»¿ÉĞŞ¸ÄµÄ×óÖµ";
+		oss << e << ": " << eline << "è¡Œä¸å¯ä¿®æ”¹çš„å·¦å€¼";
 		errors[etop++] = oss.str();
 		break;
 	}
@@ -1111,13 +1108,13 @@ void parser::printCode() {
 }
 
 void parser::generateFile(const std::string& filename) {
-	// char _Drive[9];	 //ÎÄ¼şºó×º
+	// char _Drive[9];	 //æ–‡ä»¶åç¼€
 	// char _Dir[99];
 	// char _Filename[99];
 
 	// _splitpath(filename, _Drive, _Dir, _Filename, NULL);
 
-	// char targetSym[99], targetCode[99];	 //·ûºÅ±íÎÄ¼şºÍÄ¿±ê´úÂëÎÄ¼ş
+	// char targetSym[99], targetCode[99];	 //ç¬¦å·è¡¨æ–‡ä»¶å’Œç›®æ ‡ä»£ç æ–‡ä»¶
 
 	// strcat(targetSym, ".sym");
 
@@ -1125,7 +1122,7 @@ void parser::generateFile(const std::string& filename) {
 
 	FILE *fp1, *fp2;
 	if ((fp1 = fopen((filename + ".sym").c_str(), "wb")) == NULL) {
-		std::cout << "´´½¨.symÎÄ¼şÊ§°Ü!" << std::endl;
+		std::cout << "åˆ›å»º.symæ–‡ä»¶å¤±è´¥!" << std::endl;
 		exit(-1);
 	}
 	for (int i = 0; i < symbolTable.size(); i++) {
@@ -1133,7 +1130,7 @@ void parser::generateFile(const std::string& filename) {
 	}
 
 	if ((fp2 = fopen((filename + ".pl0cache").c_str(), "wb")) == NULL) {
-		std::cout << "´´½¨.pl0ÎÄ¼şÊ§°Ü!" << std::endl;
+		std::cout << "åˆ›å»º.pl0æ–‡ä»¶å¤±è´¥!" << std::endl;
 		exit(-1);
 	}
 	for (int i = 0; i < codeTable.size(); i++) {
