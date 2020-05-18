@@ -15,45 +15,45 @@
 #define BUFFERLEN 1024
 
 /*关键字*/
-#define $BEGIN 1
-#define $CALL 2
-#define $CONST 3
-#define $PROCEDURE 4
-#define $IF 5
-#define $THEN 6
-#define $DO 7
-#define $END 8
-#define $WHILE 9
-#define $ODD 10
-#define $READ 11
-#define $WRITE 12
-#define $VAR 13
+#define _BEGIN 1
+#define _CALL 2
+#define _CONST 3
+#define _PROCEDURE 4
+#define _IF 5
+#define _THEN 6
+#define _DO 7
+#define _END 8
+#define _WHILE 9
+#define _ODD 10
+#define _READ 11
+#define _WRITE 12
+#define _VAR 13
 
 /*运算符*/
-#define $BIGGER 14	   //>
-#define $BIGGER_EQ 15  //<=
-#define $LOWER 16	   //<
-#define $LOWER_EQ 17   //>=
-#define $ASSIGN 18	   //:=
-#define $EQ 19		   //=
-#define $PLUS 20	   //+
-#define $POWER 21	   //10//**
-#define $STAR 22	   //*
-#define $MINUS 29	   //-
-#define $DIV 30		   ///
-#define $UEQ 31		   //#
+#define _BIGGER 14	   //>
+#define _BIGGER_EQ 15  //<=
+#define _LOWER 16	   //<
+#define _LOWER_EQ 17   //>=
+#define _ASSIGN 18	   //:=
+#define _EQ 19		   //=
+#define _PLUS 20	   //+
+#define _POWER 21	   //10//**
+#define _STAR 22	   //*
+#define _MINUS 29	   //-
+#define _DIV 30		   ///
+#define _UEQ 31		   //#
 
 /*分界符*/
-#define $SEMICOLON 23  //;
-#define $LPAIR 24	   //(
-#define $RPAIR 25	   //)
-#define $LBRACE 26	   //{
-#define $RBRACE 27	   //}
-#define $COMMA 28	   //,
+#define _SEMICOLON 23  //;
+#define _LPAIR 24	   //(
+#define _RPAIR 25	   //)
+#define _LBRACE 26	   //{
+#define _RBRACE 27	   //}
+#define _COMMA 28	   //,
 
 /*标识符和数字*/
-#define $IDENT 32
-#define $NUMBER 33
+#define _IDENT 32
+#define _NUMBER 33
 
 #define INVALID -1
 
@@ -64,11 +64,11 @@ extern std::vector<std::string> rsv_;  //关键字
 enum SymbolKind {  //符号类型
 	CONST,
 	VAR,
-	PROD
+	PROD  //function
 };
 
 enum FunctionCode {	 //目标指令
-	LIT,
+	LIT,			 //
 	LOD,
 	STO,
 	CAL,
@@ -98,7 +98,7 @@ enum OPR {	//OPR指令中a域的取值
 	ODD = 14
 };
 
-struct tuple3 {				//表示符号的三元组
+struct symEntry {			//表示符号的三元组
 	int sym;				//词的词性
 	char name[MAX_ID_LEN];	//名字
 	int row;				//所在行

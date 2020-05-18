@@ -57,7 +57,14 @@
 		"array": "cpp",
 		"deque": "cpp",
 		"unordered_map": "cpp",
-		"string_view": "cpp"
+		"string_view": "cpp",
+		"atomic": "cpp",
+		"*.tcc": "cpp",
+		"clocale": "cpp",
+		"cstdarg": "cpp",
+		"cwctype": "cpp",
+		"memory_resource": "cpp",
+		"optional": "cpp"
 	},
 	"C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools"
 }

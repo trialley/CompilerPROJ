@@ -6,7 +6,7 @@
 #include "lexer.h"
 
 class parser {
-   public:
+public:
 	parser(const std::string&);
 
 	void BLOCK();		  //??????
@@ -22,9 +22,9 @@ class parser {
 	void analyzeElem();	 //????????
 
 	bool insertSymbol(SymbolKind kind, const char* id);	 //?????????????
-	int searchSymbol(const char* id);					 //???????§Ó???????????????-1
+	int searchSymbol(const char* id);					 //???????Ğ²???????????????-1
 
-	void GEN(FunctionCode fun, int lev, int offset);  //?????§Ş????
+	void GEN(FunctionCode fun, int lev, int offset);  //?????Ğ¼????
 
 	void printTable();
 	void printCode();
@@ -35,21 +35,21 @@ class parser {
 
 	std::vector<CODE> codeTable;  //?????
 
-   private:
-	lexer* wa;	//?????????
-	tuple3 t;	//????????????????????
+private:
+	lexer* wa;				 //?????????
+	symEntry _tempSymEntry;	 //????????????????????
 
 	std::vector<SYMBOL> symbolTable;  //?????
 
-	int lev = -1;  //²ã´Î
-	int dx;		   //Ã¿²ã¾Ö²¿Á¿µÄÏà¶ÔµØÖ·£¬Ã¿ËµÃ÷ÍêÒ»¸ö±äÁ¿ºódx+1
+	int lev = -1;  //å±‚æ¬¡
+	int dx;		   //æ¯å±‚å±€éƒ¨é‡çš„ç›¸å¯¹åœ°å€ï¼Œæ¯è¯´æ˜å®Œä¸€ä¸ªå˜é‡ådx+1
 
-	int cx = 0;	 //´úÂë¶ÎµÄ´óĞ¡
-	int cx0;	 //±£´æµ±Ç°Éú³É´úÂëµÄµØÖ·
+	int cx = 0;	 //ä»£ç æ®µçš„å¤§å°
+	int cx0;	 //ä¿å­˜å½“å‰ç”Ÿæˆä»£ç çš„åœ°å€
 
-	int mainEntry;	 //¼ÇÂ¼Ö÷³ÌĞòÈë¿Ú
-	int offset = 1;	 // ¼ÇÂ¼Ò»¿ªÊ¼¿Õ³öµÄÇ°Á½ÌõÖ¸ÁîµÄÆ«ÒÆ
+	int mainEntry;	 //è®°å½•ä¸»ç¨‹åºå…¥å£
+	int offset = 1;	 // è®°å½•ä¸€å¼€å§‹ç©ºå‡ºçš„å‰ä¸¤æ¡æŒ‡ä»¤çš„åç§»
 
-	std::string errors[100];  //´æ´¢µÄ´íÎóĞÅÏ¢
-	int etop = 0;			  //´íÎóĞÅÏ¢Õ»¶¥
+	std::string errors[100];  //å­˜å‚¨çš„é”™è¯¯ä¿¡æ¯
+	int etop = 0;			  //é”™è¯¯ä¿¡æ¯æ ˆé¡¶
 };

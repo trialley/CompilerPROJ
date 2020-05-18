@@ -5,16 +5,16 @@
 #include "defines.h"
 
 class lexer {
-   public:
+public:
 	lexer(const std::string&);
 
-	void initMap();
+	void initMap();	 //初始化每个符号对应的字符串名称，便于打印调试
 
-	void openSrc(const std::string&);
-	bool readLine();
+	void openSrc(const std::string&);  //打开源文件
+	bool readLine();				   //读取一行
 
-	void GetChar();
-	void GetBC();
+	void GetChar();	 //获得一个符号
+	void GetBC();	 //跳过空格
 	void Retract();
 
 	bool IsLetter(const char c);
@@ -22,11 +22,11 @@ class lexer {
 
 	int Reserve(const char* strToken);
 
-	tuple3 getSym();  //读取源文件并返回单词符号
+	symEntry getSym();	//读取源文件并返回单词符号
 
 	int row = 0;  //在文件的第几行
 
-   private:
+private:
 	FILE* fp;  //源文件的指针
 
 	char buffer[BUFFERLEN];	 //读入缓冲区

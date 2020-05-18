@@ -5,19 +5,19 @@
 #include "parser.h"
 
 class vm {
-   public:
+public:
 	vm(const std::string&);
 	void run();		 //循环执行目标文件中指令
 	void runInst();	 //执行一条指令
 
-	void readMem();			  //读键盘操作
-	void writeMem(int addr);  //输出
+	void readMem();		 //读键盘操作
+	void writeMem(int);	 //输出
 
 	void printStack();	//输出栈当前状态
 
-	void readPl0(const char* filename);	 //读取目标文件
+	void readPl0(const std::string&);  //读取目标文件
 
-   private:
+private:
 	CODE inst;	//指令寄存器
 	int ip;		//程序计数器
 	int sp;		//栈顶寄存器

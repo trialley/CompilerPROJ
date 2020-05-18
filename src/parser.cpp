@@ -1,20 +1,26 @@
 #include "parser.h"
 
+#include <exception>
 #include <iomanip>
+#include <iostream>
 parser::parser(const std::string& filename) {
-	wa = new lexer(filename);
-	wa->readLine();
+	wa = new lexer(filename);  //创建新的词法分析器
+	wa->readLine();			   //读取一行
 
-	t = wa->getSym();
-	if (t.sym == INVALID)
+	_tempSymEntry = wa->getSym();  //获得一个符号到temp
+	if (_tempSymEntry.sym == INVALID) {
+		LOG << "非法标识符";
+		throw std::exception(std::logic_error("非法标识符"));
 		return;
+	}
 
-	BLOCK();  //语法分析程序
+	BLOCK(); /*语法分析程序*/
 
 	std::vector<CODE>::iterator iter = codeTable.begin();
+
 	codeTable.insert(iter, CODE(JMP, 0, mainEntry));  //在中间代码表首加入
 
-	generateFile(filename);
+	generateFile(filename);	 //生成二进制文件
 
 	if (!etop) {  //没有错误
 		std::cout << std::endl;
@@ -31,58 +37,56 @@ parser::parser(const std::string& filename) {
 }
 
 void parser::BLOCK() {
-	lev++;
+	lev++;	//层次，代码调用
 	dx = 3;
 
-	if (t.sym == $CONST) {	//是CONST声明
-		t = wa->getSym();
-		if (t.sym == INVALID)
+	if (_tempSymEntry.sym == _CONST) {	//是CONST声明
+		_tempSymEntry = wa->getSym();	//再获取一个符号
+		if (_tempSymEntry.sym == INVALID)
 			return;
 
-		analyzeConst();
+		analyzeConst();	 //分析一个const类型的变量符号
 
-		while (t.sym == $COMMA)	 //逗号
+		while (_tempSymEntry.sym == _COMMA)	 //逗号，多个声明。
 		{
-			t = wa->getSym();
-			if (t.sym == INVALID)
+			_tempSymEntry = wa->getSym();
+			if (_tempSymEntry.sym == INVALID)
 				return;
 
 			analyzeConst();
 		}
 
-		if (t.sym == $SEMICOLON) {	//遇到分号
-
-			t = wa->getSym();
-			if (t.sym == INVALID)
+		if (_tempSymEntry.sym == _SEMICOLON) {	//遇到分号
+			_tempSymEntry = wa->getSym();
+			if (_tempSymEntry.sym == INVALID)
 				return;
-		} else {  //既不是逗号也不是分号
-			/*，声明语句没有以;结束*/
+		} else {
+			/*既不是逗号也不是分号，声明语句没有以;结束*/
 			error(10, wa->row);
 		}
 	}
 
-	if (t.sym == $VAR) {  //是VAR声明
+	if (_tempSymEntry.sym == _VAR) {  //是VAR声明
 
-		//cout << "变量说明部分！" << std::endl;
-		t = wa->getSym();
-		if (t.sym == INVALID)
+		_tempSymEntry = wa->getSym();
+		if (_tempSymEntry.sym == INVALID)
 			return;
 
 		analyzeVar();
 
-		while (t.sym == $COMMA)	 //逗号
+		while (_tempSymEntry.sym == _COMMA)	 //逗号
 		{
-			t = wa->getSym();
-			if (t.sym == INVALID)
+			_tempSymEntry = wa->getSym();
+			if (_tempSymEntry.sym == INVALID)
 				return;
 
 			analyzeVar();
 		}
 
-		if (t.sym == $SEMICOLON) {	//遇到了分号
+		if (_tempSymEntry.sym == _SEMICOLON) {	//遇到了分号
 
-			t = wa->getSym();
-			if (t.sym == INVALID)
+			_tempSymEntry = wa->getSym();
+			if (_tempSymEntry.sym == INVALID)
 				return;
 		}
 
@@ -92,12 +96,12 @@ void parser::BLOCK() {
 		}
 	}
 
-	if (t.sym == $PROCEDURE) {	//是过程说明
+	if (_tempSymEntry.sym == _PROCEDURE) {	//是过程说明
 
 		// cout << "过程说明部分！" << std::endl;
 
-		t = wa->getSym();
-		if (t.sym == INVALID)
+		_tempSymEntry = wa->getSym();
+		if (_tempSymEntry.sym == INVALID)
 			return;
 
 		analyzePro();
@@ -120,35 +124,33 @@ void parser::GEN(FunctionCode fun, int lev, int offset) {
 }
 
 void parser::analyzeConst() {  //常量说明部分
-
-	//cout << "常量说明部分！" << std::endl;
-
-	if (t.sym == $IDENT) {	//获取标识符
+	LOG << "进入const分析部分\n";
+	if (_tempSymEntry.sym == _IDENT) {	//获取标识符
 
 		char* id = new char[MAX_ID_LEN];
-		strcpy(id, t.name);
+		strcpy(id, _tempSymEntry.name);
 
-		t = wa->getSym();
-		if (t.sym == INVALID)
+		_tempSymEntry = wa->getSym();
+		if (_tempSymEntry.sym == INVALID)
 			return;
 
-		if (t.sym == $ASSIGN)  //是赋值号
+		if (_tempSymEntry.sym == _ASSIGN)  //是赋值号
 		{
 			// 如果不是等号，而是赋值符号:=，抛出1号错误
 			error(19, wa->row);
-		} else if (t.sym == $EQ) {
-			t = wa->getSym();
-			if (t.sym == INVALID)
+		} else if (_tempSymEntry.sym == _EQ) {
+			_tempSymEntry = wa->getSym();
+			if (_tempSymEntry.sym == INVALID)
 				return;
 
-			if (t.sym == $NUMBER) {	 //是数字
+			if (_tempSymEntry.sym == _NUMBER) {	 //是数字
 
 				if (!insertSymbol(SymbolKind::CONST, id))
 					error(109, wa->row);
 				/*重定义*/;	 //插入到符号表失败
 
-				t = wa->getSym();
-				if (t.sym == INVALID)
+				_tempSymEntry = wa->getSym();
+				if (_tempSymEntry.sym == INVALID)
 					return;
 			}
 
@@ -162,7 +164,6 @@ void parser::analyzeConst() {  //常量说明部分
 
 			error(19, wa->row);
 		}
-
 	} else {  //const 后没有加标识符
 
 		error(11, wa->row);
@@ -173,17 +174,17 @@ void parser::analyzeVar() {	 //变量说明部分
 
 	//cout << "变量说明部分！" << std::endl;
 
-	if (t.sym == $IDENT) {
+	if (_tempSymEntry.sym == _IDENT) {
 		char* id = new char[MAX_ID_LEN];
-		strcpy(id, t.name);
+		strcpy(id, _tempSymEntry.name);
 		//char* id = t.name;
 
 		if (!insertSymbol(SymbolKind::VAR, id))
 			error(109, wa->row);
 		/*重定义*/
 
-		t = wa->getSym();
-		if (t.sym == INVALID)
+		_tempSymEntry = wa->getSym();
+		if (_tempSymEntry.sym == INVALID)
 			return;	 //取下一个词
 	} else {
 		// 如果变量声明过程中遇到的第一个字符不是标识符
@@ -193,24 +194,24 @@ void parser::analyzeVar() {	 //变量说明部分
 
 void parser::analyzePro() {	 //过程说明部分
 
-	if (t.sym == $IDENT) {
+	if (_tempSymEntry.sym == _IDENT) {
 		char* id = new char[MAX_ID_LEN];
-		strcpy(id, t.name);
+		strcpy(id, _tempSymEntry.name);
 		if (!insertSymbol(SymbolKind::PROD, id))
 			error(109, wa->row);
 		/*重定义*/
 
-		t = wa->getSym();
-		if (t.sym == INVALID)
+		_tempSymEntry = wa->getSym();
+		if (_tempSymEntry.sym == INVALID)
 			return;
 	} else {
 		/*过程首部没有标识符*/
 		error(20, wa->row);
 	}
 
-	if (t.sym == $SEMICOLON) {
-		t = wa->getSym();
-		if (t.sym == INVALID)
+	if (_tempSymEntry.sym == _SEMICOLON) {
+		_tempSymEntry = wa->getSym();
+		if (_tempSymEntry.sym == INVALID)
 			return;
 	} else {  //过程名没有以分号结束
 		error(17, wa->row);
@@ -226,15 +227,15 @@ void parser::analyzePro() {	 //过程说明部分
 	dx = tempdx;
 	lev = templev;
 
-	if (t.sym == $SEMICOLON) {	//end;后的符号。这里有问题
+	if (_tempSymEntry.sym == _SEMICOLON) {	//end;后的符号。这里有问题
 
-		t = wa->getSym();
-		if (t.sym == INVALID)
+		_tempSymEntry = wa->getSym();
+		if (_tempSymEntry.sym == INVALID)
 			return;
 
-		while (t.sym == $PROCEDURE) {  //如果还有并列的过程说明
+		while (_tempSymEntry.sym == _PROCEDURE) {  //如果还有并列的过程说明
 
-			t = wa->getSym();
+			_tempSymEntry = wa->getSym();
 			analyzePro();
 		}
 	} else {
@@ -248,284 +249,284 @@ void parser::analyzeSent() {
 	int cx1;
 	int cx2;
 
-	switch (t.sym) {
-		case $IDENT: { /*赋值语句*/
+	switch (_tempSymEntry.sym) {
+	case _IDENT: { /*赋值语句*/
 
-			i = searchSymbol(t.name);
-			if (i < 0) { /*没有找到符号的声明*/
+		i = searchSymbol(_tempSymEntry.name);
+		if (i < 0) { /*没有找到符号的声明*/
+			error(108, wa->row);
+		}
+
+		else if (symbolTable.at(i).kind != SymbolKind::VAR) {
+			// 如果在符号表中找到了，但是该标识符不是变量名，
+			/*不可修改的左值*/
+			error(110, wa->row);
+		}
+
+		_tempSymEntry = wa->getSym();
+		if (_tempSymEntry.sym == INVALID)
+			return;
+
+		if (_tempSymEntry.sym == _ASSIGN) {	 //是赋值号
+
+			_tempSymEntry = wa->getSym();
+			if (_tempSymEntry.sym == INVALID)
+				return;
+		} else {
+			/*变量名后没有加赋值号*/
+			error(14, wa->row);
+		}
+
+		analyzeExpr();	//处理赋值号右部的表达式
+
+		if (i >= 0) {
+			GEN(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr);
+		}
+
+		break;
+	}
+
+	case _CALL: {
+		_tempSymEntry = wa->getSym();
+		if (_tempSymEntry.sym == INVALID)
+			return;
+
+		if (_tempSymEntry.sym != _IDENT) {	//call 后面不是标识符
+			error(34, wa->row);
+		} else {
+			i = searchSymbol(_tempSymEntry.name);  //查找标识符对应的符号表
+
+			if (i < 0) {
 				error(108, wa->row);
 			}
 
-			else if (symbolTable.at(i).kind != SymbolKind::VAR) {
-				// 如果在符号表中找到了，但是该标识符不是变量名，
-				/*不可修改的左值*/
-				error(110, wa->row);
+			else if (symbolTable.at(i).kind == SymbolKind::PROD) {	//类型检查
+
+				GEN(CAL, lev - symbolTable.at(i).lev, symbolTable.at(i).addr);
 			}
 
-			t = wa->getSym();
-			if (t.sym == INVALID)
-				return;
+			else {	//call 后加的不是proc
 
-			if (t.sym == $ASSIGN) {	 //是赋值号
-
-				t = wa->getSym();
-				if (t.sym == INVALID)
-					return;
-			} else {
-				/*变量名后没有加赋值号*/
-				error(14, wa->row);
-			}
-
-			analyzeExpr();	//处理赋值号右部的表达式
-
-			if (i >= 0) {
-				GEN(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr);
-			}
-
-			break;
-		}
-
-		case $CALL: {
-			t = wa->getSym();
-			if (t.sym == INVALID)
-				return;
-
-			if (t.sym != $IDENT) {	//call 后面不是标识符
+				/*调用的标示符不是过程名*/
 				error(34, wa->row);
-			} else {
-				i = searchSymbol(t.name);  //查找标识符对应的符号表
-
-				if (i < 0) {
-					error(108, wa->row);
-				}
-
-				else if (symbolTable.at(i).kind == SymbolKind::PROD) {	//类型检查
-
-					GEN(CAL, lev - symbolTable.at(i).lev, symbolTable.at(i).addr);
-				}
-
-				else {	//call 后加的不是proc
-
-					/*调用的标示符不是过程名*/
-					error(34, wa->row);
-				}
-
-				t = wa->getSym();
-				if (t.sym == INVALID)
-					return;
 			}
 
-			break;
+			_tempSymEntry = wa->getSym();
+			if (_tempSymEntry.sym == INVALID)
+				return;
 		}
 
-		case $IF: {
-			t = wa->getSym();
-			if (t.sym == INVALID)
+		break;
+	}
+
+	case _IF: {
+		_tempSymEntry = wa->getSym();
+		if (_tempSymEntry.sym == INVALID)
+			return;
+
+		analyzeCond();	//处理if后面的条件
+		cx1 = cx;		//jpc语句占用的位置
+		cx++;
+
+		if (_tempSymEntry.sym == _THEN) {
+			_tempSymEntry = wa->getSym();
+			if (_tempSymEntry.sym == INVALID)
 				return;
 
-			analyzeCond();	//处理if后面的条件
-			cx1 = cx;		//jpc语句占用的位置
-			cx++;
+			analyzeSent();														   //then后的语句
+			codeTable.insert(codeTable.begin() + cx1, CODE(JPC, 0, cx + offset));  //回填then语句之后的代码地址
 
-			if (t.sym == $THEN) {
-				t = wa->getSym();
-				if (t.sym == INVALID)
-					return;
-
-				analyzeSent();														   //then后的语句
-				codeTable.insert(codeTable.begin() + cx1, CODE(JPC, 0, cx + offset));  //回填then语句之后的代码地址
-
-			} else {
-				/*条件语句缺少then*/
-				error(36, wa->row);
-			}
-
-			//cx = codeTable.size();
-
-			//codeTable.push_back(CODE(JPC, 0, 0));
-			//codeTable.at(cx1).offset = codeTable.size();
-			break;
+		} else {
+			/*条件语句缺少then*/
+			error(36, wa->row);
 		}
 
-		case $BEGIN: {
-			t = wa->getSym();
-			if (t.sym == INVALID)
+		//cx = codeTable.size();
+
+		//codeTable.push_back(CODE(JPC, 0, 0));
+		//codeTable.at(cx1).offset = codeTable.size();
+		break;
+	}
+
+	case _BEGIN: {
+		_tempSymEntry = wa->getSym();
+		if (_tempSymEntry.sym == INVALID)
+			return;
+
+		analyzeSent();
+
+		while (_tempSymEntry.sym != INVALID) {	//这里写的有点乱
+
+			if (_tempSymEntry.sym == _SEMICOLON) {	//t为";",说明后面还有语句
+
+				_tempSymEntry = wa->getSym();
+				if (_tempSymEntry.sym == INVALID)
+					return;
+
+				analyzeSent();
+			} else if (_tempSymEntry.sym == _END) {	 //t为end，表示复合语句结束
+
+				_tempSymEntry = wa->getSym();
+				//if (t.sym == INVALID) return;
+				return;
+			}
+
+			else {
+				//出现其他字符，则说明复合语句错误
+				error(23, wa->row);
+				return;
+			}
+			//analyzeSent();
+		}
+
+		/*复合语句出错*/
+		break;
+	}
+
+	case _WHILE: {
+		cx1 = cx;  // 记录当前代码分配位置，这是while循环的开始位置，也就是无条件跳转到的地方
+
+		_tempSymEntry = wa->getSym();
+		if (_tempSymEntry.sym == INVALID)
+			return;
+
+		analyzeCond();	//判断while后面的条件语句
+
+		cx2 = cx;  //jpc语句插入的地方
+		cx++;	   //占一个Code位置
+
+		if (_tempSymEntry.sym == _DO) {
+			_tempSymEntry = wa->getSym();
+			if (_tempSymEntry.sym == INVALID)
 				return;
 
 			analyzeSent();
 
-			while (t.sym != INVALID) {	//这里写的有点乱
+			GEN(JMP, 0, cx1 + offset);	//跳转到cx1处，即再次进行判断是否进行循环
+			codeTable.insert(codeTable.begin() + cx2, CODE(JPC, 0, cx + offset));
+		} else {
+			/*while后面没有接do*/
+			error(39, wa->row);
+		}
 
-				if (t.sym == $SEMICOLON) {	//t为";",说明后面还有语句
+		break;
+	}
 
-					t = wa->getSym();
-					if (t.sym == INVALID)
-						return;
+	case _READ: {
+		_tempSymEntry = wa->getSym();
+		if (_tempSymEntry.sym == INVALID)
+			return;
 
-					analyzeSent();
-				} else if (t.sym == $END) {	 //t为end，表示复合语句结束
+		if (_tempSymEntry.sym == _LPAIR) {
+			_tempSymEntry = wa->getSym();
+			if (_tempSymEntry.sym == INVALID)
+				return;
 
-					t = wa->getSym();
-					//if (t.sym == INVALID) return;
-					return;
+			if (_tempSymEntry.sym == _IDENT) {
+				i = searchSymbol(_tempSymEntry.name);
+				if (i < 0) {
+					/*未说明的标识符*/
+					error(108, wa->row);
 				}
 
 				else {
-					//出现其他字符，则说明复合语句错误
-					error(23, wa->row);
-					return;
+					//codeTable.push_back(CODE(OPR, 0, OPR::READ));// 生成16号读指令，从键盘读取数字
+					//codeTable.push_back(CODE(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr));// 生成sto指令，存入指定变量
+					GEN(OPR, 0, OPR::READ);
+					GEN(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr);
 				}
-				//analyzeSent();
 			}
 
-			/*复合语句出错*/
-			break;
-		}
-
-		case $WHILE: {
-			cx1 = cx;  // 记录当前代码分配位置，这是while循环的开始位置，也就是无条件跳转到的地方
-
-			t = wa->getSym();
-			if (t.sym == INVALID)
+			_tempSymEntry = wa->getSym();
+			if (_tempSymEntry.sym == INVALID)
 				return;
 
-			analyzeCond();	//判断while后面的条件语句
+			while (_tempSymEntry.sym == _COMMA) {  //读多个键盘输入
 
-			cx2 = cx;  //jpc语句插入的地方
-			cx++;	   //占一个Code位置
-
-			if (t.sym == $DO) {
-				t = wa->getSym();
-				if (t.sym == INVALID)
+				_tempSymEntry = wa->getSym();
+				if (_tempSymEntry.sym == INVALID)
 					return;
 
-				analyzeSent();
-
-				GEN(JMP, 0, cx1 + offset);	//跳转到cx1处，即再次进行判断是否进行循环
-				codeTable.insert(codeTable.begin() + cx2, CODE(JPC, 0, cx + offset));
-			} else {
-				/*while后面没有接do*/
-				error(39, wa->row);
-			}
-
-			break;
-		}
-
-		case $READ: {
-			t = wa->getSym();
-			if (t.sym == INVALID)
-				return;
-
-			if (t.sym == $LPAIR) {
-				t = wa->getSym();
-				if (t.sym == INVALID)
-					return;
-
-				if (t.sym == $IDENT) {
-					i = searchSymbol(t.name);
+				if (_tempSymEntry.sym == _IDENT) {
+					i = searchSymbol(_tempSymEntry.name);
 					if (i < 0) {
-						/*未说明的标识符*/
+						/*没找到标识符*/
 						error(108, wa->row);
-					}
-
-					else {
-						//codeTable.push_back(CODE(OPR, 0, OPR::READ));// 生成16号读指令，从键盘读取数字
-						//codeTable.push_back(CODE(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr));// 生成sto指令，存入指定变量
+					} else {
+						//	codeTable.push_back(CODE(OPR, 0, OPR::READ));//读键盘
+						//codeTable.push_back(CODE(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr));
 						GEN(OPR, 0, OPR::READ);
 						GEN(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr);
 					}
 				}
 
-				t = wa->getSym();
-				if (t.sym == INVALID)
+				_tempSymEntry = wa->getSym();
+				if (_tempSymEntry.sym == INVALID)
+					return;
+			}
+
+			if (_tempSymEntry.sym != _RPAIR) {
+				/*左右括号不匹配*/
+				error(27, wa->row);
+			}
+
+		} else {
+			/*不是左括号*/
+			error(29, wa->row);
+		}
+
+		_tempSymEntry = wa->getSym();
+		if (_tempSymEntry.sym == INVALID)
+			return;
+
+		break;
+	}
+
+	case _WRITE: {
+		_tempSymEntry = wa->getSym();
+		if (_tempSymEntry.sym == INVALID)
+			return;
+
+		if (_tempSymEntry.sym == _LPAIR) {
+			_tempSymEntry = wa->getSym();
+			analyzeExpr();
+			GEN(OPR, 0, OPR::WRITE);
+
+			while (_tempSymEntry.sym == _COMMA) {
+				_tempSymEntry = wa->getSym();
+				if (_tempSymEntry.sym == INVALID)
 					return;
 
-				while (t.sym == $COMMA) {  //读多个键盘输入
-
-					t = wa->getSym();
-					if (t.sym == INVALID)
-						return;
-
-					if (t.sym == $IDENT) {
-						i = searchSymbol(t.name);
-						if (i < 0) {
-							/*没找到标识符*/
-							error(108, wa->row);
-						} else {
-							//	codeTable.push_back(CODE(OPR, 0, OPR::READ));//读键盘
-							//codeTable.push_back(CODE(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr));
-							GEN(OPR, 0, OPR::READ);
-							GEN(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr);
-						}
-					}
-
-					t = wa->getSym();
-					if (t.sym == INVALID)
-						return;
-				}
-
-				if (t.sym != $RPAIR) {
-					/*左右括号不匹配*/
-					error(27, wa->row);
-				}
-
-			} else {
-				/*不是左括号*/
-				error(29, wa->row);
-			}
-
-			t = wa->getSym();
-			if (t.sym == INVALID)
-				return;
-
-			break;
-		}
-
-		case $WRITE: {
-			t = wa->getSym();
-			if (t.sym == INVALID)
-				return;
-
-			if (t.sym == $LPAIR) {
-				t = wa->getSym();
 				analyzeExpr();
+
 				GEN(OPR, 0, OPR::WRITE);
-
-				while (t.sym == $COMMA) {
-					t = wa->getSym();
-					if (t.sym == INVALID)
-						return;
-
-					analyzeExpr();
-
-					GEN(OPR, 0, OPR::WRITE);
-				}
-
-				if (t.sym != $RPAIR) {
-					/*左右括号不匹配*/
-					error(31, wa->row);
-				} else {
-					t = wa->getSym();
-					if (t.sym == INVALID)
-						return;
-				}
 			}
 
-			break;
+			if (_tempSymEntry.sym != _RPAIR) {
+				/*左右括号不匹配*/
+				error(31, wa->row);
+			} else {
+				_tempSymEntry = wa->getSym();
+				if (_tempSymEntry.sym == INVALID)
+					return;
+			}
 		}
 
-		default:  //不是begin开头
-			//error(8, wa->row);
-			break;
+		break;
+	}
+
+	default:  //不是begin开头
+		//error(8, wa->row);
+		break;
 	}
 }
 
 void parser::analyzeCond() {
 	int relop;
-	if (t.sym == $ODD) {  //一元运算符
+	if (_tempSymEntry.sym == _ODD) {  //一元运算符
 
-		t = wa->getSym();
-		if (t.sym == INVALID)
+		_tempSymEntry = wa->getSym();
+		if (_tempSymEntry.sym == INVALID)
 			return;
 
 		analyzeExpr();	//分析表达式
@@ -536,66 +537,66 @@ void parser::analyzeCond() {
 
 	else {	//二元运算符
 
-		analyzeExpr();	//分析左边表达式
-		relop = t.sym;	//保存二元运算符
+		analyzeExpr();				//分析左边表达式
+		relop = _tempSymEntry.sym;	//保存二元运算符
 
-		t = wa->getSym();
-		if (t.sym == INVALID)
+		_tempSymEntry = wa->getSym();
+		if (_tempSymEntry.sym == INVALID)
 			return;
 
 		analyzeExpr();	//分析右边表达式
 
 		switch (relop) {
-			case $EQ:
-				//codeTable.push_back(CODE(OPR, 0, OPR::EQ));
-				GEN(OPR, 0, OPR::EQ);
-				break;
+		case _EQ:
+			//codeTable.push_back(CODE(OPR, 0, OPR::EQ));
+			GEN(OPR, 0, OPR::EQ);
+			break;
 
-			case $UEQ:
-				//codeTable.push_back(CODE(OPR, 0, OPR::UE));
-				GEN(OPR, 0, OPR::UE);
-				break;
+		case _UEQ:
+			//codeTable.push_back(CODE(OPR, 0, OPR::UE));
+			GEN(OPR, 0, OPR::UE);
+			break;
 
-			case $LOWER:
-				//codeTable.push_back(CODE(OPR, 0, OPR::LT));
-				GEN(OPR, 0, OPR::LT);
-				break;
+		case _LOWER:
+			//codeTable.push_back(CODE(OPR, 0, OPR::LT));
+			GEN(OPR, 0, OPR::LT);
+			break;
 
-			case $BIGGER_EQ:
-				//codeTable.push_back(CODE(OPR, 0,OPR::GE));
-				GEN(OPR, 0, OPR::GE);
-				break;
+		case _BIGGER_EQ:
+			//codeTable.push_back(CODE(OPR, 0,OPR::GE));
+			GEN(OPR, 0, OPR::GE);
+			break;
 
-			case $BIGGER:
-				//codeTable.push_back(CODE(OPR, 0, OPR::GT));
-				GEN(OPR, 0, OPR::GT);
-				break;
+		case _BIGGER:
+			//codeTable.push_back(CODE(OPR, 0, OPR::GT));
+			GEN(OPR, 0, OPR::GT);
+			break;
 
-			case $LOWER_EQ:
-				//codeTable.push_back(CODE(OPR, 0, OPR::LE));
-				GEN(OPR, 0, OPR::LE);
-				break;
+		case _LOWER_EQ:
+			//codeTable.push_back(CODE(OPR, 0, OPR::LE));
+			GEN(OPR, 0, OPR::LE);
+			break;
 
-			default:
-				/*保存的不是逻辑运算符*/
-				break;
+		default:
+			/*保存的不是逻辑运算符*/
+			break;
 		}
 	}
 }
 
 void parser::analyzeExpr() {
 	int addop;
-	if (t.sym == $PLUS || t.sym == $MINUS) {  //表达式以正负开头
+	if (_tempSymEntry.sym == _PLUS || _tempSymEntry.sym == _MINUS) {  //表达式以正负开头
 
-		addop = t.sym;
+		addop = _tempSymEntry.sym;
 
-		t = wa->getSym();
-		if (t.sym == INVALID)
+		_tempSymEntry = wa->getSym();
+		if (_tempSymEntry.sym == INVALID)
 			return;
 
 		analyzeTerm();	//进行项的处理
 
-		if (addop == $MINUS) {
+		if (addop == _MINUS) {
 			//codeTable.push_back(CODE(OPR, 0, OPR::MINUS));//取反运算
 			GEN(OPR, 0, OPR::MINUS);
 		}
@@ -603,16 +604,16 @@ void parser::analyzeExpr() {
 		analyzeTerm();	//表达式项的开头，直接项的分析
 	}
 
-	while (t.sym == $PLUS || t.sym == $MINUS) {
-		addop = t.sym;	//算术运算符保存在addop中
+	while (_tempSymEntry.sym == _PLUS || _tempSymEntry.sym == _MINUS) {
+		addop = _tempSymEntry.sym;	//算术运算符保存在addop中
 
-		t = wa->getSym();
-		if (t.sym == INVALID)
+		_tempSymEntry = wa->getSym();
+		if (_tempSymEntry.sym == INVALID)
 			return;
 
 		analyzeTerm();
 
-		if (addop == $PLUS) {  // 项分析完毕后，如果刚才保存的是加号，则生成加法指令
+		if (addop == _PLUS) {  // 项分析完毕后，如果刚才保存的是加号，则生成加法指令
 
 			//codeTable.push_back(CODE(OPR, 0, OPR::ADD));
 			GEN(OPR, 0, OPR::ADD);	//加法指令
@@ -628,16 +629,16 @@ void parser::analyzeTerm() {
 
 	analyzeElem();
 
-	while (t.sym == $STAR || t.sym == $DIV) {
-		mulop = t.sym;	/// 把运算符保存在mulop中(乘法或是除法)
+	while (_tempSymEntry.sym == _STAR || _tempSymEntry.sym == _DIV) {
+		mulop = _tempSymEntry.sym;	/// 把运算符保存在mulop中(乘法或是除法)
 
-		t = wa->getSym();
-		if (t.sym == INVALID)
+		_tempSymEntry = wa->getSym();
+		if (_tempSymEntry.sym == INVALID)
 			return;
 
 		analyzeElem();	// 运算符后应该是一个因子，进行因子分析
 
-		if (mulop == $STAR) {
+		if (mulop == _STAR) {
 			//codeTable.push_back(CODE(OPR, 0, OPR::MUL));//4号乘法指令
 			GEN(OPR, 0, OPR::MUL);
 		} else {
@@ -649,77 +650,77 @@ void parser::analyzeTerm() {
 
 void parser::analyzeElem() {
 	int i;
-	while (t.sym == $IDENT || t.sym == $NUMBER || t.sym == $LPAIR) {
-		switch (t.sym) {
-			case $IDENT: {
-				i = searchSymbol(t.name);
-				if (i < 0) {
-					/*没有找到符号*/
-					error(108, wa->row);
-				}
-
-				else if (symbolTable.at(i).kind == SymbolKind::CONST) {
-					// 如果该标识符为常量,则生成lit指令,把val放到栈顶
-					//codeTable.push_back(CODE(LIT, 0, symbolTable.at(i).val));
-					GEN(LIT, 0, symbolTable.at(i).val);
-
-					t = wa->getSym();
-					if (t.sym == INVALID)
-						return;
-				}
-
-				else if (symbolTable.at(i).kind == SymbolKind::VAR) {
-					//codeTable.push_back(CODE(LOD, lev - symbolTable.at(i).lev,
-					//symbolTable.at(i).addr));
-					GEN(LOD, lev - symbolTable.at(i).lev,
-						symbolTable.at(i).addr);
-
-					t = wa->getSym();
-					if (t.sym == INVALID)
-						return;
-				} else if (symbolTable.at(i).kind == SymbolKind::PROD) {
-					/*该标识符为过程名，出错*/
-					error(43, wa->row);
-					t = wa->getSym();
-					if (t.sym == INVALID)
-						return;
-				}
-
-				break;
+	while (_tempSymEntry.sym == _IDENT || _tempSymEntry.sym == _NUMBER || _tempSymEntry.sym == _LPAIR) {
+		switch (_tempSymEntry.sym) {
+		case _IDENT: {
+			i = searchSymbol(_tempSymEntry.name);
+			if (i < 0) {
+				/*没有找到符号*/
+				error(108, wa->row);
 			}
 
-			case $NUMBER:  //因子分析遇到数字
-			{
-				int num = atoi(t.name); /*要判断范围*/
+			else if (symbolTable.at(i).kind == SymbolKind::CONST) {
+				// 如果该标识符为常量,则生成lit指令,把val放到栈顶
+				//codeTable.push_back(CODE(LIT, 0, symbolTable.at(i).val));
+				GEN(LIT, 0, symbolTable.at(i).val);
 
-				//codeTable.push_back(CODE(LIT, 0, num));// 生成lit指令，把这个数值字面常量放到栈顶
-				GEN(LIT, 0, num);
-
-				t = wa->getSym();
-				if (t.sym == INVALID)
+				_tempSymEntry = wa->getSym();
+				if (_tempSymEntry.sym == INVALID)
 					return;
-
-				break;
 			}
 
-			case $LPAIR: {
-				t = wa->getSym();
-				if (t.sym == INVALID)
+			else if (symbolTable.at(i).kind == SymbolKind::VAR) {
+				//codeTable.push_back(CODE(LOD, lev - symbolTable.at(i).lev,
+				//symbolTable.at(i).addr));
+				GEN(LOD, lev - symbolTable.at(i).lev,
+					symbolTable.at(i).addr);
+
+				_tempSymEntry = wa->getSym();
+				if (_tempSymEntry.sym == INVALID)
 					return;
-
-				analyzeExpr();
-
-				if (t.sym == $RPAIR) {
-					t = wa->getSym();
-					if (t.sym == INVALID)
-						return;
-				} else {
-					/*左右括号不匹配*/
-					error(41, wa->row);
-				}
-
-				break;
+			} else if (symbolTable.at(i).kind == SymbolKind::PROD) {
+				/*该标识符为过程名，出错*/
+				error(43, wa->row);
+				_tempSymEntry = wa->getSym();
+				if (_tempSymEntry.sym == INVALID)
+					return;
 			}
+
+			break;
+		}
+
+		case _NUMBER:  //因子分析遇到数字
+		{
+			int num = atoi(_tempSymEntry.name); /*要判断范围*/
+
+			//codeTable.push_back(CODE(LIT, 0, num));// 生成lit指令，把这个数值字面常量放到栈顶
+			GEN(LIT, 0, num);
+
+			_tempSymEntry = wa->getSym();
+			if (_tempSymEntry.sym == INVALID)
+				return;
+
+			break;
+		}
+
+		case _LPAIR: {
+			_tempSymEntry = wa->getSym();
+			if (_tempSymEntry.sym == INVALID)
+				return;
+
+			analyzeExpr();
+
+			if (_tempSymEntry.sym == _RPAIR) {
+				_tempSymEntry = wa->getSym();
+				if (_tempSymEntry.sym == INVALID)
+					return;
+			} else {
+				/*左右括号不匹配*/
+				error(41, wa->row);
+			}
+
+			break;
+		}
 		}
 	}
 }
@@ -729,23 +730,23 @@ bool parser::insertSymbol(SymbolKind kind, const char* id) {
 		return false;
 
 	switch (kind) {
-		case SymbolKind::CONST: {
-			int num = atoi(t.name);	 //越界检查
-			symbolTable.push_back(SYMBOL(id, kind, num, 0, 0));
-			break;
-		}
+	case SymbolKind::CONST: {
+		int num = atoi(_tempSymEntry.name);	 //越界检查
+		symbolTable.push_back(SYMBOL(id, kind, num, 0, 0));
+		break;
+	}
 
-		case SymbolKind::VAR: {
-			symbolTable.push_back(SYMBOL(id, kind, 0xFFFFFFFF, lev, dx++));	 //变量默认值是-1
-			break;
-		}
+	case SymbolKind::VAR: {
+		symbolTable.push_back(SYMBOL(id, kind, 0xFFFFFFFF, lev, dx++));	 //变量默认值是-1
+		break;
+	}
 
-		case SymbolKind::PROD: {
-			symbolTable.push_back(SYMBOL(id, kind, 0, lev, cx + offset));
-			break;
-		}
-		default:
-			break;
+	case SymbolKind::PROD: {
+		symbolTable.push_back(SYMBOL(id, kind, 0, lev, cx + offset));
+		break;
+	}
+	default:
+		break;
 	}
 
 	return true;
@@ -765,307 +766,307 @@ int parser::error(int e, int eline) {
 	std::ostringstream oss;
 
 	switch (e) {
-		case 0: {
-			oss << e << ": " << eline << "行有非法字符";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 1: {
-			//errors[etop++] = itos(e) + ": " + itos(eline) + "行有超过14个字母的单词";
-			oss << e << ": " << eline << "行有超过10个字母的单词";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 2: {
-			//errors[etop++] = itos(e) + ": " + itos(eline) + "行有数字开头的标识符";
-			oss << e << ": " << eline << "行有数字开头的标识符";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 3: {
-			//errors[etop++] = itos(e) + ": " + itos(eline) + "行有超过10个字母的标识符";
-			oss << e << ": " << eline << "行有超过10个字母的标识符";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 4: {
-			//errors[etop++] = itos(e) + ": " + itos(eline) + "行程序结尾没有.";
-			oss << e << ": " << eline << "行程序结尾没有.";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 5: {
-			//errors[etop++] = itos(e) + ": " + itos(eline) + "行程序首部标识符后面没有;";
-			oss << e << ": " << eline << "行程序首部标识符后面没有;";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 6: {  //
-			//errors[etop++] = itos(e) + ": " + itos(eline) + "行程序首部PRAGRAM后面没有标识符";
-			oss << e << ": " << eline << "行程序首部PROCEDURE后面没有标识符";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 7: {
-			//errors[etop++] = itos(e) + ": " + itos(eline) + "行没有程序首部";
-			oss << e << ": " << eline << "行没有程序首部";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 8: {
-			oss << e << ": " << eline << "行分程序后缺少语句部分";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 9: {
-			oss << e << ": " << eline << "行常量说明的,字符后面有错误";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 10: {
-			oss << e << ": " << eline << "行常量说明后面没有;结尾";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 11: {
-			oss << e << ": " << eline << "行常量定义有错误";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 12: {
-			oss << e << ": " << eline << "行变量说明,后面缺少标识符";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 13: {
-			oss << e << ": " << eline << "行变量说明没有;结尾";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 14: {
-			oss << e << ": " << eline << "行VAR后面没有定义的标识符";
-			errors[etop++] = oss.str();
-			break;
-		}
+	case 0: {
+		oss << e << ": " << eline << "行有非法字符";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 1: {
+		//errors[etop++] = itos(e) + ": " + itos(eline) + "行有超过14个字母的单词";
+		oss << e << ": " << eline << "行有超过10个字母的单词";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 2: {
+		//errors[etop++] = itos(e) + ": " + itos(eline) + "行有数字开头的标识符";
+		oss << e << ": " << eline << "行有数字开头的标识符";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 3: {
+		//errors[etop++] = itos(e) + ": " + itos(eline) + "行有超过10个字母的标识符";
+		oss << e << ": " << eline << "行有超过10个字母的标识符";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 4: {
+		//errors[etop++] = itos(e) + ": " + itos(eline) + "行程序结尾没有.";
+		oss << e << ": " << eline << "行程序结尾没有.";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 5: {
+		//errors[etop++] = itos(e) + ": " + itos(eline) + "行程序首部标识符后面没有;";
+		oss << e << ": " << eline << "行程序首部标识符后面没有;";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 6: {  //
+		//errors[etop++] = itos(e) + ": " + itos(eline) + "行程序首部PRAGRAM后面没有标识符";
+		oss << e << ": " << eline << "行程序首部PROCEDURE后面没有标识符";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 7: {
+		//errors[etop++] = itos(e) + ": " + itos(eline) + "行没有程序首部";
+		oss << e << ": " << eline << "行没有程序首部";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 8: {
+		oss << e << ": " << eline << "行分程序后缺少语句部分";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 9: {
+		oss << e << ": " << eline << "行常量说明的,字符后面有错误";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 10: {
+		oss << e << ": " << eline << "行常量说明后面没有;结尾";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 11: {
+		oss << e << ": " << eline << "行常量定义有错误";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 12: {
+		oss << e << ": " << eline << "行变量说明,后面缺少标识符";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 13: {
+		oss << e << ": " << eline << "行变量说明没有;结尾";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 14: {
+		oss << e << ": " << eline << "行VAR后面没有定义的标识符";
+		errors[etop++] = oss.str();
+		break;
+	}
 
-		case 15: {
-			oss << e << ": " << eline << "行分程序后面没有;结尾";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 16: {
-			oss << e << ": " << eline << "行过程说明后面没有分程序";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 17: {
-			oss << e << ": " << eline << "行过程首部后面没有;结尾";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 18: {
-			oss << e << ": " << eline << "行常量定义没有指定数字";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 19: {
-			oss << e << ": " << eline << "行常量定义没有=字符";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 20: {
-			oss << e << ": " << eline << "行过程首部PROCEDURE后面并没有标识符";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 21: {
-			oss << e << ": " << eline << "行语句后面没有;结尾";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 22: {
-			oss << e << ": " << eline << "行没有END结尾，或者此行语句缺少;结尾";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 23: {
-			oss << e << ": " << eline << "行复合语句的BEGIN后面不是语句";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 24: {
-			oss << e << ": " << eline << "行赋值语句后面不是表达式";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 25: {
-			oss << e << ": " << eline << "行赋值语句没有:=赋值号";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 26: {
-			oss << e << ": " << eline << "行READ语句参数中有非法,字符";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 27: {
-			oss << e << ": " << eline << "行READ语句缺少)字符";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 28: {
-			oss << e << ": " << eline << "行READ语句缺少标识符";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 29: {
-			oss << e << ": " << eline << "行READ语句缺少(字符";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 30: {
-			oss << e << ": " << eline << "行WRITE语句参数中有非法,字符";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 31: {
-			oss << e << ": " << eline << "行WRITE语句缺少)字符";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 32: {
-			oss << e << ": " << eline << "行WRITE语句缺少标识符";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 33: {
-			oss << e << ": " << eline << "行WRITE语句缺少(字符";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 34: {
-			oss << e << ": " << eline << "行CALL语句没有过程名字";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 35: {
-			oss << e << ": " << eline << "行IF语句的THEN后面不是合法语句";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 36: {
-			oss << e << ": " << eline << "行IF语句的条件后面没有THEN";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 37: {
-			oss << e << ": " << eline << "行IF语句后面不是合法条件";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 38: {
-			oss << e << ": " << eline << "行WHILE语句的DO后面不是合法语句";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 39: {
-			oss << e << ": " << eline << "行WHILE语句没有DO";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 40: {
-			oss << e << ": " << eline << "行WHILE语句后面不是合法的条件";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 41: {
-			oss << e << ": " << eline << "行表达式的右边缺少)字符";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 42: {
-			oss << e << ": " << eline << "行有非法表达式";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 43: {
-			oss << e << ": " << eline << "行有非法因子";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 44: {
-			oss << e << ": " << eline << "行有非法项";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 45: {
-			oss << e << ": " << eline << "行有非法项";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 46: {
-			oss << e << ": " << eline << "行有非法项";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 47: {
-			oss << e << ": " << eline << "行有非法项";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 48: {
-			oss << e << ": " << eline << "行关系运算符有非法表达式";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 49: {
-			oss << e << ": " << eline << "行ODD有非法表达式";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 101: {
-			oss << e << ": " << eline << "行给非变量赋值或变量没有定义";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 102: {
-			oss << e << ": " << eline << "行read语句读入非变量或变量没有定义";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 103: {
-			oss << e << ": " << eline << "行read语句读入非变量或变量没有定义";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 106: {
-			oss << e << ": " << eline << "行call语句后面不是过程名称或过程没有定义";
-			errors[etop++] = oss.str();
-			break;
-		}
-		case 107: {
-			oss << e << ": " << eline << "行因子出错";
-			errors[etop++] = oss.str();
-			break;
-		}
+	case 15: {
+		oss << e << ": " << eline << "行分程序后面没有;结尾";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 16: {
+		oss << e << ": " << eline << "行过程说明后面没有分程序";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 17: {
+		oss << e << ": " << eline << "行过程首部后面没有;结尾";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 18: {
+		oss << e << ": " << eline << "行常量定义没有指定数字";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 19: {
+		oss << e << ": " << eline << "行常量定义没有=字符";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 20: {
+		oss << e << ": " << eline << "行过程首部PROCEDURE后面并没有标识符";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 21: {
+		oss << e << ": " << eline << "行语句后面没有;结尾";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 22: {
+		oss << e << ": " << eline << "行没有END结尾，或者此行语句缺少;结尾";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 23: {
+		oss << e << ": " << eline << "行复合语句的BEGIN后面不是语句";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 24: {
+		oss << e << ": " << eline << "行赋值语句后面不是表达式";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 25: {
+		oss << e << ": " << eline << "行赋值语句没有:=赋值号";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 26: {
+		oss << e << ": " << eline << "行READ语句参数中有非法,字符";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 27: {
+		oss << e << ": " << eline << "行READ语句缺少)字符";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 28: {
+		oss << e << ": " << eline << "行READ语句缺少标识符";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 29: {
+		oss << e << ": " << eline << "行READ语句缺少(字符";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 30: {
+		oss << e << ": " << eline << "行WRITE语句参数中有非法,字符";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 31: {
+		oss << e << ": " << eline << "行WRITE语句缺少)字符";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 32: {
+		oss << e << ": " << eline << "行WRITE语句缺少标识符";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 33: {
+		oss << e << ": " << eline << "行WRITE语句缺少(字符";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 34: {
+		oss << e << ": " << eline << "行CALL语句没有过程名字";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 35: {
+		oss << e << ": " << eline << "行IF语句的THEN后面不是合法语句";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 36: {
+		oss << e << ": " << eline << "行IF语句的条件后面没有THEN";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 37: {
+		oss << e << ": " << eline << "行IF语句后面不是合法条件";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 38: {
+		oss << e << ": " << eline << "行WHILE语句的DO后面不是合法语句";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 39: {
+		oss << e << ": " << eline << "行WHILE语句没有DO";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 40: {
+		oss << e << ": " << eline << "行WHILE语句后面不是合法的条件";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 41: {
+		oss << e << ": " << eline << "行表达式的右边缺少)字符";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 42: {
+		oss << e << ": " << eline << "行有非法表达式";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 43: {
+		oss << e << ": " << eline << "行有非法因子";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 44: {
+		oss << e << ": " << eline << "行有非法项";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 45: {
+		oss << e << ": " << eline << "行有非法项";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 46: {
+		oss << e << ": " << eline << "行有非法项";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 47: {
+		oss << e << ": " << eline << "行有非法项";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 48: {
+		oss << e << ": " << eline << "行关系运算符有非法表达式";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 49: {
+		oss << e << ": " << eline << "行ODD有非法表达式";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 101: {
+		oss << e << ": " << eline << "行给非变量赋值或变量没有定义";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 102: {
+		oss << e << ": " << eline << "行read语句读入非变量或变量没有定义";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 103: {
+		oss << e << ": " << eline << "行read语句读入非变量或变量没有定义";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 106: {
+		oss << e << ": " << eline << "行call语句后面不是过程名称或过程没有定义";
+		errors[etop++] = oss.str();
+		break;
+	}
+	case 107: {
+		oss << e << ": " << eline << "行因子出错";
+		errors[etop++] = oss.str();
+		break;
+	}
 
-		case 108: {
-			oss << e << ": " << eline << "行该层中未声明的标识符";
-			errors[etop++] = oss.str();
-			break;
-		}
+	case 108: {
+		oss << e << ": " << eline << "行该层中未声明的标识符";
+		errors[etop++] = oss.str();
+		break;
+	}
 
-		case 109: {
-			oss << e << ": " << eline << "行标识符重复定义";
-			errors[etop++] = oss.str();
-			break;
-		}
+	case 109: {
+		oss << e << ": " << eline << "行标识符重复定义";
+		errors[etop++] = oss.str();
+		break;
+	}
 
-		case 110: {
-			oss << e << ": " << eline << "行不可修改的左值";
-			errors[etop++] = oss.str();
-			break;
-		}
+	case 110: {
+		oss << e << ": " << eline << "行不可修改的左值";
+		errors[etop++] = oss.str();
+		break;
+	}
 	}
 	return e;
 }

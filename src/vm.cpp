@@ -1,16 +1,16 @@
 #include "vm.h"
 
-#define STACK_SIZE 100
+#define STACK_SIZE 1000
 
 vm::vm(const std::string& filename) {
-	readPl0(filename.c_str());	//¶ÁÈ¡pl0ÎÄ¼ş
+	readPl0(filename.c_str());	//è¯»å–pl0æ–‡ä»¶
 
 	ip = 0;
 	sp = -1;
 	bp = 0;
 
 	lev = 0;
-	SL.push_back(0);  //Ö÷³ÌĞòµÄ¾²Ì¬Á´ÊÇ0
+	SL.push_back(0);  //ä¸»ç¨‹åºçš„é™æ€é“¾æ˜¯0
 
 	stack = new int[STACK_SIZE];
 	for (int i = 0; i < STACK_SIZE; i++) {
@@ -20,183 +20,188 @@ vm::vm(const std::string& filename) {
 	run();
 }
 
-void vm::readPl0(const char* filename) {
-	FILE* fp = fopen(filename, "rb");  //´ò¿ª.pl0ÎÄ¼ş
+void vm::readPl0(const std::string& filename) {
+	FILE* fp = fopen(filename.c_str(), "rb");  //æ‰“å¼€.pl0æ–‡ä»¶
 	int i = 0;
 
 	if (!fp) {
-		std::cout << "´ò¿ª.pl0ÎÄ¼şÊ§°Ü£¡" << std::endl;
+		std::cout << "æ‰“å¼€.pl0æ–‡ä»¶å¤±è´¥ï¼" << std::endl;
 		exit(-1);
 	}
 
 	while (!feof(fp)) {
-		codeSeg.push_back(CODE());	//ÏÈpushÒ»¸ö¿ÕµÄ
+		codeSeg.push_back(CODE());	//å…ˆpushä¸€ä¸ªç©ºçš„
 		fread(&codeSeg[i++], sizeof(CODE), 1, fp);
 	}
 }
 
+//ä¸æ–­æ‰§è¡ŒæŒ‡ä»¤
 void vm::run() {
+	int n = 0;
 	while (ip < codeSeg.size()) {
 		runInst();
+		++n;
+		std::cout << n << "times\n";
+		if (n == 80) {
+			int i = 1 + n;
+		}
 	}
-
-	std::cout << "´úÂë·­Òë²¢Ö´ĞĞÍê±Ï!" << std::endl;
+	std::cout << "ä»£ç ç¿»è¯‘å¹¶æ‰§è¡Œå®Œæ¯•!" << std::endl;
 }
-
+//æ‰§è¡Œä¸€æ¡æŒ‡ä»¤
 void vm::runInst() {
-	inst = codeSeg.at(ip++);  //È¡Ö¸
+	inst = codeSeg.at(ip++);  //å–æŒ‡
 	int temp;
 
 	switch (inst.fun) {
-		case LIT:  //³£Á¿·ÅÕ»¶¥
-			stack[++sp] = inst.offset;
-			break;
+	case LIT:  //å¸¸é‡æ”¾æ ˆé¡¶
+		stack[++sp] = inst.offset;
+		break;
 
-		case LOD:  //±äÁ¿·ÅÕ»¶¥
-		{
-			int tempBp = stack[bp + 2];
-			int levOffset = inst.lev;
+	case LOD: {	 //å˜é‡æ”¾æ ˆé¡¶
+		int tempBp = stack[bp + 2];
+		int levOffset = inst.lev;
 
-			while (levOffset-- != 0) {	//ÑØ×Å¾²Ì¬Á´ÍùÍâ²ãÕÒ
-				tempBp = stack[tempBp + 2];
-			}
-
-			temp = stack[tempBp + inst.offset];
-			stack[++sp] = temp;
-			break;
+		while (levOffset-- != 0) {	//æ²¿ç€é™æ€é“¾å¾€å¤–å±‚æ‰¾
+			tempBp = stack[tempBp + 2];
 		}
-			//Õ»¶¥ÄÚÈİ´æµ½±äÁ¿ÖĞ
-		case STO: {
-			int tempBp = stack[bp + 2];
-			int levOffset = inst.lev;
 
-			while (levOffset-- != 0) {
-				tempBp = stack[tempBp + 2];
-			}
+		temp = stack[tempBp + inst.offset];
+		stack[++sp] = temp;
+		break;
+	}
+		//æ ˆé¡¶å†…å®¹å­˜åˆ°å˜é‡ä¸­
+	case STO: {
+		int tempBp = stack[bp + 2];
+		int levOffset = inst.lev;
 
-			temp = stack[sp];
-			stack[tempBp + inst.offset] = temp;
-
-			break;
-		}  //ÑØ×Å¾²Ì¬Á´ÍùÍâ²ãÕÒ
-
-		case CAL:
-			stack[sp + 1] = bp;					 //push bp.ÀÏbp£¬¼´¶¯Ì¬Á´
-			stack[sp + 2] = ip;					 //·µ»ØµØÖ·
-			stack[sp + 3] = SL[lev - inst.lev];	 //¾²Ì¬Á´
-
-			lev = lev - inst.lev;
-
-			SL.push_back(bp);  //±£´æµ±Ç°ÔËĞĞµÄbp.Ã¿callÒ»´Î±£´æÒ»´Î
-			bp = sp + 1;	   //¼ÇÂ¼±»µ÷ÓÃ¹ı³ÌµÄ»ùµØÖ·
-			ip = inst.offset;
-			break;
-
-		case INT:
-			sp += inst.offset;	//Õ»¶¥¼Óa
-			break;
-
-		case JMP:
-			ip = inst.offset;  //ip×ªµ½a
-			break;
-
-		case JPC:
-
-			if (!stack[sp])		   //Õ»¶¥²¼¶ûÖµÎª·ÇÕæ
-				ip = inst.offset;  //×ªµ½aµÄµØÖ·
-			break;
-
-		case OPR:  //¹ØÏµºÍËãÊõÔËËã
-		{
-			switch (inst.offset) {
-				case OPR::ADD:
-					temp = stack[sp - 1] + stack[sp];
-					stack[--sp] = temp;
-					break;
-
-				case OPR::SUB:
-					temp = stack[sp - 1] - stack[sp];
-					stack[--sp] = temp;
-					break;
-
-				case OPR::DIV:
-					temp = stack[sp - 1] / stack[sp];
-					stack[--sp] = temp;
-					break;
-
-				case OPR::MINUS:
-					stack[sp] = -stack[sp];
-					break;
-
-				case OPR::MUL:
-					temp = stack[sp - 1] * stack[sp];
-					stack[--sp] = temp;
-					break;
-
-				case OPR::EQ:
-					temp = (stack[sp - 1] - stack[sp] == 0);
-					stack[--sp] = temp;
-					break;
-
-				case OPR::UE:
-					temp = (stack[sp - 1] - stack[sp] != 0);
-					stack[--sp] = temp;
-					break;
-
-				case OPR::GE:
-					temp = (stack[sp - 1] - stack[sp] >= 0);
-					stack[--sp] = temp;
-					break;
-
-				case OPR::GT:
-					temp = (stack[sp - 1] - stack[sp] > 0);
-					stack[--sp] = temp;
-					break;
-
-				case OPR::LE:
-					temp = (stack[sp - 1] - stack[sp] <= 0);
-					stack[--sp] = temp;
-					break;
-
-				case OPR::LT:
-					temp = (stack[sp - 1] - stack[sp] < 0);
-					stack[--sp] = temp;
-					break;
-
-				case OPR::ODD:	//ÅĞ¶ÏÕ»¶¥²Ù×÷ÊıÊÇ·ñÎªÆæÊı
-					stack[sp] = (stack[sp] % 2 == 1);
-					break;
-
-				case OPR::WRITE:
-					writeMem(sp--);	 //Êä³öÕ»¶¥µÄÔËËã½á¹û,²¢½«Õ»¶¥-1
-					break;
-
-				case OPR::READ:
-					readMem();
-					break;
-
-				case 0:	 //ÍË³öÊı¾İÇø£¬ÍË³ö×Ó³ÌĞò
-					sp = bp - 1;
-					ip = stack[bp + 1];	 //·µ»ØµØÖ·
-					bp = stack[bp];		 //¶¯Ì¬Á´µÄµØÖ·
-
-					SL.pop_back();	//È¥µô
-
-					if (sp == -1) {
-						printStack();
-						exit(0);
-					}  //Ö÷³ÌĞò½áÊø
-					break;
-
-				default:
-					break;
-			}
-			break;
+		while (levOffset-- != 0) {
+			tempBp = stack[tempBp + 2];
 		}
+
+		temp = stack[sp];
+		stack[tempBp + inst.offset] = temp;
+
+		break;
+	}
+
+	case CAL:								 //æ²¿ç€é™æ€é“¾å¾€å¤–å±‚æ‰¾
+		stack[sp + 1] = bp;					 //push bp.è€bpï¼Œå³åŠ¨æ€é“¾
+		stack[sp + 2] = ip;					 //è¿”å›åœ°å€
+		stack[sp + 3] = SL[lev - inst.lev];	 //é™æ€é“¾
+
+		lev = lev - inst.lev;
+
+		SL.push_back(bp);  //ä¿å­˜å½“å‰è¿è¡Œçš„bp.æ¯callä¸€æ¬¡ä¿å­˜ä¸€æ¬¡
+		bp = sp + 1;	   //è®°å½•è¢«è°ƒç”¨è¿‡ç¨‹çš„åŸºåœ°å€
+		ip = inst.offset;
+		break;
+
+	case INT:
+		sp += inst.offset;	//æ ˆé¡¶åŠ a
+		break;
+
+	case JMP:
+		ip = inst.offset;  //ipè½¬åˆ°a
+		break;
+
+	case JPC:
+
+		if (!stack[sp])		   //æ ˆé¡¶å¸ƒå°”å€¼ä¸ºéçœŸ
+			ip = inst.offset;  //è½¬åˆ°açš„åœ°å€
+		break;
+
+	case OPR:  //å…³ç³»å’Œç®—æœ¯è¿ç®—
+	{
+		switch (inst.offset) {
+		case OPR::ADD:
+			temp = stack[sp - 1] + stack[sp];
+			stack[--sp] = temp;
+			break;
+
+		case OPR::SUB:
+			temp = stack[sp - 1] - stack[sp];
+			stack[--sp] = temp;
+			break;
+
+		case OPR::DIV:
+			temp = stack[sp - 1] / stack[sp];
+			stack[--sp] = temp;
+			break;
+
+		case OPR::MINUS:
+			stack[sp] = -stack[sp];
+			break;
+
+		case OPR::MUL:
+			temp = stack[sp - 1] * stack[sp];
+			stack[--sp] = temp;
+			break;
+
+		case OPR::EQ:
+			temp = (stack[sp - 1] - stack[sp] == 0);
+			stack[--sp] = temp;
+			break;
+
+		case OPR::UE:
+			temp = (stack[sp - 1] - stack[sp] != 0);
+			stack[--sp] = temp;
+			break;
+
+		case OPR::GE:
+			temp = (stack[sp - 1] - stack[sp] >= 0);
+			stack[--sp] = temp;
+			break;
+
+		case OPR::GT:
+			temp = (stack[sp - 1] - stack[sp] > 0);
+			stack[--sp] = temp;
+			break;
+
+		case OPR::LE:
+			temp = (stack[sp - 1] - stack[sp] <= 0);
+			stack[--sp] = temp;
+			break;
+
+		case OPR::LT:
+			temp = (stack[sp - 1] - stack[sp] < 0);
+			stack[--sp] = temp;
+			break;
+
+		case OPR::ODD:	//åˆ¤æ–­æ ˆé¡¶æ“ä½œæ•°æ˜¯å¦ä¸ºå¥‡æ•°
+			stack[sp] = (stack[sp] % 2 == 1);
+			break;
+
+		case OPR::WRITE:
+			writeMem(sp--);	 //è¾“å‡ºæ ˆé¡¶çš„è¿ç®—ç»“æœ,å¹¶å°†æ ˆé¡¶-1
+			break;
+
+		case OPR::READ:
+			readMem();
+			break;
+
+		case 0:	 //é€€å‡ºæ•°æ®åŒºï¼Œé€€å‡ºå­ç¨‹åº
+			sp = bp - 1;
+			ip = stack[bp + 1];	 //è¿”å›åœ°å€
+			bp = stack[bp];		 //åŠ¨æ€é“¾çš„åœ°å€
+
+			SL.pop_back();	//å»æ‰
+
+			if (sp == -1) {
+				printStack();
+				exit(0);
+			}  //ä¸»ç¨‹åºç»“æŸ
+			break;
 
 		default:
-			/*²Ù×÷Âë´íÎó*/
 			break;
+		}
+		break;
+	}
+
+	default:
+		/*æ“ä½œç é”™è¯¯*/
+		break;
 	}
 
 	printStack();
@@ -204,9 +209,9 @@ void vm::runInst() {
 
 void vm::readMem() {
 	std::cout << "read:" << std::endl;
-	int a;	//´Ó¼üÅÌ¶ÁÈ¡Ò»¸öÊı×Ö
+	int a;	//ä»é”®ç›˜è¯»å–ä¸€ä¸ªæ•°å­—
 	std::cin >> a;
-	stack[++sp] = a;  //·Åµ½ÔËĞĞÕ»µÄÕ»¶¥
+	stack[++sp] = a;  //æ”¾åˆ°è¿è¡Œæ ˆçš„æ ˆé¡¶
 }
 
 void vm::writeMem(int addr) {
@@ -215,18 +220,17 @@ void vm::writeMem(int addr) {
 }
 
 void vm::printStack() {
-	//cout << std::endl;
-	//cout << "¸÷¼Ä´æÆ÷ÄÚÈİ:" << std::endl;
-	//cout << "SP:" << sp << "\t";
-	//cout << "BP:" << bp << "\t";
-	//cout << "IP:" << ip << std::endl;
+	std::cout << std::endl;
+	std::cout << "SP:" << sp << "\t";
+	std::cout << "BP:" << bp << "\t";
+	std::cout << "IP:" << ip << std::endl;
 
-	//cout << "IR:" << opMap[inst.fun] << "\t";
-	//cout << inst.lev << "\t";
-	//cout << inst.offset << std::endl;
+	std::cout << "IR:" << opMap[inst.fun] << "\t";
+	std::cout << inst.lev << "\t";
+	std::cout << inst.offset << std::endl;
 
-	//cout << "Õ»ÄÚÈİ:" << std::endl;
+	std::cout << "stack" << std::endl;
 
-	//for (int i = sp; i >= 0; i--)
-	//	std::cout << stack[i]<<endl;
+	for (int i = sp; i >= 0; i--)
+		std::cout << i << " " << stack[i] << std::endl;
 }
