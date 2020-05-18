@@ -220,17 +220,17 @@ void vm::writeMem(int addr) {
 }
 
 void vm::printStack() {
-	std::cout << std::endl;
-	std::cout << "SP:" << sp << "\t";
-	std::cout << "BP:" << bp << "\t";
-	std::cout << "IP:" << ip << std::endl;
+	// std::cout << std::endl;
+	// std::cout << "SP:" << sp << "\t";
+	// std::cout << "BP:" << bp << "\t";
+	// std::cout << "IP:" << ip << std::endl;
 
-	std::cout << "IR:" << opMap[inst.fun] << "\t";
-	std::cout << inst.lev << "\t";
-	std::cout << inst.offset << std::endl;
+	// std::cout << "IR:" << opMap[inst.fun] << "\t";
+	// std::cout << inst.lev << "\t";
+	// std::cout << inst.offset << std::endl;
 
-	std::cout << "stack" << std::endl;
+	// std::cout << "stack" << std::endl;
 
-	for (int i = sp; i >= 0; i--)
-		std::cout << i << " " << stack[i] << std::endl;
+	// for (int i = sp; i >= 0; i--)
+	// 	std::cout << i << " " << stack[i] << std::endl;
 }

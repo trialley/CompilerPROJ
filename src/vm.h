@@ -7,25 +7,25 @@
 class vm {
 public:
 	vm(const std::string&);
-	void run();		 //Ñ­»·Ö´ĞĞÄ¿±êÎÄ¼şÖĞÖ¸Áî
-	void runInst();	 //Ö´ĞĞÒ»ÌõÖ¸Áî
+	void run();		 //å¾ªç¯æ‰§è¡Œç›®æ ‡æ–‡ä»¶ä¸­æŒ‡ä»¤
+	void runInst();	 //æ‰§è¡Œä¸€æ¡æŒ‡ä»¤
 
-	void readMem();		 //¶Á¼üÅÌ²Ù×÷
-	void writeMem(int);	 //Êä³ö
+	void readMem();		 //è¯»é”®ç›˜æ“ä½œ
+	void writeMem(int);	 //è¾“å‡º
 
-	void printStack();	//Êä³öÕ»µ±Ç°×´Ì¬
+	void printStack();	//è¾“å‡ºæ ˆå½“å‰çŠ¶æ€
 
-	void readPl0(const std::string&);  //¶ÁÈ¡Ä¿±êÎÄ¼ş
+	void readPl0(const std::string&);  //è¯»å–ç›®æ ‡æ–‡ä»¶
 
 private:
-	CODE inst;	//Ö¸Áî¼Ä´æÆ÷
-	int ip;		//³ÌĞò¼ÆÊıÆ÷
-	int sp;		//Õ»¶¥¼Ä´æÆ÷
-	int bp;		//»ùÖ·¼Ä´æÆ÷
+	CODE inst;	//æŒ‡ä»¤å¯„å­˜å™¨
+	int ip;		//ç¨‹åºè®¡æ•°å™¨
+	int sp;		//æ ˆé¡¶å¯„å­˜å™¨
+	int bp;		//åŸºå€å¯„å­˜å™¨
 
-	int* stack;					//Êı¾İÕ»
-	std::vector<CODE> codeSeg;	//´úÂë¶Î
+	int* stack;					//æ•°æ®æ ˆ
+	std::vector<CODE> codeSeg;	//ä»£ç æ®µ
 
-	int lev;			  //±£´æµ±Ç°»î¶¯¼ÇÂ¼µÄ¾²Ì¬²ãÊı
-	std::vector<int> SL;  //¾²Ì¬Á´
+	int lev;			  //ä¿å­˜å½“å‰æ´»åŠ¨è®°å½•çš„é™æ€å±‚æ•°
+	std::vector<int> SL;  //é™æ€é“¾
 };
