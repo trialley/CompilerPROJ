@@ -81,7 +81,7 @@ enum InsType {	//目标指令
 extern std::map<SymbolType, std::string> SymToString;
 extern std::map<InsType, std::string> TisToString;
 
-enum OPR {	//OPR指令中a域的取值
+enum OPR {	//OPR指令中的具体运算
 	ADD = 1,
 	SUB = 2,
 	MUL = 3,

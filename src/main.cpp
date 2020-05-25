@@ -35,11 +35,11 @@ void run(int argc, const char* argv[]) {
 	parser a(path);
 
 	std::cout << std::endl;
-	std::cout << "符号表中内容如下:" << std::endl;
+	std::cout << "符号表:" << std::endl;
 	a.printTable();
 
 	std::cout << std::endl;
-	std::cout << "代码表中内容如下:" << std::endl;
+	std::cout << "代码表:" << std::endl;
 
 	a.printCode();
 

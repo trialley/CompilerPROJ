@@ -24,7 +24,7 @@ public:
 	bool insertSymbol(SymbolType kind, const std::string& id);
 	int searchSymbol(const std::string& id);
 
-	void GEN(InsType fun, int lev, int offset);
+	void pushCode(InsType fun, int lev, int offset);
 
 	void printTable();
 	void printCode();
