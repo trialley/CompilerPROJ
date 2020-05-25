@@ -28,7 +28,7 @@ void lexer::initMap() {	 //
 void lexer::openSrc(const std::string& src) {
 	fp = fopen(src.c_str(), "rb");
 	if (fp == NULL) {
-		std::cout << "open file error!" << std::endl;
+		std::cout << "open file PushError!" << std::endl;
 		return;
 	}
 	row = 1;
@@ -103,7 +103,7 @@ int lexer::Reserve(const std::string& strToken) {  //在关键字表中查询，
 	return 0;  //没找到保留字
 }
 
-symEntry lexer::getSym() {
+symEntry lexer::GETSYM() {
 	int code, value;
 	symEntry _tempSymEntry;
 	char strToken[MAX_ID_LEN];

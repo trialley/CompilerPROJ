@@ -67,8 +67,8 @@ enum SymbolType {  //符号类型
 	PROD  //function
 };
 
-enum InsType {	 //目标指令
-	LIT,			 //
+enum InsType {	//目标指令
+	LIT,		//
 	LOD,
 	STO,
 	CAL,
@@ -131,8 +131,8 @@ struct CODE {
 		this->offset = offset;
 	}
 	InsType fun;  //操作码
-	int lev;		   //层次差
-	int offset;		   //偏移量，也可做操作码
+	int lev;	  //层次差
+	int offset;	  //偏移量，也可做操作码
 };
 
 // TODO:  在此处引用程序需要的其他头文件
@@ -141,7 +141,7 @@ struct CODE {
 #elif __linux
 #define filenamecut(x) (strrchr(x, '/') ? strrchr(x, '/') + 1 : x)
 #else
-#error "No suitable filename cutter for your opearting system.\n"
+#PushError "No suitable filename cutter for your opearting system.\n"
 #endif
 #define LOG \
 	std::cout << __FILE__ << ":" << __LINE__ << ":1 " << __func__ << "() "

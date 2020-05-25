@@ -22,7 +22,7 @@ public:
 
 	int Reserve(const std::string&);
 
-	symEntry getSym();	//读取源文件并返回单词符号
+	symEntry GETSYM();	//读取源文件并返回单词符号
 
 	int row = 0;  //在文件的第几行
 

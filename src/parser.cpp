@@ -7,7 +7,7 @@ parser::parser(const std::string& filename) {
 	wa = new lexer(filename);  //创建新的词法分析器
 	wa->readLine();			   //读取一行
 
-	_tempSymEntry = wa->getSym();  //获得一个符号到temp
+	_tempSymEntry = wa->GETSYM();  //获得一个符号到temp
 	if (_tempSymEntry.sym == INVALID) {
 		LOG << "非法标识符";
 		throw std::exception(std::logic_error("非法标识符"));
@@ -41,15 +41,14 @@ void parser::BLOCK() {
 	dx = 3;
 
 	if (_tempSymEntry.sym == _CONST) {	//是CONST声明
-		_tempSymEntry = wa->getSym();	//再获取一个符号
+		_tempSymEntry = wa->GETSYM();	//再获取一个符号
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
 		analyzeConst();	 //分析一个const类型的变量符号
 
-		while (_tempSymEntry.sym == _COMMA)	 //逗号，多个声明。
-		{
-			_tempSymEntry = wa->getSym();
+		while (_tempSymEntry.sym == _COMMA) {  //逗号，多个声明。
+			_tempSymEntry = wa->GETSYM();
 			if (_tempSymEntry.sym == INVALID)
 				return;
 
@@ -57,18 +56,18 @@ void parser::BLOCK() {
 		}
 
 		if (_tempSymEntry.sym == _SEMICOLON) {	//遇到分号
-			_tempSymEntry = wa->getSym();
+			_tempSymEntry = wa->GETSYM();
 			if (_tempSymEntry.sym == INVALID)
 				return;
 		} else {
 			/*既不是逗号也不是分号，声明语句没有以;结束*/
-			error(10, wa->row);
+			PushError(10, wa->row);
 		}
 	}
 
 	if (_tempSymEntry.sym == _VAR) {  //是VAR声明
 
-		_tempSymEntry = wa->getSym();
+		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
@@ -76,7 +75,7 @@ void parser::BLOCK() {
 
 		while (_tempSymEntry.sym == _COMMA)	 //逗号
 		{
-			_tempSymEntry = wa->getSym();
+			_tempSymEntry = wa->GETSYM();
 			if (_tempSymEntry.sym == INVALID)
 				return;
 
@@ -85,14 +84,14 @@ void parser::BLOCK() {
 
 		if (_tempSymEntry.sym == _SEMICOLON) {	//遇到了分号
 
-			_tempSymEntry = wa->getSym();
+			_tempSymEntry = wa->GETSYM();
 			if (_tempSymEntry.sym == INVALID)
 				return;
 		}
 
 		else {
 			/*声明语句没有以;结束*/
-			error(13, wa->row);
+			PushError(13, wa->row);
 		}
 	}
 
@@ -100,7 +99,7 @@ void parser::BLOCK() {
 
 		// cout << "过程说明部分！" << std::endl;
 
-		_tempSymEntry = wa->getSym();
+		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
@@ -129,43 +128,43 @@ void parser::analyzeConst() {  //常量说明部分
 
 		std::string id = _tempSymEntry.name;
 
-		_tempSymEntry = wa->getSym();
+		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
 		if (_tempSymEntry.sym == _ASSIGN)  //是赋值号
 		{
 			// 如果不是等号，而是赋值符号:=，抛出1号错误
-			error(19, wa->row);
+			PushError(19, wa->row);
 		} else if (_tempSymEntry.sym == _EQ) {
-			_tempSymEntry = wa->getSym();
+			_tempSymEntry = wa->GETSYM();
 			if (_tempSymEntry.sym == INVALID)
 				return;
 
 			if (_tempSymEntry.sym == _NUMBER) {	 //是数字
 
 				if (!insertSymbol(SymbolType::CONST, id))
-					error(109, wa->row);
+					PushError(109, wa->row);
 				/*重定义*/;	 //插入到符号表失败
 
-				_tempSymEntry = wa->getSym();
+				_tempSymEntry = wa->GETSYM();
 				if (_tempSymEntry.sym == INVALID)
 					return;
 			}
 
 			else {	//赋值号后不是数字
 
-				error(18, wa->row);
+				PushError(18, wa->row);
 			}
 		}
 
 		else {	//标识符后不是等号
 
-			error(19, wa->row);
+			PushError(19, wa->row);
 		}
 	} else {  //const 后没有加标识符
 
-		error(11, wa->row);
+		PushError(11, wa->row);
 	}
 }
 
@@ -179,15 +178,15 @@ void parser::analyzeVar() {	 //变量说明部分
 
 		if (!insertSymbol(SymbolType::VAR, _tempSymEntry.name)) {
 			LOG << "重定义" << std::endl;
-			error(109, wa->row);
+			PushError(109, wa->row);
 		}
 
-		_tempSymEntry = wa->getSym();
+		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			return;	 //取下一个词
 	} else {
 		// 如果变量声明过程中遇到的第一个字符不是标识符
-		error(12, wa->row);
+		PushError(12, wa->row);
 	}
 }
 
@@ -195,23 +194,23 @@ void parser::analyzePro() {	 //过程说明部分
 
 	if (_tempSymEntry.sym == _IDENT) {
 		if (!insertSymbol(SymbolType::PROD, _tempSymEntry.name))
-			error(109, wa->row);
+			PushError(109, wa->row);
 		/*重定义*/
 
-		_tempSymEntry = wa->getSym();
+		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 	} else {
 		/*过程首部没有标识符*/
-		error(20, wa->row);
+		PushError(20, wa->row);
 	}
 
 	if (_tempSymEntry.sym == _SEMICOLON) {
-		_tempSymEntry = wa->getSym();
+		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 	} else {  //过程名没有以分号结束
-		error(17, wa->row);
+		PushError(17, wa->row);
 	}
 
 	//保存当前dx和lev
@@ -226,18 +225,18 @@ void parser::analyzePro() {	 //过程说明部分
 
 	if (_tempSymEntry.sym == _SEMICOLON) {	//end;后的符号。这里有问题
 
-		_tempSymEntry = wa->getSym();
+		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
 		while (_tempSymEntry.sym == _PROCEDURE) {  //如果还有并列的过程说明
 
-			_tempSymEntry = wa->getSym();
+			_tempSymEntry = wa->GETSYM();
 			analyzePro();
 		}
 	} else {
 		/*过程说明end后没有加分号*/
-		error(22, wa->row);
+		PushError(22, wa->row);
 	}
 }
 
@@ -251,27 +250,27 @@ void parser::analyzeSent() {
 
 		i = searchSymbol(_tempSymEntry.name);
 		if (i < 0) { /*没有找到符号的声明*/
-			error(108, wa->row);
+			PushError(108, wa->row);
 		}
 
 		else if (symbolTable.at(i).kind != SymbolType::VAR) {
 			// 如果在符号表中找到了，但是该标识符不是变量名，
 			/*不可修改的左值*/
-			error(110, wa->row);
+			PushError(110, wa->row);
 		}
 
-		_tempSymEntry = wa->getSym();
+		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
 		if (_tempSymEntry.sym == _ASSIGN) {	 //是赋值号
 
-			_tempSymEntry = wa->getSym();
+			_tempSymEntry = wa->GETSYM();
 			if (_tempSymEntry.sym == INVALID)
 				return;
 		} else {
 			/*变量名后没有加赋值号*/
-			error(14, wa->row);
+			PushError(14, wa->row);
 		}
 
 		analyzeExpr();	//处理赋值号右部的表达式
@@ -284,17 +283,17 @@ void parser::analyzeSent() {
 	}
 
 	case _CALL: {
-		_tempSymEntry = wa->getSym();
+		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
 		if (_tempSymEntry.sym != _IDENT) {	//call 后面不是标识符
-			error(34, wa->row);
+			PushError(34, wa->row);
 		} else {
 			i = searchSymbol(_tempSymEntry.name);  //查找标识符对应的符号表
 
 			if (i < 0) {
-				error(108, wa->row);
+				PushError(108, wa->row);
 			}
 
 			else if (symbolTable.at(i).kind == SymbolType::PROD) {	//类型检查
@@ -305,10 +304,10 @@ void parser::analyzeSent() {
 			else {	//call 后加的不是proc
 
 				/*调用的标示符不是过程名*/
-				error(34, wa->row);
+				PushError(34, wa->row);
 			}
 
-			_tempSymEntry = wa->getSym();
+			_tempSymEntry = wa->GETSYM();
 			if (_tempSymEntry.sym == INVALID)
 				return;
 		}
@@ -317,7 +316,7 @@ void parser::analyzeSent() {
 	}
 
 	case _IF: {
-		_tempSymEntry = wa->getSym();
+		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
@@ -326,7 +325,7 @@ void parser::analyzeSent() {
 		cx++;
 
 		if (_tempSymEntry.sym == _THEN) {
-			_tempSymEntry = wa->getSym();
+			_tempSymEntry = wa->GETSYM();
 			if (_tempSymEntry.sym == INVALID)
 				return;
 
@@ -335,7 +334,7 @@ void parser::analyzeSent() {
 
 		} else {
 			/*条件语句缺少then*/
-			error(36, wa->row);
+			PushError(36, wa->row);
 		}
 
 		//cx = codeTable.size();
@@ -346,7 +345,7 @@ void parser::analyzeSent() {
 	}
 
 	case _BEGIN: {
-		_tempSymEntry = wa->getSym();
+		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
@@ -356,21 +355,21 @@ void parser::analyzeSent() {
 
 			if (_tempSymEntry.sym == _SEMICOLON) {	//t为";",说明后面还有语句
 
-				_tempSymEntry = wa->getSym();
+				_tempSymEntry = wa->GETSYM();
 				if (_tempSymEntry.sym == INVALID)
 					return;
 
 				analyzeSent();
 			} else if (_tempSymEntry.sym == _END) {	 //t为end，表示复合语句结束
 
-				_tempSymEntry = wa->getSym();
+				_tempSymEntry = wa->GETSYM();
 				//if (t.sym == INVALID) return;
 				return;
 			}
 
 			else {
 				//出现其他字符，则说明复合语句错误
-				error(23, wa->row);
+				PushError(23, wa->row);
 				return;
 			}
 			//analyzeSent();
@@ -383,7 +382,7 @@ void parser::analyzeSent() {
 	case _WHILE: {
 		cx1 = cx;  // 记录当前代码分配位置，这是while循环的开始位置，也就是无条件跳转到的地方
 
-		_tempSymEntry = wa->getSym();
+		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
@@ -393,7 +392,7 @@ void parser::analyzeSent() {
 		cx++;	   //占一个Code位置
 
 		if (_tempSymEntry.sym == _DO) {
-			_tempSymEntry = wa->getSym();
+			_tempSymEntry = wa->GETSYM();
 			if (_tempSymEntry.sym == INVALID)
 				return;
 
@@ -403,19 +402,19 @@ void parser::analyzeSent() {
 			codeTable.insert(codeTable.begin() + cx2, CODE(JPC, 0, cx + offset));
 		} else {
 			/*while后面没有接do*/
-			error(39, wa->row);
+			PushError(39, wa->row);
 		}
 
 		break;
 	}
 
 	case _READ: {
-		_tempSymEntry = wa->getSym();
+		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
 		if (_tempSymEntry.sym == _LPAIR) {
-			_tempSymEntry = wa->getSym();
+			_tempSymEntry = wa->GETSYM();
 			if (_tempSymEntry.sym == INVALID)
 				return;
 
@@ -423,7 +422,7 @@ void parser::analyzeSent() {
 				i = searchSymbol(_tempSymEntry.name);
 				if (i < 0) {
 					/*未说明的标识符*/
-					error(108, wa->row);
+					PushError(108, wa->row);
 				}
 
 				else {
@@ -434,13 +433,13 @@ void parser::analyzeSent() {
 				}
 			}
 
-			_tempSymEntry = wa->getSym();
+			_tempSymEntry = wa->GETSYM();
 			if (_tempSymEntry.sym == INVALID)
 				return;
 
 			while (_tempSymEntry.sym == _COMMA) {  //读多个键盘输入
 
-				_tempSymEntry = wa->getSym();
+				_tempSymEntry = wa->GETSYM();
 				if (_tempSymEntry.sym == INVALID)
 					return;
 
@@ -448,7 +447,7 @@ void parser::analyzeSent() {
 					i = searchSymbol(_tempSymEntry.name);
 					if (i < 0) {
 						/*没找到标识符*/
-						error(108, wa->row);
+						PushError(108, wa->row);
 					} else {
 						//	codeTable.push_back(CODE(OPR, 0, OPR::READ));//读键盘
 						//codeTable.push_back(CODE(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr));
@@ -457,22 +456,22 @@ void parser::analyzeSent() {
 					}
 				}
 
-				_tempSymEntry = wa->getSym();
+				_tempSymEntry = wa->GETSYM();
 				if (_tempSymEntry.sym == INVALID)
 					return;
 			}
 
 			if (_tempSymEntry.sym != _RPAIR) {
 				/*左右括号不匹配*/
-				error(27, wa->row);
+				PushError(27, wa->row);
 			}
 
 		} else {
 			/*不是左括号*/
-			error(29, wa->row);
+			PushError(29, wa->row);
 		}
 
-		_tempSymEntry = wa->getSym();
+		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
@@ -480,17 +479,17 @@ void parser::analyzeSent() {
 	}
 
 	case _WRITE: {
-		_tempSymEntry = wa->getSym();
+		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
 		if (_tempSymEntry.sym == _LPAIR) {
-			_tempSymEntry = wa->getSym();
+			_tempSymEntry = wa->GETSYM();
 			analyzeExpr();
 			GEN(OPR, 0, OPR::WRITE);
 
 			while (_tempSymEntry.sym == _COMMA) {
-				_tempSymEntry = wa->getSym();
+				_tempSymEntry = wa->GETSYM();
 				if (_tempSymEntry.sym == INVALID)
 					return;
 
@@ -501,9 +500,9 @@ void parser::analyzeSent() {
 
 			if (_tempSymEntry.sym != _RPAIR) {
 				/*左右括号不匹配*/
-				error(31, wa->row);
+				PushError(31, wa->row);
 			} else {
-				_tempSymEntry = wa->getSym();
+				_tempSymEntry = wa->GETSYM();
 				if (_tempSymEntry.sym == INVALID)
 					return;
 			}
@@ -513,7 +512,7 @@ void parser::analyzeSent() {
 	}
 
 	default:  //不是begin开头
-		//error(8, wa->row);
+		//PushError(8, wa->row);
 		break;
 	}
 }
@@ -522,7 +521,7 @@ void parser::analyzeCond() {
 	int relop;
 	if (_tempSymEntry.sym == _ODD) {  //一元运算符
 
-		_tempSymEntry = wa->getSym();
+		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
@@ -537,7 +536,7 @@ void parser::analyzeCond() {
 		analyzeExpr();				//分析左边表达式
 		relop = _tempSymEntry.sym;	//保存二元运算符
 
-		_tempSymEntry = wa->getSym();
+		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
@@ -587,7 +586,7 @@ void parser::analyzeExpr() {
 
 		addop = _tempSymEntry.sym;
 
-		_tempSymEntry = wa->getSym();
+		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
@@ -604,7 +603,7 @@ void parser::analyzeExpr() {
 	while (_tempSymEntry.sym == _PLUS || _tempSymEntry.sym == _MINUS) {
 		addop = _tempSymEntry.sym;	//算术运算符保存在addop中
 
-		_tempSymEntry = wa->getSym();
+		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
@@ -629,7 +628,7 @@ void parser::analyzeTerm() {
 	while (_tempSymEntry.sym == _STAR || _tempSymEntry.sym == _DIV) {
 		mulop = _tempSymEntry.sym;	/// 把运算符保存在mulop中(乘法或是除法)
 
-		_tempSymEntry = wa->getSym();
+		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
@@ -653,15 +652,13 @@ void parser::analyzeElem() {
 			i = searchSymbol(_tempSymEntry.name);
 			if (i < 0) {
 				/*没有找到符号*/
-				error(108, wa->row);
+				PushError(108, wa->row);
 			}
 
 			else if (symbolTable.at(i).kind == SymbolType::CONST) {
 				// 如果该标识符为常量,则生成lit指令,把val放到栈顶
-				//codeTable.push_back(CODE(LIT, 0, symbolTable.at(i).val));
 				GEN(LIT, 0, symbolTable.at(i).val);
-
-				_tempSymEntry = wa->getSym();
+				_tempSymEntry = wa->GETSYM();
 				if (_tempSymEntry.sym == INVALID)
 					return;
 			}
@@ -671,14 +668,13 @@ void parser::analyzeElem() {
 				//symbolTable.at(i).addr));
 				GEN(LOD, lev - symbolTable.at(i).lev,
 					symbolTable.at(i).addr);
-
-				_tempSymEntry = wa->getSym();
+				_tempSymEntry = wa->GETSYM();
 				if (_tempSymEntry.sym == INVALID)
 					return;
 			} else if (symbolTable.at(i).kind == SymbolType::PROD) {
 				/*该标识符为过程名，出错*/
-				error(43, wa->row);
-				_tempSymEntry = wa->getSym();
+				PushError(43, wa->row);
+				_tempSymEntry = wa->GETSYM();
 				if (_tempSymEntry.sym == INVALID)
 					return;
 			}
@@ -686,14 +682,12 @@ void parser::analyzeElem() {
 			break;
 		}
 
-		case _NUMBER:  //因子分析遇到数字
-		{
+		case _NUMBER: {									//因子分析遇到数字
 			int num = atoi(_tempSymEntry.name.c_str()); /*要判断范围*/
-
 			//codeTable.push_back(CODE(LIT, 0, num));// 生成lit指令，把这个数值字面常量放到栈顶
 			GEN(LIT, 0, num);
 
-			_tempSymEntry = wa->getSym();
+			_tempSymEntry = wa->GETSYM();
 			if (_tempSymEntry.sym == INVALID)
 				return;
 
@@ -701,19 +695,19 @@ void parser::analyzeElem() {
 		}
 
 		case _LPAIR: {
-			_tempSymEntry = wa->getSym();
+			_tempSymEntry = wa->GETSYM();
 			if (_tempSymEntry.sym == INVALID)
 				return;
 
 			analyzeExpr();
 
 			if (_tempSymEntry.sym == _RPAIR) {
-				_tempSymEntry = wa->getSym();
+				_tempSymEntry = wa->GETSYM();
 				if (_tempSymEntry.sym == INVALID)
 					return;
 			} else {
 				/*左右括号不匹配*/
-				error(41, wa->row);
+				PushError(41, wa->row);
 			}
 
 			break;
@@ -759,7 +753,7 @@ int parser::searchSymbol(const std::string& id) {
 	return -1;
 }
 
-int parser::error(int e, int eline) {
+int parser::PushError(int e, int eline) {
 	std::ostringstream oss;
 
 	switch (e) {
@@ -1114,9 +1108,9 @@ void parser::generateFile(const std::string& filename) {
 
 	// _splitpath(filename, _Drive, _Dir, _Filename, NULL);
 
-	// char targetSym[99], targetCode[99];	 //符号表文件和目标代码文件
+	// char tarGETSYM[99], targetCode[99];	 //符号表文件和目标代码文件
 
-	// strcat(targetSym, ".sym");
+	// strcat(tarGETSYM, ".sym");
 
 	// strcat(targetCode, ".pl0");
 

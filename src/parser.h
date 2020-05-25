@@ -31,7 +31,7 @@ public:
 
 	void generateFile(const std::string&);
 
-	int error(int e, int eline);
+	int PushError(int e, int eline);
 
 	std::vector<CODE> codeTable;
 
