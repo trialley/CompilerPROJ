@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "parser.h"
-#include "vm.h"
 
 void tests() {
 	std::vector<std::string>
@@ -42,10 +41,6 @@ void run(int argc, const char* argv[]) {
 	std::cout << "代码表:" << std::endl;
 
 	a.printCode();
-
-	std::cout << "符号表(.sym)和目标代码(.pl0)都已输出在文件中." << std::endl;
-
-	vm _tempSymEntry(path + ".pl0cache");
 }
 int main(int argc, const char* argv[]) {
 	if (argc > 0) {
