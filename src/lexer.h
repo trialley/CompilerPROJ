@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "defines.h"
+#include <defines.h>
 
 class lexer {
 public:

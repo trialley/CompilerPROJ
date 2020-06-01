@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <unistd.h>
 
-// #include <filesystem>
 #include <iostream>
 #include <string>
 #include <vector>
 
-#include "parser.h"
+#include <parser.h>
 
 void tests() {
 	std::vector<std::string>
@@ -30,7 +29,7 @@ void tests() {
 	}
 }
 void run(int argc, const char* argv[]) {
-	std::string path = "./TestCodeV2/PL0_code2.in";
+	std::string path = "./TestCodeV2/PL0_code3.in";
 	parser a(path);
 
 	std::cout << std::endl;
@@ -38,7 +37,7 @@ void run(int argc, const char* argv[]) {
 	a.printTable();
 
 	std::cout << std::endl;
-	std::cout << "代码表:" << std::endl;
+	std::cout << "代码表1:" << std::endl;
 
 	a.printCode();
 }

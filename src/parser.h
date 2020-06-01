@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "defines.h"
-#include "lexer.h"
+#include<defines.h>
+#include<lexer.h>
 
 class parser {
 public:
