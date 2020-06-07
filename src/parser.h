@@ -4,7 +4,7 @@
 
 #include<defines.h>
 #include<lexer.h>
-
+#include<CJsonObject.h>
 class parser {
 public:
 	parser(const std::string&);
@@ -52,4 +52,7 @@ private:
 
 	std::string errors[100];  //存储的错误信息
 	int etop = 0;			  //错误信息栈顶
+
+	//生成图表专用
+	neb::CJsonObject _graph;
 };
