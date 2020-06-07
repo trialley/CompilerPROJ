@@ -119,6 +119,9 @@ void parser::BLOCK() {
 
 //向代码表添加一条指令
 void parser::pushCode(InsType functype, int level, int offset) {
+	if(codeTable.size()==17||38==codeTable.size()){
+		LOG<<"17!!!!!!!!!!"<<std::endl;
+	}
 	codeTable.push_back(CODE(functype, level, offset));
 	cx++;
 }
@@ -331,8 +334,8 @@ void parser::analyzeSent() {
 				return;
 
 			analyzeSent();														   //then后的语句
-			codeTable.insert(codeTable.begin() + cx1, CODE(JPC, 0, cx + offset));  //回填then语句之后的代码地址
-
+			codeTable.insert(codeTable.begin() + cx1-1, CODE(JPC, 0, cx + offset));  //回填then语句之后的代码地址
+///???此处出错
 		} else {
 			/*条件语句缺少then*/
 			PushError(36, wa->row);

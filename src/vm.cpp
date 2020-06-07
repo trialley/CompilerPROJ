@@ -63,6 +63,9 @@ void vm::runInst(int i) {
 	// }
 	};
 	inst = codeSeg.at(ip++);  //取指
+	if(ip==18){
+		LOG<<"JNC!!!"<<std::endl;
+	}
 	// printonecode(inst);
 	int temp;
 
@@ -92,18 +95,19 @@ void vm::runInst(int i) {
 			tempBp = stack[tempBp + 2];
 		}
 
-		temp = stack[sp];
+		temp = stack[sp--];
 		stack[tempBp + inst.offset] = temp;
 
 		break;
 	}
 
 	case CAL://过程调用								 //沿着静态链往外层找
+	std::cout<<"bp:"<<bp<<" ip:"<<ip<<" sl:"<<SL[lev - inst.lev]<<std::endl;
 		stack[sp + 1] = bp;					 //push bp.老bp，即动态链
 		stack[sp + 2] = ip;					 //返回地址
-		stack[sp + 3] = SL[lev - inst.lev];	 //静态链
+		stack[sp + 3] = bp;//SL[lev - inst.lev];	 //静态链，也是老bp
 
-		lev = lev - inst.lev;
+		lev = inst.lev;
 
 		SL.push_back(bp);  //保存当前运行的bp.每call一次保存一次
 		bp = sp + 1;	   //记录被调用过程的基地址
@@ -120,7 +124,7 @@ void vm::runInst(int i) {
 
 	case JPC://条件转移
 
-		if (!stack[sp])		   //栈顶布尔值为非真
+		if (!stack[sp--])		   //栈顶布尔值为非真
 			ip = inst.offset;  //转到a的地址
 		break;
 
