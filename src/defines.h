@@ -52,7 +52,7 @@
 #define _COMMA 28	   //,
 
 /*标识符和数字*/
-#define _IDENT 32
+#define _IDENT 32//是个非关键词的单词，那就是标识符
 #define _NUMBER 33
 
 #define INVALID -1

@@ -71,7 +71,7 @@ void parser::BLOCK() {
 		if (_tempSymEntry.sym == INVALID)
 			return;
 
-		analyzeVar();
+		analyzeVar();//拿到了var的两个符号，进行分析
 
 		while (_tempSymEntry.sym == _COMMA)	 //逗号
 		{
@@ -106,11 +106,11 @@ void parser::BLOCK() {
 		analyzePro();
 	}
 	//}
-	/*说明部分结束*/
+	/*说明部分结束，进入主程序函数中*/
 	if (lev == 0)  //主程序层.ppp
 		mainEntry = cx + offset;
-
-	pushCode(INT, 0, dx);  // 生成空间分配指令，分配dx个空间（3个空间+变量的数目）
+//执行函数前先将变量空间搞出来
+	pushCode(INT, 0, dx);  // 生成空间分配指令，为当前函数，分配dx个空间（3个空间+变量的数目）
 
 	analyzeSent();	//处理遇到的语句
 
@@ -221,7 +221,7 @@ void parser::analyzePro() {	 //过程说明部分
 	BLOCK();  //分程序，内部过程说明表的构造
 
 	//恢复
-	dx = tempdx;
+	dx = tempdx;//恢复本层数据空间大小，前一个函数的空间被销毁
 	lev = templev;
 
 	if (_tempSymEntry.sym == _SEMICOLON) {	//end;后的符号。这里有问题
@@ -276,7 +276,7 @@ void parser::analyzeSent() {
 
 		analyzeExpr();	//处理赋值号右部的表达式
 
-		if (i >= 0) {
+		if (i >= 0) {//上一个表达式完成之后，将值写回到数据所在位置
 			pushCode(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr);
 		}
 
@@ -625,7 +625,7 @@ void parser::analyzeTerm() {
 	int mulop;
 
 	analyzeElem();
-
+//如果是乘法或除法运算符
 	while (_tempSymEntry.sym == _STAR || _tempSymEntry.sym == _DIV) {
 		mulop = _tempSymEntry.sym;	/// 把运算符保存在mulop中(乘法或是除法)
 
@@ -637,19 +637,20 @@ void parser::analyzeTerm() {
 
 		if (mulop == _STAR) {
 			//codeTable.push_back(CODE(OPR, 0, OPR::MUL));//4号乘法指令
-			pushCode(OPR, 0, OPR::MUL);
+			pushCode(OPR, 0, OPR::MUL);//乘法
 		} else {
 			//codeTable.push_back(CODE(OPR, 0, OPR::DIV));//除法指令
 			pushCode(OPR, 0, OPR::DIV);
 		}
 	}
 }
-
+//因子分析，是运算符两边的数值
 void parser::analyzeElem() {
 	int i;
+	//标识符，数字，左括号
 	while (_tempSymEntry.sym == _IDENT || _tempSymEntry.sym == _NUMBER || _tempSymEntry.sym == _LPAIR) {
 		switch (_tempSymEntry.sym) {
-		case _IDENT: {
+		case _IDENT: {//如果是标识符
 			i = searchSymbol(_tempSymEntry.name);
 			if (i < 0) {
 				/*没有找到符号*/
@@ -665,10 +666,8 @@ void parser::analyzeElem() {
 			}
 
 			else if (symbolTable.at(i).kind == SymbolType::VAR) {
-				//codeTable.push_back(CODE(LOD, lev - symbolTable.at(i).lev,
-				//symbolTable.at(i).addr));
-				pushCode(LOD, lev - symbolTable.at(i).lev,
-						 symbolTable.at(i).addr);
+				//为变量则将变量地址置于栈顶
+				pushCode(LOD, lev - symbolTable.at(i).lev, symbolTable.at(i).addr);
 				_tempSymEntry = wa->GETSYM();
 				if (_tempSymEntry.sym == INVALID)
 					return;
@@ -683,7 +682,7 @@ void parser::analyzeElem() {
 			break;
 		}
 
-		case _NUMBER: {									//因子分析遇到数字
+		case _NUMBER: {//因子分析遇到数字
 			int num = atoi(_tempSymEntry.name.c_str()); /*要判断范围*/
 			//codeTable.push_back(CODE(LIT, 0, num));// 生成lit指令，把这个数值字面常量放到栈顶
 			pushCode(LIT, 0, num);
@@ -695,7 +694,7 @@ void parser::analyzeElem() {
 			break;
 		}
 
-		case _LPAIR: {
+		case _LPAIR: {//遇到左括号，就要分析表达式
 			_tempSymEntry = wa->GETSYM();
 			if (_tempSymEntry.sym == INVALID)
 				return;
@@ -722,18 +721,18 @@ bool parser::insertSymbol(SymbolType kind, const std::string& id) {
 		return false;
 
 	switch (kind) {
-	case SymbolType::CONST: {
+	case SymbolType::CONST: {//常量符号
 		int num = atoi(_tempSymEntry.name.c_str());	 //越界检查
 		symbolTable.push_back(SYMBOL(id, kind, num, 0, 0));
 		break;
 	}
 
-	case SymbolType::VAR: {
+	case SymbolType::VAR: {//变量符号
 		symbolTable.push_back(SYMBOL(id, kind, 0xFFFFFFFF, lev, dx++));	 //变量默认值是-1
 		break;
 	}
 
-	case SymbolType::PROD: {
+	case SymbolType::PROD: {//函数符号
 		symbolTable.push_back(SYMBOL(id, kind, 0, lev, cx + offset));
 		break;
 	}

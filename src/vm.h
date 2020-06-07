@@ -8,7 +8,7 @@ class vm {
 public:
 	vm(const std::string&);
 	void run();		 //循环执行目标文件中指令
-	void runInst();	 //执行一条指令
+	void runInst(int);	 //执行一条指令
 
 	void readMem();		 //读键盘操作
 	void writeMem(int);	 //输出
@@ -23,9 +23,10 @@ private:
 	int sp;		//栈顶寄存器
 	int bp;		//基址寄存器
 
-	int* stack;					//数据栈
+	// int* stack;					//数据栈
+	std::vector<int> stack;
 	std::vector<CODE> codeSeg;	//代码段
 
 	int lev;			  //保存当前活动记录的静态层数
-	std::vector<int> SL;  //静态链
+	std::vector<int> SL;  //静态链，用于进行命名空间查找
 };

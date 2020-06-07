@@ -42,7 +42,7 @@ private:
 	std::vector<SYMBOL> symbolTable;
 
 	int lev = -1;  //层次
-	int dx;		   //每层局部量的相对地址，每说明完一个变量后dx+1
+	int dx;		   //每层局部量的相对地址，每说明完一个变量后dx+1，最终代表数据空间大小
 
 	int cx = 0;	 //代码段的大小
 	int cx0;	 //保存当前生成代码的地址

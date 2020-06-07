@@ -30,7 +30,7 @@ void tests() {
 	}
 }
 void run(int argc, const char* argv[]) {
-	std::string path = "./TestCodeV2/PL0_code2.in";
+	std::string path = "./TestCodeV2/PL0_code3.in";
 	parser a(path);
 
 	std::cout << std::endl;

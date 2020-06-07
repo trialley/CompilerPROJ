@@ -28,4 +28,7 @@ begin
 	end
 end;
 
-call primes
+
+begin
+	call primes;
+end

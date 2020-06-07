@@ -15,14 +15,14 @@ void lexer::initMap() {	 //
 	SymToString[VAR] = "VARIABLE";
 	SymToString[PROD] = "PROCEDURE";
 
-	TisToString[LIT] = std::string("LIT");
-	TisToString[LOD] = std::string("LOD");
-	TisToString[STO] = std::string("STO");
-	TisToString[CAL] = std::string("CAL");
-	TisToString[INT] = std::string("INT");
-	TisToString[JMP] = std::string("JMP");
-	TisToString[JPC] = std::string("JPC");
-	TisToString[OPR] = std::string("OPR");
+	TisToString[LIT] = std::string("LIT 将常数置于栈顶");
+	TisToString[LOD] = std::string("LOD 将变量值置于栈顶");
+	TisToString[STO] = std::string("STO 将栈顶的值赋与某变量");
+	TisToString[CAL] = std::string("CAL 用于过程调用的指令");
+	TisToString[INT] = std::string("INT 在数据栈中分配存贮空间");
+	TisToString[JMP] = std::string("JMP 跳转");
+	TisToString[JPC] = std::string("JPC 栈顶0则跳转");
+	TisToString[OPR] = std::string("OPR 一组算术或逻辑运算指令");
 }
 
 void lexer::openSrc(const std::string& src) {
@@ -96,7 +96,7 @@ int lexer::Reserve(const std::string& strToken) {  //在关键字表中查询，
 
 	for (int i = 0; i < RESERVE_LEN; i++) {
 		if (KeyWords[i] == strToken) {
-			return i + 1;
+			return i + 1;//代表关键词索引
 		}
 	}
 
@@ -130,7 +130,7 @@ symEntry lexer::GETSYM() {
 		while ((IsLetter(ch) || IsDigit(ch))) {
 			char s[2];
 			s[0] = ch, s[1] = '\0';
-			strcat(strToken, s);  //修改了strToken
+			strcat(strToken, s);  //添加到strToken
 
 			try {
 				GetChar();
@@ -140,7 +140,7 @@ symEntry lexer::GETSYM() {
 			}
 		}
 
-		Retract();
+		Retract();//回退一个索引
 
 		code = Reserve(strToken);  //返回关键字的编码
 
@@ -150,8 +150,8 @@ symEntry lexer::GETSYM() {
 			LOG << "symbol:" << _tempSymEntry.name << std::endl;
 			return _tempSymEntry;
 
-		} else {
-			_tempSymEntry.sym = code;
+		} else {//在关键词表中，
+			_tempSymEntry.sym = code;//赋予当前符号结构的code
 			LOG << "key word:" << KeyWords[code - 1] << std::endl;
 			return _tempSymEntry;
 		}
