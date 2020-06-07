@@ -117,6 +117,7 @@ void parser::BLOCK() {
 	pushCode(OPR, 0, 0);  //退出这个过程
 }
 
+//向代码表添加一条指令
 void parser::pushCode(InsType functype, int level, int offset) {
 	codeTable.push_back(CODE(functype, level, offset));
 	cx++;

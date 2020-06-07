@@ -58,28 +58,21 @@
 #define INVALID -1
 
 #define RESERVE_LEN 13
-
-extern std::vector<std::string> KeyWords;  //关键字
-
+enum InsType {	//目标指令
+	LIT,//将常数置于栈顶
+	LOD,//将变量值置于栈顶
+	STO,//将栈顶的值赋与某变量
+	CAL,//用于过程调用的指令
+	INT,//在数据栈中分配存贮空间
+	JMP,//用于if, while语句的条件或无条件控制转移指令
+	JPC,
+	OPR//一组算术或逻辑运算指令
+};
 enum SymbolType {  //符号类型
 	CONST,
 	VAR,
 	PROD  //function
 };
-
-enum InsType {	//目标指令
-	LIT,		//
-	LOD,
-	STO,
-	CAL,
-	INT,
-	JMP,
-	JPC,
-	OPR
-};
-
-extern std::map<SymbolType, std::string> SymToString;
-extern std::map<InsType, std::string> TisToString;
 
 enum OPR {	//OPR指令中的具体运算
 	ADD = 1,
@@ -135,7 +128,13 @@ struct CODE {
 	int offset;	  //偏移量，也可做操作码
 };
 
-// TODO:  在此处引用程序需要的其他头文件
+
+
+extern std::vector<std::string> KeyWords;  //关键字
+extern std::map<SymbolType, std::string> SymToString;
+extern std::map<InsType, std::string> TisToString;
+
+// 日志打印代码
 #ifdef _WIN32
 #define filenamecut(x) (strrchr(x, '\\') ? strrchr(x, '\\') + 1 : x)
 #elif __linux
