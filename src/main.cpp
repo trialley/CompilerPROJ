@@ -5,7 +5,8 @@
 #include <string>
 #include <vector>
 
-#include <parser.h>
+#include "parser.h"
+#include "vm.h"
 
 void tests() {
 	std::vector<std::string>
@@ -29,7 +30,7 @@ void tests() {
 	}
 }
 void run(int argc, const char* argv[]) {
-	std::string path = "./TestCodeV2/PL0_code3.in";
+	std::string path = "./TestCodeV2/PL0_code2.in";
 	parser a(path);
 
 	std::cout << std::endl;
@@ -40,6 +41,10 @@ void run(int argc, const char* argv[]) {
 	std::cout << "代码表1:" << std::endl;
 
 	a.printCode();
+
+	std::cout << "符号表(.sym)和目标代码(.pl0)都已输出在文件中." << std::endl;
+
+	vm _tempSymEntry(path + ".pl0cache");
 }
 int main(int argc, const char* argv[]) {
 	if (argc > 0) {

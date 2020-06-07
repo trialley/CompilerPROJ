@@ -33,7 +33,7 @@ public:
 
 	int PushError(int e, int eline);
 
-	std::vector<CODE> codes;
+	std::vector<CODE> codeTable;
 
 private:
 	lexer* wa;

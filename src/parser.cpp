@@ -16,9 +16,9 @@ parser::parser(const std::string& filename) {
 
 	BLOCK(); /*语法分析程序*/
 
-	std::vector<CODE>::iterator iter = codes.begin();
+	std::vector<CODE>::iterator iter = codeTable.begin();
 
-	codes.insert(iter, CODE(JMP, 0, mainEntry));  //在中间代码表首加入
+	codeTable.insert(iter, CODE(JMP, 0, mainEntry));  //在中间代码表首加入
 
 	generateFile(filename);	 //生成二进制文件
 
@@ -118,7 +118,7 @@ void parser::BLOCK() {
 }
 
 void parser::pushCode(InsType functype, int level, int offset) {
-	codes.push_back(CODE(functype, level, offset));
+	codeTable.push_back(CODE(functype, level, offset));
 	cx++;
 }
 
@@ -330,17 +330,17 @@ void parser::analyzeSent() {
 				return;
 
 			analyzeSent();														   //then后的语句
-			codes.insert(codes.begin() + cx1, CODE(JPC, 0, cx + offset));  //回填then语句之后的代码地址
+			codeTable.insert(codeTable.begin() + cx1, CODE(JPC, 0, cx + offset));  //回填then语句之后的代码地址
 
 		} else {
 			/*条件语句缺少then*/
 			PushError(36, wa->row);
 		}
 
-		//cx = codes.size();
+		//cx = codeTable.size();
 
-		//codes.push_back(CODE(JPC, 0, 0));
-		//codes.at(cx1).offset = codes.size();
+		//codeTable.push_back(CODE(JPC, 0, 0));
+		//codeTable.at(cx1).offset = codeTable.size();
 		break;
 	}
 
@@ -399,7 +399,7 @@ void parser::analyzeSent() {
 			analyzeSent();
 
 			pushCode(JMP, 0, cx1 + offset);	 //跳转到cx1处，即再次进行判断是否进行循环
-			codes.insert(codes.begin() + cx2, CODE(JPC, 0, cx + offset));
+			codeTable.insert(codeTable.begin() + cx2, CODE(JPC, 0, cx + offset));
 		} else {
 			/*while后面没有接do*/
 			PushError(39, wa->row);
@@ -426,8 +426,8 @@ void parser::analyzeSent() {
 				}
 
 				else {
-					//codes.push_back(CODE(OPR, 0, OPR::READ));// 生成16号读指令，从键盘读取数字
-					//codes.push_back(CODE(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr));// 生成sto指令，存入指定变量
+					//codeTable.push_back(CODE(OPR, 0, OPR::READ));// 生成16号读指令，从键盘读取数字
+					//codeTable.push_back(CODE(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr));// 生成sto指令，存入指定变量
 					pushCode(OPR, 0, OPR::READ);
 					pushCode(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr);
 				}
@@ -449,8 +449,8 @@ void parser::analyzeSent() {
 						/*没找到标识符*/
 						PushError(108, wa->row);
 					} else {
-						//	codes.push_back(CODE(OPR, 0, OPR::READ));//读键盘
-						//codes.push_back(CODE(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr));
+						//	codeTable.push_back(CODE(OPR, 0, OPR::READ));//读键盘
+						//codeTable.push_back(CODE(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr));
 						pushCode(OPR, 0, OPR::READ);
 						pushCode(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr);
 					}
@@ -527,7 +527,7 @@ void parser::analyzeCond() {
 
 		analyzeExpr();	//分析表达式
 
-		//codes.push_back(CODE(OPR, 0, OPR::ODD));//生成奇偶判断指令
+		//codeTable.push_back(CODE(OPR, 0, OPR::ODD));//生成奇偶判断指令
 		pushCode(OPR, 0, OPR::ODD);
 	}
 
@@ -544,32 +544,32 @@ void parser::analyzeCond() {
 
 		switch (relop) {
 		case _EQ:
-			//codes.push_back(CODE(OPR, 0, OPR::EQ));
+			//codeTable.push_back(CODE(OPR, 0, OPR::EQ));
 			pushCode(OPR, 0, OPR::EQ);
 			break;
 
 		case _UEQ:
-			//codes.push_back(CODE(OPR, 0, OPR::UE));
+			//codeTable.push_back(CODE(OPR, 0, OPR::UE));
 			pushCode(OPR, 0, OPR::UE);
 			break;
 
 		case _LOWER:
-			//codes.push_back(CODE(OPR, 0, OPR::LT));
+			//codeTable.push_back(CODE(OPR, 0, OPR::LT));
 			pushCode(OPR, 0, OPR::LT);
 			break;
 
 		case _BIGGER_EQ:
-			//codes.push_back(CODE(OPR, 0,OPR::GE));
+			//codeTable.push_back(CODE(OPR, 0,OPR::GE));
 			pushCode(OPR, 0, OPR::GE);
 			break;
 
 		case _BIGGER:
-			//codes.push_back(CODE(OPR, 0, OPR::GT));
+			//codeTable.push_back(CODE(OPR, 0, OPR::GT));
 			pushCode(OPR, 0, OPR::GT);
 			break;
 
 		case _LOWER_EQ:
-			//codes.push_back(CODE(OPR, 0, OPR::LE));
+			//codeTable.push_back(CODE(OPR, 0, OPR::LE));
 			pushCode(OPR, 0, OPR::LE);
 			break;
 
@@ -593,7 +593,7 @@ void parser::analyzeExpr() {
 		analyzeTerm();	//进行项的处理
 
 		if (addop == _MINUS) {
-			//codes.push_back(CODE(OPR, 0, OPR::MINUS));//取反运算
+			//codeTable.push_back(CODE(OPR, 0, OPR::MINUS));//取反运算
 			pushCode(OPR, 0, OPR::MINUS);
 		}
 	} else {
@@ -611,10 +611,10 @@ void parser::analyzeExpr() {
 
 		if (addop == _PLUS) {  // 项分析完毕后，如果刚才保存的是加号，则生成加法指令
 
-			//codes.push_back(CODE(OPR, 0, OPR::ADD));
+			//codeTable.push_back(CODE(OPR, 0, OPR::ADD));
 			pushCode(OPR, 0, OPR::ADD);	 //加法指令
 		} else {
-			//codes.push_back(CODE(OPR, 0, OPR::SUB));//减法指令
+			//codeTable.push_back(CODE(OPR, 0, OPR::SUB));//减法指令
 			pushCode(OPR, 0, OPR::SUB);
 		}
 	}
@@ -635,10 +635,10 @@ void parser::analyzeTerm() {
 		analyzeElem();	// 运算符后应该是一个因子，进行因子分析
 
 		if (mulop == _STAR) {
-			//codes.push_back(CODE(OPR, 0, OPR::MUL));//4号乘法指令
+			//codeTable.push_back(CODE(OPR, 0, OPR::MUL));//4号乘法指令
 			pushCode(OPR, 0, OPR::MUL);
 		} else {
-			//codes.push_back(CODE(OPR, 0, OPR::DIV));//除法指令
+			//codeTable.push_back(CODE(OPR, 0, OPR::DIV));//除法指令
 			pushCode(OPR, 0, OPR::DIV);
 		}
 	}
@@ -664,7 +664,7 @@ void parser::analyzeElem() {
 			}
 
 			else if (symbolTable.at(i).kind == SymbolType::VAR) {
-				//codes.push_back(CODE(LOD, lev - symbolTable.at(i).lev,
+				//codeTable.push_back(CODE(LOD, lev - symbolTable.at(i).lev,
 				//symbolTable.at(i).addr));
 				pushCode(LOD, lev - symbolTable.at(i).lev,
 						 symbolTable.at(i).addr);
@@ -684,7 +684,7 @@ void parser::analyzeElem() {
 
 		case _NUMBER: {									//因子分析遇到数字
 			int num = atoi(_tempSymEntry.name.c_str()); /*要判断范围*/
-			//codes.push_back(CODE(LIT, 0, num));// 生成lit指令，把这个数值字面常量放到栈顶
+			//codeTable.push_back(CODE(LIT, 0, num));// 生成lit指令，把这个数值字面常量放到栈顶
 			pushCode(LIT, 0, num);
 
 			_tempSymEntry = wa->GETSYM();
@@ -1086,8 +1086,8 @@ void parser::printTable() {
 
 void parser::printCode() {
 	std::cout << std::setw(7) << "num" << std::setw(7) << "op" << std::setw(7) << "level" << std::setw(7) << "offset" << std::endl;
-	for (int i = 0; i < codes.size(); i++) {
-		CODE inst = codes.at(i);
+	for (int i = 0; i < codeTable.size(); i++) {
+		CODE inst = codeTable.at(i);
 		std::cout << std::setw(7) << i << "\t";
 		std::cout << std::setw(7) << TisToString[inst.fun] << "\t";
 		std::cout << std::setw(7) << inst.lev << "\t";
@@ -1121,8 +1121,8 @@ void parser::generateFile(const std::string& filename) {
 		std::cout << "创建.pl0文件失败!" << std::endl;
 		exit(-1);
 	}
-	for (int i = 0; i < codes.size(); i++) {
-		fwrite(&codes[i], sizeof(CODE), 1, fp2);
+	for (int i = 0; i < codeTable.size(); i++) {
+		fwrite(&codeTable[i], sizeof(CODE), 1, fp2);
 	}
 
 	fclose(fp1);
