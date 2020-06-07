@@ -1076,13 +1076,7 @@ void parser::printTable() {
 
 		if (SymToString.find(symbol.kind) != SymToString.end())
 			std::cout << std::setiosflags(std::ios::left) << std::setw(12) << SymToString[symbol.kind];
-		/*
-		name
-sym
- "val:" 
- "lev:" 
- "addr:"
-*/
+
 		std::cout << std::setiosflags(std::ios::left) << std::setw(12) << symbol.val
 				  << std::setiosflags(std::ios::left) << std::setw(12) << symbol.lev
 				  << std::setiosflags(std::ios::left) << std::setw(12) << symbol.addr
