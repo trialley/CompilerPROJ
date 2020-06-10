@@ -1,5 +1,7 @@
 #pragma once
 
+#include <defines.h>
+
 #include <cstdio>
 #include <cstring>
 #include <fstream>
@@ -8,8 +10,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include <defines.h>
 
 #define MAX_ID_LEN 10
 #define BUFFERLEN 1024
@@ -145,3 +145,5 @@ struct CODE {
 #endif
 #define LOG \
 	std::cout << __FILE__ << ":" << __LINE__ << ":1 " << __func__ << "() "
+
+void err(std::string in);

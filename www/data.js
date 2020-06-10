@@ -1,18 +1,1 @@
-var data = {
-	"name": "root",
-	"children": [
-		{
-			"name": "台湾",
-			"children": [
-				{
-					"name": "台北",
-					"value": 800
-				},
-				{
-					"name": "高雄",
-					"value": 600
-				}
-			]
-		}
-	]
-}
+var data = {"name":"parser","children":[{"name":"block","children":[{"name":"Var","children":[]},{"name":"Var","children":[]},{"name":"Pro","children":[]}]}]}

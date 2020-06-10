@@ -7,3 +7,7 @@ std::vector<std::string> KeyWords{"begin", "call", "const", "procedure", "if", "
 
 std::map<SymbolType, std::string> SymToString;
 std::map<InsType, std::string> TisToString;
+
+void err(std::string in) {
+	throw std::exception(std::logic_error(in));
+}

@@ -10,10 +10,10 @@ graph::graph() {
 	//添加根部
 	_root->Add("name", "root");
 	_root->AddEmptySubArray("children");
-	_root = &((*_root)["children"]);
+	// _root = &((*_root)["children"]);
 }  //初始化数据结构
-void graph::graphAdd(std::string&& name) {
-	((*_root)["children"]).AddAsFirst(R"({})");
+void graph::graphAdd(const std::string name) {
+	((*_root)["children"]).AddAsFirst(neb::CJsonObject());
 	((*_root)["children"])[0].Add("name", name);
 	((*_root)["children"])[0].AddEmptySubArray("children");
 }

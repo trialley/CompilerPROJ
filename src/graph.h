@@ -8,7 +8,7 @@ public:
 	neb::CJsonObject* _root;
 	std::stack<neb::CJsonObject*> _s;
 	graph();  //初始化数据结构
-	void graphAdd(std::string&&);
+	void graphAdd(const std::string);
 	void graphIn();
 	void graphOut();
 	~graph();  //输出图像

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <defines.h>
+#include <graph.h>
 #include <lexer.h>
 
 #include <string>
@@ -9,17 +10,17 @@ class parser {
 public:
 	parser(const std::string&);
 
-	void BLOCK();
-	void analyzeConst();
-	void analyzeVar();
-	void analyzePro();
-	void analyzeSent();
+	neb::CJsonObject BLOCK();
+	neb::CJsonObject analyzeConst();
+	neb::CJsonObject analyzeVar();
+	neb::CJsonObject analyzePro();
+	neb::CJsonObject analyzeSent();
 
-	void analyzeCond();
-	void analyzeExpr();
+	neb::CJsonObject analyzeCond();
+	neb::CJsonObject analyzeExpr();
 
-	void analyzeTerm();
-	void analyzeElem();
+	neb::CJsonObject analyzeTerm();
+	neb::CJsonObject analyzeElem();
 
 	bool insertSymbol(SymbolType kind, const std::string& id);
 	int searchSymbol(const std::string& id);
@@ -36,8 +37,7 @@ public:
 	std::vector<CODE> codeTable;
 
 private:
-	neb::CJsonObject _json;
-	neb::CJsonObject* _root;
+	graph _g;
 	lexer* wa;
 	symEntry _tempSymEntry;
 
