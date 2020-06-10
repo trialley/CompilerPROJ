@@ -7,29 +7,22 @@
 class lexer {
 public:
 	lexer(const std::string&);
+	void openSrc(const std::string&);
+	bool readLine();
+	bool isLetter(const char c);
+	bool isDigit(const char c);
+	void getChar();
+	void getBC();
+	void retract();
 
-	void initMap();	 //初始化每个符号对应的字符串名称，便于打印调试
+	int reserve(const std::string&);
 
-	void openSrc(const std::string&);  //打开源文件
-	bool readLine();				   //读取一行
-
-	void GetChar();	 //获得一个符号
-	void GetBC();	 //跳过空格
-	void Retract();
-
-	bool IsLetter(const char c);
-	bool IsDigit(const char c);
-
-	int Reserve(const std::string&);
-
-	symEntry GETSYM();	//读取源文件并返回单词符号
+	symEntry GETSYM();	//获得一个单词符号，是主要接口
 
 	int row = 0;  //在文件的第几行
-
 private:
-	FILE* fp;  //源文件的指针
-
+	FILE* fp;				 //源文件的指针
 	char buffer[BUFFERLEN];	 //读入缓冲区
-	int index_pointer;		 //搜索指示器
-	char ch;				 //读入字符
+	int index_pointer;		 //指针
+	char temp_ch;			 //读入字符
 };
