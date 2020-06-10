@@ -38,7 +38,7 @@ public:
 
 private:
 	graph _g;
-	lexer* wa;
+	lexer* _lexer;
 	symEntry _tempSymEntry;
 
 	std::vector<SYMBOL> symbolTable;

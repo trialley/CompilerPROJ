@@ -135,7 +135,6 @@ struct CODE {
 	int offset;	  //偏移量，也可做操作码
 };
 
-// TODO:  在此处引用程序需要的其他头文件
 #ifdef _WIN32
 #define filenamecut(x) (strrchr(x, '\\') ? strrchr(x, '\\') + 1 : x)
 #elif __linux
