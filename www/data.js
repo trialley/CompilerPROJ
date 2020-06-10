@@ -1,1 +1,1 @@
-var data = {"name":"parser","children":[{"name":"block","children":[{"name":"Var","children":[]},{"name":"Var","children":[]},{"name":"Pro","children":[]}]}]}
+var data = {"name":"parser","children":[{"name":"block","children":[{"name":"Var","children":[{"name":"x"}]},{"name":"Var","children":[{"name":"squ"}]},{"name":"Pro","children":[{"name":"square"},{"name":"block","children":[]}]}]}]}
