@@ -7,8 +7,8 @@
 class vm {
 public:
 	vm(const std::string&);
-	void run();		 //循环执行目标文件中指令
-	void runInst();	 //执行一条指令
+	void run();		//循环执行目标文件中指令
+	int runInst();	//执行一条指令
 
 	void readMem();		 //读键盘操作
 	void writeMem(int);	 //输出

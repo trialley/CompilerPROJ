@@ -39,7 +39,9 @@ void vm::readPl0(const std::string& filename) {
 void vm::run() {
 	int n = 0;
 	while (ip < codeSeg.size()) {
-		runInst();
+		int r = runInst();
+		if (r == 0)
+			return;
 		++n;
 		// std::cout << n << "times\n";
 		if (n == 80) {
@@ -49,7 +51,7 @@ void vm::run() {
 	std::cout << "代码翻译并执行完毕!" << std::endl;
 }
 //执行一条指令
-void vm::runInst() {
+int vm::runInst() {
 	inst = codeSeg.at(ip++);  //取指
 	int temp;
 
@@ -189,7 +191,7 @@ void vm::runInst() {
 
 			if (sp == -1) {
 				printStack();
-				exit(0);
+				return 0;
 			}  //主程序结束
 			break;
 
@@ -205,6 +207,7 @@ void vm::runInst() {
 	}
 
 	printStack();
+	return 1;
 }
 
 void vm::readMem() {
