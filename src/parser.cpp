@@ -409,30 +409,40 @@ neb::CJsonObject parser::analyzeSent() {
 
 		//codeTable.push_back(CODE(JPC, 0, 0));
 		//codeTable.at(cx1).offset = codeTable.size();
+		temp_p_json["children"].Add(temp_json);
+
 		break;
 	}
 
 	case _BEGIN: {
+		// neb::CJsonObject temp_json(R"({
+		// 	"name":"begin",
+		// 	"children":[]
+		// })");
+		temp_p_json["children"].Add(neb::CJsonObject(R"({"name":"begin"})"));
+
 		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			err("invalid");
 
-		analyzeSent();
+		neb::CJsonObject t = analyzeSent();
+		temp_p_json["children"].Add(t);
 
-		while (_tempSymEntry.sym != INVALID) {	//这里写的有点乱
-
+		while (_tempSymEntry.sym != INVALID) {		//这里写的有点乱
 			if (_tempSymEntry.sym == _SEMICOLON) {	//t为";",说明后面还有语句
 
 				_tempSymEntry = wa->GETSYM();
 				if (_tempSymEntry.sym == INVALID)
 					err("invalid");
 
-				analyzeSent();
+				neb::CJsonObject t = analyzeSent();
+				temp_p_json["children"].Add(t);
 			} else if (_tempSymEntry.sym == _END) {	 //t为end，表示复合语句结束
-
+				temp_p_json["children"].Add(neb::CJsonObject(R"({"name":"end"})"));
+				// temp_p_json["children"].Add(temp_json);
 				_tempSymEntry = wa->GETSYM();
 				//if (t.sym == INVALID) return;
-				return neb::CJsonObject();
+				return temp_p_json;
 			}
 
 			else {
@@ -444,56 +454,74 @@ neb::CJsonObject parser::analyzeSent() {
 		}
 
 		/*复合语句出错*/
+		// temp_p_json["children"].Add(temp_json);
+
 		break;
 	}
 
 	case _WHILE: {
 		cx1 = cx;  // 记录当前代码分配位置，这是while循环的开始位置，也就是无条件跳转到的地方
+		// neb::CJsonObject temp_json(R"({
+		// 	"name":"while",
+		// 	"children":[]
+		// })");
+		temp_p_json["children"].Add(neb::CJsonObject(R"({"name":"while"})"));
 
 		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			err("invalid");
 
-		analyzeCond();	//判断while后面的条件语句
-
+		//判断while后面的条件语句
+		neb::CJsonObject t = analyzeCond();
+		temp_p_json["children"].Add(t);
 		cx2 = cx;  //jpc语句插入的地方
 		cx++;	   //占一个Code位置
 
 		if (_tempSymEntry.sym == _DO) {
+			temp_p_json["children"].Add(neb::CJsonObject(R"({"name":"do"})"));
+
 			_tempSymEntry = wa->GETSYM();
 			if (_tempSymEntry.sym == INVALID)
 				err("invalid");
 
-			analyzeSent();
-
+			neb::CJsonObject t = analyzeSent();
+			temp_p_json["children"].Add(t);
 			pushCode(JMP, 0, cx1 + offset);	 //跳转到cx1处，即再次进行判断是否进行循环
 			codeTable.insert(codeTable.begin() + cx2, CODE(JPC, 0, cx + offset));
 		} else {
 			/*while后面没有接do*/
 			PushError(39, wa->row);
 		}
+		// temp_p_json["children"].Add(temp_json);
 
 		break;
 	}
 
 	case _READ: {
+		neb::CJsonObject temp_json(R"({
+			"name":"resd",
+			"children":[]
+		})");
+		temp_json["children"].Add(neb::CJsonObject(R"({"name":")" + _tempSymEntry.name + R"("})"));
 		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			err("invalid");
 
 		if (_tempSymEntry.sym == _LPAIR) {
+			temp_json["children"].Add(neb::CJsonObject(R"({"name":")" + _tempSymEntry.name + R"("})"));
+
 			_tempSymEntry = wa->GETSYM();
 			if (_tempSymEntry.sym == INVALID)
 				err("invalid");
 
 			if (_tempSymEntry.sym == _IDENT) {
 				i = searchSymbol(_tempSymEntry.name);
+				temp_json["children"].Add(neb::CJsonObject(R"({"name":")" + _tempSymEntry.name + R"("})"));
+
 				if (i < 0) {
 					/*未说明的标识符*/
 					PushError(108, wa->row);
-				}
-
-				else {
+				} else {
 					//codeTable.push_back(CODE(OPR, 0, OPR::READ));// 生成16号读指令，从键盘读取数字
 					//codeTable.push_back(CODE(STO, lev - symbolTable.at(i).lev, symbolTable.at(i).addr));// 生成sto指令，存入指定变量
 					pushCode(OPR, 0, OPR::READ);
@@ -506,12 +534,15 @@ neb::CJsonObject parser::analyzeSent() {
 				err("invalid");
 
 			while (_tempSymEntry.sym == _COMMA) {  //读多个键盘输入
+				temp_json["children"].Add(neb::CJsonObject(R"({"name":")" + _tempSymEntry.name + R"("})"));
 
 				_tempSymEntry = wa->GETSYM();
 				if (_tempSymEntry.sym == INVALID)
 					err("invalid");
 
 				if (_tempSymEntry.sym == _IDENT) {
+					temp_json["children"].Add(neb::CJsonObject(R"({"name":")" + _tempSymEntry.name + R"("})"));
+
 					i = searchSymbol(_tempSymEntry.name);
 					if (i < 0) {
 						/*没找到标识符*/
@@ -530,9 +561,12 @@ neb::CJsonObject parser::analyzeSent() {
 			}
 
 			if (_tempSymEntry.sym != _RPAIR) {
+				temp_json["children"].Add(neb::CJsonObject(R"({"name":")" + _tempSymEntry.name + R"("})"));
+
 				/*左右括号不匹配*/
 				PushError(27, wa->row);
 			}
+			temp_json["children"].Add(neb::CJsonObject(R"({"name":")" + _tempSymEntry.name + R"("})"));
 
 		} else {
 			/*不是左括号*/
@@ -543,20 +577,32 @@ neb::CJsonObject parser::analyzeSent() {
 		if (_tempSymEntry.sym == INVALID)
 			err("invalid");
 
+		temp_p_json["children"].Add(temp_json);
+
 		break;
 	}
 
 	case _WRITE: {
+		neb::CJsonObject temp_json(R"({
+			"name":"write",
+			"children":[]
+		})");
 		_tempSymEntry = wa->GETSYM();
 		if (_tempSymEntry.sym == INVALID)
 			err("invalid");
 
 		if (_tempSymEntry.sym == _LPAIR) {
+			temp_json["children"].Add(neb::CJsonObject(R"({"name":"("})"));
+
 			_tempSymEntry = wa->GETSYM();
-			analyzeExpr();
+			neb::CJsonObject t = analyzeExpr();
+			temp_json["children"].Add(t);
+
 			pushCode(OPR, 0, OPR::WRITE);
 
 			while (_tempSymEntry.sym == _COMMA) {
+				temp_json["children"].Add(neb::CJsonObject(R"({"name":","})"));
+
 				_tempSymEntry = wa->GETSYM();
 				if (_tempSymEntry.sym == INVALID)
 					err("invalid");
@@ -574,7 +620,10 @@ neb::CJsonObject parser::analyzeSent() {
 				if (_tempSymEntry.sym == INVALID)
 					err("invalid");
 			}
+			temp_json["children"].Add(neb::CJsonObject("{\"name\":\")\"}"));
 		}
+
+		temp_p_json["children"].Add(temp_json);
 
 		break;
 	}
@@ -675,14 +724,18 @@ neb::CJsonObject parser::analyzeExpr() {
 		if (_tempSymEntry.sym == INVALID)
 			err("invalid");
 
-		analyzeTerm();	//进行项的处理
+		//进行项的处理
+		neb::CJsonObject t = analyzeTerm();
+		temp_json["children"].Add(t);
 
 		if (addop == _MINUS) {
 			//codeTable.push_back(CODE(OPR, 0, OPR::MINUS));//取反运算
 			pushCode(OPR, 0, OPR::MINUS);
 		}
 	} else {
-		analyzeTerm();	//表达式项的开头，直接项的分析
+		//表达式项的开头，直接项的分析
+		neb::CJsonObject t = analyzeTerm();
+		temp_json["children"].Add(t);
 	}
 
 	while (_tempSymEntry.sym == _PLUS || _tempSymEntry.sym == _MINUS) {
@@ -692,14 +745,14 @@ neb::CJsonObject parser::analyzeExpr() {
 		if (_tempSymEntry.sym == INVALID)
 			err("invalid");
 
-		analyzeTerm();
+		neb::CJsonObject t = analyzeTerm();
+		temp_json["children"].Add(t);
 
 		if (addop == _PLUS) {  // 项分析完毕后，如果刚才保存的是加号，则生成加法指令
-
-			//codeTable.push_back(CODE(OPR, 0, OPR::ADD));
+			temp_json["children"].Add(neb::CJsonObject(R"({"name":"+"})"));
 			pushCode(OPR, 0, OPR::ADD);	 //加法指令
 		} else {
-			//codeTable.push_back(CODE(OPR, 0, OPR::SUB));//减法指令
+			temp_json["children"].Add(neb::CJsonObject(R"({"name":"-"})"));
 			pushCode(OPR, 0, OPR::SUB);
 		}
 	}
@@ -713,7 +766,8 @@ neb::CJsonObject parser::analyzeTerm() {
 	})");
 	int mulop;
 
-	analyzeElem();
+	neb::CJsonObject t = analyzeElem();
+	temp_json["children"].Add(t);
 
 	while (_tempSymEntry.sym == _STAR || _tempSymEntry.sym == _DIV) {
 		mulop = _tempSymEntry.sym;	/// 把运算符保存在mulop中(乘法或是除法)
@@ -722,13 +776,20 @@ neb::CJsonObject parser::analyzeTerm() {
 		if (_tempSymEntry.sym == INVALID)
 			err("invalid");
 
-		analyzeElem();	// 运算符后应该是一个因子，进行因子分析
+		// 运算符后应该是一个因子，进行因子分析
+
+		neb::CJsonObject t = analyzeElem();
+		temp_json["children"].Add(t);
 
 		if (mulop == _STAR) {
 			//codeTable.push_back(CODE(OPR, 0, OPR::MUL));//4号乘法指令
+			temp_json["children"].Add(neb::CJsonObject(R"({"name":"*"})"));
+
 			pushCode(OPR, 0, OPR::MUL);
 		} else {
 			//codeTable.push_back(CODE(OPR, 0, OPR::DIV));//除法指令
+			temp_json["children"].Add(neb::CJsonObject(R"({"name":"/"})"));
+
 			pushCode(OPR, 0, OPR::DIV);
 		}
 	}
@@ -750,6 +811,8 @@ neb::CJsonObject parser::analyzeElem() {
 				PushError(108, wa->row);
 			} else if (symbolTable.at(i).kind == SymbolType::CONST) {
 				// 如果该标识符为常量,则生成lit指令,把val放到栈顶
+				temp_json["children"].Add(neb::CJsonObject(R"({"name":")" + _tempSymEntry.name + R"("})"));
+
 				pushCode(LIT, 0, symbolTable.at(i).val);
 				_tempSymEntry = wa->GETSYM();
 				if (_tempSymEntry.sym == INVALID)
@@ -759,6 +822,8 @@ neb::CJsonObject parser::analyzeElem() {
 			else if (symbolTable.at(i).kind == SymbolType::VAR) {
 				//codeTable.push_back(CODE(LOD, lev - symbolTable.at(i).lev,
 				//symbolTable.at(i).addr));
+				temp_json["children"].Add(neb::CJsonObject(R"({"name":")" + _tempSymEntry.name + R"("})"));
+
 				pushCode(LOD, lev - symbolTable.at(i).lev,
 						 symbolTable.at(i).addr);
 				_tempSymEntry = wa->GETSYM();
@@ -777,7 +842,9 @@ neb::CJsonObject parser::analyzeElem() {
 
 		case _NUMBER: {									//因子分析遇到数字
 			int num = atoi(_tempSymEntry.name.c_str()); /*要判断范围*/
-			//codeTable.push_back(CODE(LIT, 0, num));// 生成lit指令，把这个数值字面常量放到栈顶
+														//codeTable.push_back(CODE(LIT, 0, num));// 生成lit指令，把这个数值字面常量放到栈顶
+			temp_json["children"].Add(neb::CJsonObject(R"({"name":")" + _tempSymEntry.name + R"("})"));
+
 			pushCode(LIT, 0, num);
 
 			_tempSymEntry = wa->GETSYM();
@@ -792,7 +859,8 @@ neb::CJsonObject parser::analyzeElem() {
 			if (_tempSymEntry.sym == INVALID)
 				err("invalid");
 
-			analyzeExpr();
+			neb::CJsonObject t = analyzeExpr();
+			temp_json["children"].Add(t);
 
 			if (_tempSymEntry.sym == _RPAIR) {
 				_tempSymEntry = wa->GETSYM();
