@@ -1,9 +1,9 @@
 #pragma once
 
-#include <string>
+#include <defines.h>
+#include <lexer.h>
 
-#include<defines.h>
-#include<lexer.h>
+#include <string>
 
 class parser {
 public:
@@ -36,6 +36,8 @@ public:
 	std::vector<CODE> codeTable;
 
 private:
+	neb::CJsonObject _json;
+	neb::CJsonObject* _root;
 	lexer* wa;
 	symEntry _tempSymEntry;
 

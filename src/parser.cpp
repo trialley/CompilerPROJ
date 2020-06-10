@@ -1,9 +1,14 @@
+#include <CJsonObject.h>
 #include <parser.h>
 
 #include <exception>
 #include <iomanip>
 #include <iostream>
 parser::parser(const std::string& filename) {
+	_root = &_json;
+	_root->Add("parser", neb::CJsonObject(R"({
+
+	})"));
 	wa = new lexer(filename);  //创建新的词法分析器
 	wa->readLine();			   //读取一行
 

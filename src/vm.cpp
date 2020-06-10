@@ -41,7 +41,7 @@ void vm::run() {
 	while (ip < codeSeg.size()) {
 		runInst();
 		++n;
-		std::cout << n << "times\n";
+		// std::cout << n << "times\n";
 		if (n == 80) {
 			int i = 1 + n;
 		}
